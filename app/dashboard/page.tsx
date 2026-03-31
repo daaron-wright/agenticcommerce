@@ -1,0 +1,1740 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  CONTROL_TOWER_ACTIONS,
+  CONTROL_TOWER_HERO_METRICS,
+  CONTROL_TOWER_WIDGETS,
+  type ControlTowerAction,
+  type ControlTowerActionState,
+  type ControlTowerAgentFlowCard,
+  type ControlTowerAlert,
+  type ControlTowerDecisionItem,
+  type ControlTowerDomain,
+  type ControlTowerSeverity,
+  type ControlTowerStatus,
+  type ControlTowerWidget,
+} from "@/lib/control-tower-data";
+import { useAuth } from "@/lib/auth-context";
+import { DashboardModuleSurface } from "@/components/dashboard/module-dashboard-content";
+import {
+  GraphInstanceDialog,
+  type GraphInstancePrefill,
+} from "@/components/knowledge-graph/graph-instance-dialog";
+import { buildKnowledgeGraphHref } from "@/lib/knowledge-graph-data";
+import { buildIncrementalityHref } from "@/lib/incrementality-data";
+import {
+  buildDashboardHref,
+  getAllowedDashboardModules,
+  getAllowedDashboardViews,
+  getDashboardModuleConfig,
+  getDefaultDashboardModuleForRole,
+  isCrossDomainDashboardRole,
+  parseDashboardModule,
+  parseDashboardView,
+} from "@/lib/dashboard-ia";
+import { createKnowledgeGraphInstanceHref } from "@/lib/knowledge-graph-instances";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  AlertCircle,
+  AlertTriangle,
+  ArrowRight,
+  BarChart3,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Database,
+  Megaphone,
+  Network,
+  Sparkles,
+  TrendingDown,
+  TrendingUp,
+  X,
+} from "lucide-react";
+import {
+  Area,
+  AreaChart,
+  Cell,
+  CartesianGrid,
+  Line,
+  LineChart,
+  Pie,
+  PieChart as RechartsPieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+
+const DOMAIN_META: Record<
+  Exclude<ControlTowerDomain, "risk">,
+  {
+    label: string;
+    icon: React.ElementType;
+    accent: string;
+    soft: string;
+    border: string;
+  }
+> = {
+  udp: {
+    label: "UDP Application",
+    icon: Database,
+    accent: "text-slate-700",
+    soft: "bg-slate-100",
+    border: "border-slate-200",
+  },
+  demand: {
+    label: "Demand Signal",
+    icon: BarChart3,
+    accent: "text-teal-700",
+    soft: "bg-teal-50",
+    border: "border-teal-200",
+  },
+  campaign: {
+    label: "Commercial",
+    icon: Megaphone,
+    accent: "text-violet-700",
+    soft: "bg-violet-50",
+    border: "border-violet-200",
+  },
+};
+
+const STATUS_META: Record<
+  ControlTowerStatus,
+  { badge: string; dot: string; label: string }
+> = {
+  healthy: {
+    badge: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    dot: "bg-emerald-500",
+    label: "Healthy",
+  },
+  attention: {
+    badge: "border-amber-200 bg-amber-50 text-amber-700",
+    dot: "bg-amber-500",
+    label: "Attention",
+  },
+  critical: {
+    badge: "border-rose-200 bg-rose-50 text-rose-700",
+    dot: "bg-rose-500",
+    label: "Critical",
+  },
+};
+
+const SEVERITY_META: Record<
+  ControlTowerSeverity,
+  { badge: string; label: string; icon: React.ElementType }
+> = {
+  critical: {
+    badge: "border-rose-200 bg-rose-50 text-rose-700",
+    label: "Critical",
+    icon: AlertCircle,
+  },
+  high: {
+    badge: "border-amber-200 bg-amber-50 text-amber-700",
+    label: "High Priority",
+    icon: AlertTriangle,
+  },
+  medium: {
+    badge: "border-slate-200 bg-slate-100 text-slate-700",
+    label: "Medium",
+    icon: AlertTriangle,
+  },
+  info: {
+    badge: "border-slate-200 bg-slate-50 text-slate-600",
+    label: "Info",
+    icon: AlertTriangle,
+  },
+};
+
+const ACTION_STATE_META: Record<
+  ControlTowerActionState,
+  { label: string; className: string }
+> = {
+  pending: {
+    label: "Pending",
+    className: "border-slate-200 bg-slate-100 text-slate-700",
+  },
+  approved: {
+    label: "Approved",
+    className: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  },
+  in_review: {
+    label: "In review",
+    className: "border-amber-200 bg-amber-50 text-amber-700",
+  },
+  dismissed: {
+    label: "Dismissed",
+    className: "border-slate-200 bg-slate-50 text-slate-500",
+  },
+};
+
+const SPARKLINE_COLORS: Record<ControlTowerStatus, string> = {
+  healthy: "#10b981",
+  attention: "#f59e0b",
+  critical: "#f43f5e",
+};
+
+const PANEL_LAYOUT = {
+  left: ["active-work-queue", "udp-health", "experiments-program"],
+  right: ["demand-forecast", "inventory-coverage", "campaign-efficiency"],
+} as const;
+
+const SEVERITY_ORDER: Record<ControlTowerSeverity, number> = {
+  critical: 0,
+  high: 1,
+  medium: 2,
+  info: 3,
+};
+
+type ItemDecisionState =
+  | { state: "pending" }
+  | { state: "approved" }
+  | { state: "rejected" }
+  | { state: "conditional"; condition: string };
+
+function mapControlTowerDomainToGraphDomain(domain: ControlTowerDomain) {
+  if (domain === "campaign") {
+    return "cross-domain" as const;
+  }
+
+  return domain;
+}
+
+function buildAlertGraphPrefill(alert: ControlTowerAlert): GraphInstancePrefill {
+  return {
+    title: alert.title,
+    description: alert.description,
+    domain: mapControlTowerDomainToGraphDomain(alert.domain),
+    presetId: alert.graphPreset as GraphInstancePrefill["presetId"],
+    scopeId: alert.graphScopeId,
+    centerNodeId: alert.graphCenterNodeId,
+    sourcePrompt: `Create a graph from alert: ${alert.title}`,
+  };
+}
+
+function buildActionGraphPrefill(action: ControlTowerAction): GraphInstancePrefill {
+  return {
+    title: action.title,
+    description: action.summary,
+    domain: mapControlTowerDomainToGraphDomain(action.domain),
+    presetId: action.graphPreset as GraphInstancePrefill["presetId"],
+    scopeId: action.graphScopeId,
+    centerNodeId: action.graphCenterNodeId,
+    sourcePrompt: `Create a graph from action: ${action.title}`,
+  };
+}
+
+function Sparkline({
+  data,
+  color,
+  id,
+}: {
+  data: number[];
+  color: string;
+  id: string;
+}) {
+  const chartData = data.map((value, index) => ({ index, value }));
+
+  return (
+    <ResponsiveContainer width="100%" height={28}>
+      <AreaChart
+        data={chartData}
+        margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+      >
+        <defs>
+          <linearGradient id={`spark-${id}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={color} stopOpacity={0.2} />
+            <stop offset="100%" stopColor={color} stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <Area
+          type="monotone"
+          dataKey="value"
+          stroke={color}
+          strokeWidth={1.5}
+          fill={`url(#spark-${id})`}
+          dot={false}
+          isAnimationActive={false}
+        />
+      </AreaChart>
+    </ResponsiveContainer>
+  );
+}
+
+function MetricStrip() {
+  return (
+    <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+      {CONTROL_TOWER_HERO_METRICS.map((metric) => {
+        const status = STATUS_META[metric.status];
+
+        return (
+          <div
+            key={metric.id}
+            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-[0_1px_0_rgba(15,23,42,0.02)]"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                {metric.label}
+              </p>
+              <Badge variant="outline" className={cn("text-[9px]", status.badge)}>
+                {status.label}
+              </Badge>
+            </div>
+            <p className="mt-2 text-[28px] font-semibold leading-none tracking-tight text-slate-900">
+              {metric.value}
+            </p>
+            <div className="mt-2">
+              <Sparkline
+                data={metric.sparkline}
+                color={SPARKLINE_COLORS[metric.status]}
+                id={metric.id}
+              />
+            </div>
+            <p className="mt-1 text-[11px] text-slate-500">{metric.detail}</p>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
+  if (widget.kind === "table" && widget.tableColumns && widget.tableRows) {
+    const tableColumns = widget.tableColumns;
+    const tableRows = widget.tableRows;
+
+    return (
+      <div className="overflow-hidden rounded-xl border border-slate-100 bg-white">
+        <div className="grid grid-cols-[2.1fr_0.9fr_1fr_0.75fr_0.8fr] border-b border-slate-100 bg-slate-50/80 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+          {tableColumns.map((column) => (
+            <div
+              key={column.key}
+              className={cn(column.align === "right" && "text-right")}
+            >
+              {column.label}
+            </div>
+          ))}
+        </div>
+        <div className="divide-y divide-slate-100">
+          {tableRows.map((row) => {
+            const status = row.status ? STATUS_META[row.status] : null;
+            return (
+              <div
+                key={row.id}
+                className="grid grid-cols-[2.1fr_0.9fr_1fr_0.75fr_0.8fr] items-center gap-3 px-3 py-2.5 text-[11px] text-slate-600"
+              >
+                {tableColumns.map((column) => (
+                  <div
+                    key={`${row.id}-${column.key}`}
+                    className={cn(
+                      "truncate",
+                      column.align === "right" && "text-right",
+                      column.key === "item" && "font-semibold text-slate-800",
+                    )}
+                  >
+                    {column.key === "status" && status ? (
+                      <Badge variant="outline" className={cn("text-[9px]", status.badge)}>
+                        {row.statusLabel ?? row.values[column.key]}
+                      </Badge>
+                    ) : (
+                      row.values[column.key]
+                    )}
+                  </div>
+                ))}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  if (widget.kind === "scorecard_list" && widget.scoreRows) {
+    return (
+      <div className="space-y-2">
+        {widget.scoreRows.map((row) => {
+          const status = STATUS_META[row.status];
+          return (
+            <div
+              key={`${widget.id}-${row.label}`}
+              className="rounded-xl border border-slate-100 bg-white px-3 py-3"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate text-xs font-semibold text-slate-800">
+                    {row.label}
+                  </p>
+                  <p className="mt-0.5 text-[10px] text-slate-500">{row.meta}</p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p className="text-sm font-semibold text-slate-900">{row.score}</p>
+                  <Badge variant="outline" className={cn("mt-1 text-[9px]", status.badge)}>
+                    {row.statusLabel ?? status.label}
+                  </Badge>
+                </div>
+              </div>
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-200">
+                <div
+                  className={cn(
+                    "h-full rounded-full",
+                    row.status === "critical"
+                      ? "bg-rose-500"
+                      : row.status === "attention"
+                        ? "bg-amber-500"
+                        : "bg-emerald-500",
+                  )}
+                  style={{ width: `${row.score}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  if (widget.kind === "capacity_bars" && widget.capacityRows) {
+    return (
+      <div className="space-y-3 rounded-xl border border-slate-100 bg-white px-4 py-3">
+        {widget.capacityRows.map((row) => {
+          const usedColor =
+            row.status === "critical"
+              ? "bg-rose-400"
+              : row.status === "attention"
+                ? "bg-amber-400"
+                : "bg-emerald-400";
+
+          return (
+            <div key={`${widget.id}-${row.label}`} className="space-y-1.5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold text-slate-800">{row.label}</p>
+                  <p className="text-[10px] text-slate-500">{row.meta}</p>
+                </div>
+                <p className="text-[11px] font-semibold text-slate-700">{row.usedPercent}% utilised</p>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-slate-200">
+                <div
+                  className={cn("h-full rounded-full", usedColor)}
+                  style={{ width: `${row.usedPercent}%` }}
+                />
+              </div>
+              {row.totalLabel ? (
+                <p className="text-[10px] text-slate-400">{row.totalLabel}</p>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  if (widget.kind === "dual_line_trend" && widget.trendPoints) {
+    return (
+      <div className="h-44 rounded-xl border border-slate-100 bg-slate-50/60 p-3">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            data={widget.trendPoints}
+            margin={{ top: 6, right: 10, left: -20, bottom: 0 }}
+          >
+            <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" vertical={false} />
+            <XAxis
+              dataKey="label"
+              tick={{ fontSize: 10, fill: "#64748b" }}
+              tickLine={false}
+              axisLine={false}
+            />
+            <YAxis
+              tick={{ fontSize: 10, fill: "#64748b" }}
+              tickLine={false}
+              axisLine={false}
+            />
+            <Tooltip />
+            <Line
+              type="monotone"
+              dataKey="secondary"
+              stroke="#94a3b8"
+              strokeWidth={1.75}
+              dot={false}
+              strokeDasharray="4 4"
+              name={widget.trendLegend?.secondaryLabel ?? "Baseline"}
+            />
+            <Line
+              type="monotone"
+              dataKey="primary"
+              stroke="#1f2937"
+              strokeWidth={2.4}
+              dot={false}
+              name={widget.trendLegend?.primaryLabel ?? "Current"}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  }
+
+  if (widget.kind === "single_line_trend" && widget.trendPoints) {
+    return (
+      <div className="h-40 rounded-xl border border-slate-100 bg-slate-50/60 p-3">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={widget.trendPoints} margin={{ top: 6, right: 10, left: -20, bottom: 0 }}>
+            <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" vertical={false} />
+            <XAxis dataKey="label" tick={{ fontSize: 10, fill: "#64748b" }} tickLine={false} axisLine={false} />
+            <YAxis tick={{ fontSize: 10, fill: "#64748b" }} tickLine={false} axisLine={false} />
+            <Tooltip />
+            <Line type="monotone" dataKey="primary" stroke="#0f766e" strokeWidth={2.2} dot={false} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  }
+
+  if (widget.kind === "timeline_gantt" && widget.timelineRows) {
+    return (
+      <div className="rounded-xl border border-slate-100 bg-white p-3">
+        <div className="relative">
+          <div className="mb-2 flex justify-end pr-10 text-[10px] font-medium text-slate-400">
+            <span>Today</span>
+          </div>
+          <div className="absolute right-[22%] top-4 bottom-2 w-px bg-slate-300" />
+          <div className="space-y-3">
+            {widget.timelineRows.map((row) => {
+              const tone =
+                row.status === "critical"
+                  ? "bg-rose-300"
+                  : row.status === "attention"
+                    ? "bg-amber-300"
+                    : "bg-emerald-300";
+
+              return (
+                <div key={`${widget.id}-${row.label}`} className="grid grid-cols-[1.25fr_1.75fr] items-center gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-xs font-semibold text-slate-800">{row.label}</p>
+                    <p className="truncate text-[10px] text-slate-500">{row.meta}</p>
+                  </div>
+                  <div className="relative h-7 rounded-full bg-slate-100">
+                    <div
+                      className={cn("absolute top-1/2 h-3 -translate-y-1/2 rounded-full", tone)}
+                      style={{ left: `${row.offset}%`, width: `${row.span}%` }}
+                    />
+                    {row.rightLabel ? (
+                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-medium text-slate-500">
+                        {row.rightLabel}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (
+    (widget.kind === "donut_breakdown" || widget.kind === "horizontal_bar_breakdown") &&
+    widget.breakdownSegments
+  ) {
+    return (
+      <div className="rounded-xl border border-slate-100 bg-white p-3">
+        <div className="hidden gap-4 md:grid md:grid-cols-[180px_1fr] md:items-center">
+          <div className="h-40">
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartsPieChart>
+                <Pie
+                  data={widget.breakdownSegments}
+                  dataKey="value"
+                  nameKey="label"
+                  innerRadius={42}
+                  outerRadius={70}
+                  paddingAngle={2}
+                  stroke="none"
+                >
+                  {widget.breakdownSegments.map((segment) => (
+                    <Cell key={segment.label} fill={segment.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </RechartsPieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="space-y-2">
+            {widget.breakdownSegments.map((segment) => (
+              <div key={`${widget.id}-${segment.label}`} className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="h-2.5 w-2.5 rounded-full"
+                    style={{ backgroundColor: segment.color }}
+                  />
+                  <span className="text-xs text-slate-700">{segment.label}</span>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-semibold text-slate-800">{segment.meta ?? `${segment.value}%`}</p>
+                  <p className="text-[10px] text-slate-400">{segment.value}% mix</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="space-y-3 md:hidden">
+          {widget.breakdownSegments.map((segment) => (
+            <div key={`${widget.id}-fallback-${segment.label}`} className="space-y-1">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs font-semibold text-slate-800">{segment.label}</p>
+                <p className="text-[11px] text-slate-500">{segment.meta ?? `${segment.value}%`}</p>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-slate-200">
+                <div
+                  className="h-full rounded-full"
+                  style={{ width: `${segment.value}%`, backgroundColor: segment.color }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (!widget.rows) {
+    return null;
+  }
+
+  return (
+    <div className="space-y-2">
+      {widget.rows.map((row) => {
+        const status = row.status ? STATUS_META[row.status] : null;
+
+        return (
+          <div
+            key={`${widget.id}-${row.label}`}
+            className="rounded-xl border border-slate-100 bg-white px-3 py-2.5"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate text-xs font-semibold text-slate-800">
+                  {row.label}
+                </p>
+                {row.meta ? (
+                  <p className="mt-0.5 text-[10px] text-slate-500">{row.meta}</p>
+                ) : null}
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                {row.value ? (
+                  <span className="text-[11px] font-semibold text-slate-800">
+                    {row.value}
+                  </span>
+                ) : null}
+                {status ? (
+                  <Badge variant="outline" className={cn("text-[9px]", status.badge)}>
+                    {status.label}
+                  </Badge>
+                ) : null}
+              </div>
+            </div>
+            {typeof row.progress === "number" ? (
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-200">
+                <div
+                  className={cn(
+                    "h-full rounded-full",
+                    row.status === "critical"
+                      ? "bg-rose-500"
+                      : row.status === "attention"
+                        ? "bg-amber-500"
+                        : "bg-emerald-500",
+                  )}
+                  style={{ width: `${row.progress}%` }}
+                />
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function OperationsPanel({
+  widget,
+  expanded,
+  onToggle,
+}: {
+  widget: ControlTowerWidget;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const meta =
+    DOMAIN_META[widget.domain as Exclude<ControlTowerDomain, "risk">] ??
+    DOMAIN_META.udp;
+  const Icon = meta.icon;
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-start justify-between gap-3 px-4 py-3 text-left transition hover:bg-slate-50/70"
+      >
+        <div className="flex min-w-0 items-start gap-3">
+          <div className={cn("rounded-xl p-2", meta.soft)}>
+            <Icon className={cn("h-4 w-4", meta.accent)} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-slate-900">{widget.title}</p>
+            <p className="mt-0.5 text-[11px] text-slate-500">{widget.subtitle}</p>
+          </div>
+        </div>
+        <div className="flex shrink-0 items-center gap-3">
+          <span className="hidden text-[11px] font-medium text-slate-500 md:inline">
+            {widget.routeLabel}
+          </span>
+          {expanded ? (
+            <ChevronUp className="h-4 w-4 text-slate-500" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-slate-500" />
+          )}
+        </div>
+      </button>
+
+      {expanded ? (
+        <div className="border-t border-slate-200 bg-slate-50/50 px-4 py-4">
+          {widget.summary ? (
+            <div className="mb-3 rounded-xl border border-slate-100 bg-white px-3 py-2 text-[11px] text-slate-600">
+              {widget.summary}
+            </div>
+          ) : null}
+          <WidgetRows widget={widget} />
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <span className="text-[10px] uppercase tracking-[0.16em] text-slate-400">
+              Curated business view
+            </span>
+            <Link
+              href={widget.routeHref}
+              className="text-[11px] font-medium text-slate-600 hover:text-slate-900"
+            >
+              {widget.routeLabel}
+            </Link>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function ActionBoard({
+  actions,
+  onAction,
+  onCreateGraph,
+}: {
+  actions: ControlTowerAction[];
+  onAction: (actionId: string, nextState: ControlTowerActionState) => void;
+  onCreateGraph: (prefill: GraphInstancePrefill) => void;
+}) {
+  const visibleActions = [...actions]
+    .sort((left, right) => {
+      if (left.state === right.state) {
+        return SEVERITY_ORDER[left.severity] - SEVERITY_ORDER[right.severity];
+      }
+      if (left.state === "pending") return -1;
+      if (right.state === "pending") return 1;
+      return 0;
+    })
+    .slice(0, 5);
+
+  const pendingCount = actions.filter((action) => action.state === "pending").length;
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+      <div className="border-b border-slate-200 px-4 py-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+              Open Actions & Approvals
+            </p>
+            <p className="mt-1 text-sm text-slate-500">
+              Review and approve the business decisions shaping customer reach, campaign performance, and demand coverage.
+            </p>
+          </div>
+          <Badge variant="outline" className="w-fit text-[10px]">
+            {pendingCount} pending
+          </Badge>
+        </div>
+      </div>
+
+      <div className="space-y-3 px-4 py-4">
+        {visibleActions.map((action) => {
+          const meta =
+            DOMAIN_META[action.domain as Exclude<ControlTowerDomain, "risk">] ??
+            DOMAIN_META.udp;
+          const stateMeta = ACTION_STATE_META[action.state];
+          const severity = SEVERITY_META[action.severity];
+
+          return (
+            <div
+              key={action.id}
+              className={cn(
+                "rounded-2xl border border-slate-200 bg-slate-50/40 px-4 py-3",
+                action.domain === "demand"
+                  ? "border-l-4 border-l-teal-400"
+                  : action.domain === "campaign"
+                      ? "border-l-4 border-l-violet-400"
+                      : "border-l-4 border-l-slate-400",
+              )}
+            >
+              <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      className={cn(
+                        "text-[10px] font-semibold uppercase tracking-[0.16em]",
+                        meta.accent,
+                      )}
+                    >
+                      {meta.label}
+                    </span>
+                    <Badge variant="outline" className={cn("text-[9px]", severity.badge)}>
+                      {severity.label}
+                    </Badge>
+                    <Badge variant="outline" className={cn("text-[9px]", stateMeta.className)}>
+                      {stateMeta.label}
+                    </Badge>
+                    <span className="text-[10px] text-slate-400">{action.dueLabel}</span>
+                  </div>
+                  <p className="mt-1 text-sm font-semibold text-slate-900">{action.title}</p>
+                  <p className="mt-1 text-[11px] leading-snug text-slate-600">
+                    {action.summary}
+                  </p>
+                  <p className="mt-2 text-[11px] font-medium text-slate-700">
+                    {action.impact}
+                  </p>
+                </div>
+
+                <div className="flex shrink-0 flex-wrap items-center gap-2">
+                  <Button
+                    size="sm"
+                    className="h-8 rounded-full bg-teal-700 px-3 text-[11px] hover:bg-teal-800"
+                    onClick={() =>
+                      onAction(
+                        action.id,
+                        action.primaryAction.type === "dismiss"
+                          ? "dismissed"
+                          : action.primaryAction.type === "review"
+                            ? "in_review"
+                            : "approved",
+                      )
+                    }
+                  >
+                    {action.primaryAction.label}
+                  </Button>
+                  {action.secondaryAction ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 rounded-full px-3 text-[11px]"
+                      onClick={() => {
+                        const nextState =
+                          action.secondaryAction?.type === "dismiss"
+                            ? "dismissed"
+                            : "in_review";
+                        onAction(action.id, nextState);
+                      }}
+                    >
+                      {action.secondaryAction.label}
+                    </Button>
+                  ) : null}
+                  <Link
+                    href={action.routeHref}
+                    className="inline-flex h-8 items-center rounded-full border border-slate-200 px-3 text-[11px] font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+                  >
+                    {action.routeLabel}
+                  </Link>
+                  {action.experimentHref ? (
+                    <Link
+                      href={action.experimentHref}
+                      className="inline-flex h-8 items-center rounded-full border border-violet-200 bg-violet-50 px-3 text-[11px] font-medium text-violet-700 transition hover:border-violet-300 hover:bg-violet-100"
+                    >
+                      Open experiment
+                    </Link>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={() => onCreateGraph(buildActionGraphPrefill(action))}
+                    className="inline-flex h-8 items-center rounded-full border border-slate-200 px-3 text-[11px] font-medium text-slate-500 transition hover:border-slate-300 hover:text-slate-900"
+                  >
+                    Save graph
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function DecisionItemCard({
+  item,
+  decision,
+  expanded,
+  suggestedSelection,
+  customCondition,
+  onApprove,
+  onReject,
+  onExpand,
+  onSuggestedSelection,
+  onCustomChange,
+  onApplyCondition,
+}: {
+  item: ControlTowerDecisionItem;
+  decision: ItemDecisionState;
+  expanded: boolean;
+  suggestedSelection: string;
+  customCondition: string;
+  onApprove: () => void;
+  onReject: () => void;
+  onExpand: () => void;
+  onSuggestedSelection: (value: string) => void;
+  onCustomChange: (value: string) => void;
+  onApplyCondition: () => void;
+}) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          {item.supportingLabel ? (
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-teal-700">
+              {item.supportingLabel}
+            </p>
+          ) : null}
+          <p className="mt-1 text-sm font-semibold text-slate-900">{item.title}</p>
+          <p className="mt-0.5 text-[11px] text-slate-500">{item.subtitle}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {decision.state === "approved" ? (
+            <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-[9px] text-emerald-700">
+              Approved
+            </Badge>
+          ) : null}
+          {decision.state === "rejected" ? (
+            <Badge variant="outline" className="border-rose-200 bg-rose-50 text-[9px] text-rose-700">
+              Rejected
+            </Badge>
+          ) : null}
+          {decision.state === "conditional" ? (
+            <Badge variant="outline" className="border-amber-200 bg-amber-50 text-[9px] text-amber-700">
+              Conditional
+            </Badge>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="mt-3 grid gap-2 text-[11px] text-slate-600 sm:grid-cols-4">
+        {item.stock ? <p><span className="font-medium text-slate-500">Stock:</span> {item.stock}</p> : null}
+        {item.actionAmount ? <p><span className="font-medium text-slate-500">Action:</span> {item.actionAmount}</p> : null}
+        {item.unitCost ? <p><span className="font-medium text-slate-500">Unit cost:</span> {item.unitCost}</p> : null}
+        {item.totalCost ? <p><span className="font-medium text-slate-500">Total:</span> {item.totalCost}</p> : null}
+      </div>
+
+      <p className="mt-3 text-sm text-slate-600">{item.detail}</p>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <Button
+          size="sm"
+          className="h-8 rounded-full bg-teal-700 px-3 text-[11px] hover:bg-teal-800"
+          onClick={onApprove}
+        >
+          <Check className="mr-1 h-3 w-3" />
+          Approve
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-8 rounded-full px-3 text-[11px]"
+          onClick={onExpand}
+        >
+          Set conditions
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          className="h-8 rounded-full px-3 text-[11px] text-slate-600 hover:text-slate-900"
+          onClick={onReject}
+        >
+          Reject
+        </Button>
+      </div>
+
+      {expanded ? (
+        <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50/80 p-3">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+            Suggested conditions
+          </p>
+          <div className="mt-2 space-y-2">
+            {(item.suggestedConditions ?? []).map((condition) => (
+              <button
+                key={condition}
+                type="button"
+                onClick={() => onSuggestedSelection(condition)}
+                className={cn(
+                  "block w-full rounded-xl border px-3 py-2 text-left text-[11px] transition",
+                  suggestedSelection === condition
+                    ? "border-teal-300 bg-teal-50 text-teal-800"
+                    : "border-slate-200 bg-white text-slate-600 hover:border-slate-300",
+                )}
+              >
+                {condition}
+              </button>
+            ))}
+          </div>
+          <input
+            value={customCondition}
+            onChange={(event) => onCustomChange(event.target.value)}
+            placeholder="Or type a custom condition..."
+            className="mt-3 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none ring-0 placeholder:text-slate-400 focus:border-teal-300"
+          />
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              className="rounded-full bg-teal-700 px-3 text-[11px] hover:bg-teal-800"
+              onClick={onApplyCondition}
+            >
+              Apply condition
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="rounded-full px-3 text-[11px]"
+              onClick={() => {
+                onSuggestedSelection("");
+                onCustomChange("");
+              }}
+            >
+              Clear
+            </Button>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function AgentFlowCards({ cards }: { cards: ControlTowerAgentFlowCard[] }) {
+  const toneStyles = {
+    amber: "border-amber-200 bg-amber-50/70",
+    blue: "border-sky-200 bg-sky-50/70",
+    violet: "border-violet-200 bg-violet-50/70",
+    emerald: "border-emerald-200 bg-emerald-50/70",
+    slate: "border-slate-200 bg-slate-50/70",
+  } as const;
+
+  return (
+    <div className="grid gap-3 lg:grid-cols-3">
+      {cards.map((card) => (
+        <div
+          key={card.id}
+          className={cn("rounded-2xl border p-3", toneStyles[card.tone])}
+        >
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <p className="text-xs font-semibold text-slate-900">{card.title}</p>
+              <p className="mt-0.5 text-[10px] text-slate-500">{card.subtitle}</p>
+            </div>
+            <Badge variant="outline" className="text-[9px]">
+              {card.priority}
+            </Badge>
+          </div>
+          <p className="mt-2 text-[11px] leading-snug text-slate-600">{card.summary}</p>
+          <div className="mt-3 grid gap-2 text-[10px] text-slate-500">
+            <p><span className="font-medium text-slate-600">Output:</span> {card.output}</p>
+            <p><span className="font-medium text-slate-600">Processing:</span> {card.processingTime}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AlertDecisionDialog({
+  alert,
+  open,
+  onOpenChange,
+  onCreateGraph,
+  onSubmitted,
+}: {
+  alert: ControlTowerAlert | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onCreateGraph: (prefill: GraphInstancePrefill) => void;
+  onSubmitted: (state: ControlTowerActionState) => void;
+}) {
+  const [mode, setMode] = useState<"review" | "submitted">("review");
+  const [submittedTab, setSubmittedTab] = useState<"summary" | "audit">("summary");
+  const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
+  const [suggestedSelections, setSuggestedSelections] = useState<Record<string, string>>({});
+  const [customConditions, setCustomConditions] = useState<Record<string, string>>({});
+  const [itemDecisions, setItemDecisions] = useState<Record<string, ItemDecisionState>>({});
+
+  useEffect(() => {
+    if (!open || !alert) {
+      setMode("review");
+      setSubmittedTab("summary");
+      setExpandedItemId(null);
+      setSuggestedSelections({});
+      setCustomConditions({});
+      setItemDecisions({});
+      return;
+    }
+
+    setItemDecisions(
+      Object.fromEntries(
+        alert.drilldown.items.map((item) => [item.id, { state: "pending" } as ItemDecisionState]),
+      ),
+    );
+  }, [alert, open]);
+
+  if (!alert) {
+    return null;
+  }
+
+  const actedCount = Object.values(itemDecisions).filter(
+    (decision) => decision.state !== "pending",
+  ).length;
+
+  const computedSubmissionState: ControlTowerActionState =
+    Object.values(itemDecisions).some(
+      (decision) => decision.state === "approved" || decision.state === "conditional",
+    )
+      ? "approved"
+      : Object.values(itemDecisions).some((decision) => decision.state === "rejected")
+        ? "dismissed"
+        : "in_review";
+
+  const handleApplyCondition = (itemId: string) => {
+    const condition =
+      customConditions[itemId]?.trim() || suggestedSelections[itemId]?.trim();
+
+    if (!condition) {
+      return;
+    }
+
+    setItemDecisions((current) => ({
+      ...current,
+      [itemId]: { state: "conditional", condition },
+    }));
+    setExpandedItemId(null);
+  };
+
+  const summaryItems =
+    alert.drilldown.decisionSummary?.items.map((item) => ({
+      id: item.id,
+      title: item.title,
+      outcome: item.outcome,
+      detail: item.detail,
+      metric: item.metric,
+    })) ??
+    alert.drilldown.items.map((item) => ({
+      id: item.id,
+      title: item.title,
+      outcome: item.metric,
+      detail: item.detail,
+      metric: item.metric,
+    }));
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto border border-slate-200 p-0 sm:max-w-4xl">
+        <DialogHeader className="border-b border-slate-200 bg-teal-700 px-6 py-4 text-white">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <DialogTitle className="text-lg font-semibold text-white">
+                {alert.drilldown.title}
+              </DialogTitle>
+              <p className="mt-1 text-sm text-white/80">{alert.description}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              className="rounded-full p-1 text-white/80 transition hover:bg-white/10 hover:text-white"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </DialogHeader>
+
+        <div className="space-y-4 px-6 py-5">
+          {mode === "review" ? (
+            <>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    Overview
+                  </p>
+                  <Badge
+                    variant="outline"
+                    className={cn("text-[9px]", SEVERITY_META[alert.severity].badge)}
+                  >
+                    {SEVERITY_META[alert.severity].label}
+                  </Badge>
+                </div>
+                <ul className="mt-3 space-y-2">
+                  {alert.drilldown.summary.map((line) => (
+                    <li key={line} className="flex gap-2 text-sm text-slate-700">
+                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                      <span>{line}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                  Items requiring attention
+                </p>
+                <p className="mt-1 text-sm text-slate-500">
+                  Approve, set conditions, or reject each item below.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                {alert.drilldown.items.map((item) => (
+                  <DecisionItemCard
+                    key={item.id}
+                    item={item}
+                    decision={itemDecisions[item.id] ?? { state: "pending" }}
+                    expanded={expandedItemId === item.id}
+                    suggestedSelection={suggestedSelections[item.id] ?? ""}
+                    customCondition={customConditions[item.id] ?? ""}
+                    onApprove={() =>
+                      setItemDecisions((current) => ({
+                        ...current,
+                        [item.id]: { state: "approved" },
+                      }))
+                    }
+                    onReject={() =>
+                      setItemDecisions((current) => ({
+                        ...current,
+                        [item.id]: { state: "rejected" },
+                      }))
+                    }
+                    onExpand={() =>
+                      setExpandedItemId((current) => (current === item.id ? null : item.id))
+                    }
+                    onSuggestedSelection={(value) =>
+                      setSuggestedSelections((current) => ({
+                        ...current,
+                        [item.id]: value,
+                      }))
+                    }
+                    onCustomChange={(value) =>
+                      setCustomConditions((current) => ({
+                        ...current,
+                        [item.id]: value,
+                      }))
+                    }
+                    onApplyCondition={() => handleApplyCondition(item.id)}
+                  />
+                ))}
+              </div>
+
+              <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 md:flex-row md:items-center md:justify-between">
+                <div className="text-sm text-slate-500">
+                  {actedCount} of {alert.drilldown.items.length} items actioned
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  {alert.graphPreset || alert.graphScopeId || alert.graphCenterNodeId ? (
+                    <Link
+                      href={buildKnowledgeGraphHref({
+                        graphPreset: alert.graphPreset,
+                        graphScopeId: alert.graphScopeId,
+                        graphCenterNodeId: alert.graphCenterNodeId,
+                      })}
+                      className="inline-flex h-9 items-center rounded-full border border-slate-200 px-3 text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+                    >
+                      Explore graph
+                    </Link>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={() => onCreateGraph(buildAlertGraphPrefill(alert))}
+                    className="inline-flex h-9 items-center rounded-full border border-slate-200 px-3 text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+                  >
+                    Save graph
+                  </button>
+                  <Button
+                    className="rounded-full bg-teal-700 hover:bg-teal-800"
+                    disabled={actedCount === 0}
+                    onClick={() => {
+                      onSubmitted(computedSubmissionState);
+                      setMode("submitted");
+                      setSubmittedTab("summary");
+                    }}
+                  >
+                    Confirm & submit
+                    <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <p className="text-lg font-semibold text-slate-900">
+                      {alert.drilldown.decisionSummary?.headline ?? "Decisions submitted"}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      Logged at{" "}
+                      {alert.drilldown.decisionSummary?.loggedAt ?? alert.timestamp} · Ref:{" "}
+                      {alert.drilldown.decisionSummary?.reference ?? alert.id.toUpperCase()}
+                    </p>
+                  </div>
+                  <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
+                    Submitted
+                  </Badge>
+                </div>
+
+                <div className="mt-4 flex gap-3 border-b border-slate-200">
+                  {[
+                    { id: "summary" as const, label: "Decision Summary" },
+                    { id: "audit" as const, label: "Audit Trail & Agent Flow" },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setSubmittedTab(tab.id)}
+                      className={cn(
+                        "border-b-2 pb-2 text-sm font-medium transition",
+                        submittedTab === tab.id
+                          ? "border-slate-900 text-slate-900"
+                          : "border-transparent text-slate-500 hover:text-slate-800",
+                      )}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                {submittedTab === "summary" ? (
+                  <div className="space-y-3 pt-4">
+                    {summaryItems.map((item) => {
+                      const currentDecision = itemDecisions[item.id.replace("summary-", "")];
+                      const resolvedOutcome =
+                        currentDecision?.state === "approved"
+                          ? "Approved"
+                          : currentDecision?.state === "rejected"
+                            ? "Rejected"
+                            : currentDecision?.state === "conditional"
+                              ? "Conditional approval"
+                              : item.outcome;
+                      const resolvedDetail =
+                        currentDecision?.state === "conditional"
+                          ? currentDecision.condition
+                          : currentDecision?.state === "approved"
+                            ? "Approved in the control tower."
+                            : currentDecision?.state === "rejected"
+                              ? "Rejected in the control tower."
+                              : item.detail;
+
+                      return (
+                        <div
+                          key={item.id}
+                          className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
+                        >
+                          <div className="flex flex-wrap items-start justify-between gap-2">
+                            <div>
+                              <p className="text-sm font-semibold text-slate-900">
+                                {item.title}
+                              </p>
+                              <p className="mt-1 text-[11px] text-slate-500">
+                                {resolvedOutcome}
+                              </p>
+                            </div>
+                            {item.metric ? (
+                              <span className="text-[11px] font-medium text-slate-600">
+                                {item.metric}
+                              </span>
+                            ) : null}
+                          </div>
+                          <p className="mt-2 text-sm text-slate-600">{resolvedDetail}</p>
+                        </div>
+                      );
+                    })}
+
+                    {alert.drilldown.nextSteps?.length ? (
+                      <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                          What happens next
+                        </p>
+                        <ul className="mt-3 space-y-2">
+                          {alert.drilldown.nextSteps.map((step) => (
+                            <li key={step} className="flex gap-2 text-sm text-slate-600">
+                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-teal-500" />
+                              <span>{step}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : (
+                  <div className="space-y-4 pt-4">
+                    <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
+                      {alert.drilldown.auditTrail.map((event) => (
+                        <div key={`${event.time}-${event.actor}`} className="flex gap-3">
+                          <div className="mt-1.5 h-2.5 w-2.5 rounded-full bg-slate-400" />
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-[10px] text-slate-400">{event.time}</span>
+                              {event.badge ? (
+                                <Badge variant="outline" className="text-[9px]">
+                                  {event.badge}
+                                </Badge>
+                              ) : null}
+                            </div>
+                            <p className="mt-1 text-sm text-slate-700">{event.detail}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {alert.drilldown.agentFlow?.length ? (
+                      <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                            Agent flow
+                          </p>
+                          <Badge variant="outline" className="text-[9px]">
+                            Demonstrative
+                          </Badge>
+                        </div>
+                        <AgentFlowCards cards={alert.drilldown.agentFlow} />
+                      </div>
+                    ) : null}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end">
+                <Button
+                  className="rounded-full bg-slate-900 hover:bg-slate-950"
+                  onClick={() => onOpenChange(false)}
+                >
+                  Close
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ControlTowerOverview() {
+  const { user } = useAuth();
+  const router = useRouter();
+
+  const [expandedWidgets, setExpandedWidgets] = useState<Record<string, boolean>>(
+    Object.fromEntries(
+      CONTROL_TOWER_WIDGETS.map((widget) => [widget.id, widget.defaultExpanded]),
+    ),
+  );
+  const [actions, setActions] = useState(CONTROL_TOWER_ACTIONS);
+  const [isGraphDialogOpen, setIsGraphDialogOpen] = useState(false);
+  const [graphPrefill, setGraphPrefill] = useState<GraphInstancePrefill | undefined>(
+    undefined,
+  );
+
+  const panelWidgets = useMemo(() => {
+    const widgetMap = new Map(CONTROL_TOWER_WIDGETS.map((widget) => [widget.id, widget]));
+    return {
+      left: PANEL_LAYOUT.left
+        .map((id) => widgetMap.get(id))
+        .filter((widget): widget is ControlTowerWidget => Boolean(widget)),
+      right: PANEL_LAYOUT.right
+        .map((id) => widgetMap.get(id))
+        .filter((widget): widget is ControlTowerWidget => Boolean(widget)),
+    };
+  }, []);
+
+  const visibleActions = useMemo(
+    () => actions.filter((action) => action.state !== "dismissed"),
+    [actions],
+  );
+
+  if (!user) {
+    return null;
+  }
+
+  const handleCreateGraph = (prefill?: GraphInstancePrefill) => {
+    setGraphPrefill(prefill);
+    setIsGraphDialogOpen(true);
+  };
+
+  const updateActionState = (
+    actionId: string,
+    nextState: ControlTowerActionState,
+  ) => {
+    setActions((current) =>
+      current.map((action) =>
+        action.id === actionId ? { ...action, state: nextState } : action,
+      ),
+    );
+  };
+
+  return (
+    <>
+      <div className="mx-auto max-w-[1560px] space-y-5 pb-44">
+        <div className="rounded-2xl border border-slate-200 bg-white px-5 py-5">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                Business Dashboard
+              </p>
+              <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">
+                UDP Control Tower
+              </h1>
+              <p className="mt-2 max-w-3xl text-sm text-slate-500">
+                A single business-facing dashboard for customer data readiness, campaign activation, demand-informed decisions, and the approvals that connect them.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <Button asChild variant="outline" className="rounded-full">
+                <Link href={buildIncrementalityHref({ entry: "udp", create: true })}>
+                  <Sparkles className="mr-1 h-4 w-4" />
+                  Launch experiment
+                </Link>
+              </Button>
+              <Button
+                variant="outline"
+                className="rounded-full"
+                onClick={() => handleCreateGraph()}
+              >
+                <Network className="mr-1 h-4 w-4" />
+                Create graph
+              </Button>
+              <Button asChild variant="outline" className="rounded-full">
+                <Link href="/dashboard/graphs">Graph library</Link>
+              </Button>
+              <Button asChild variant="outline" className="rounded-full">
+                <Link
+                  href={buildKnowledgeGraphHref({
+                    graphPreset: "full-graph",
+                    graphCenterNodeId: "graph-control-tower",
+                  })}
+                >
+                  Explore live graph
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <MetricStrip />
+
+        <div className="space-y-5">
+          <div className="grid gap-4 xl:grid-cols-2">
+            <div className="space-y-3">
+              {panelWidgets.left.map((widget) => (
+                <OperationsPanel
+                  key={widget.id}
+                  widget={widget}
+                  expanded={expandedWidgets[widget.id]}
+                  onToggle={() =>
+                    setExpandedWidgets((current) => ({
+                      ...current,
+                      [widget.id]: !current[widget.id],
+                    }))
+                  }
+                />
+              ))}
+            </div>
+            <div className="space-y-3">
+              {panelWidgets.right.map((widget) => (
+                <OperationsPanel
+                  key={widget.id}
+                  widget={widget}
+                  expanded={expandedWidgets[widget.id]}
+                  onToggle={() =>
+                    setExpandedWidgets((current) => ({
+                      ...current,
+                      [widget.id]: !current[widget.id],
+                    }))
+                  }
+                />
+              ))}
+            </div>
+          </div>
+
+          <ActionBoard
+            actions={visibleActions}
+            onAction={updateActionState}
+            onCreateGraph={handleCreateGraph}
+          />
+        </div>
+      </div>
+
+      <GraphInstanceDialog
+        open={isGraphDialogOpen}
+        onOpenChange={setIsGraphDialogOpen}
+        source="control_tower"
+        prefill={graphPrefill}
+        onCreated={(instance) => {
+          setGraphPrefill(undefined);
+          router.push(createKnowledgeGraphInstanceHref(instance.id));
+        }}
+      />
+    </>
+  );
+}
+
+export default function DashboardPage() {
+  const { user } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const requestedModule = parseDashboardModule(searchParams.get("module"));
+  const requestedView = parseDashboardView(searchParams.get("view"));
+
+  const allowedModules = useMemo(
+    () => (user ? getAllowedDashboardModules(user.role) : []),
+    [user],
+  );
+
+  const activeModule =
+    requestedModule && allowedModules.some((module) => module.id === requestedModule)
+      ? requestedModule
+      : null;
+  const allowedViews = useMemo(
+    () => (user && activeModule ? getAllowedDashboardViews(user.role, activeModule) : []),
+    [user, activeModule],
+  );
+  const activeView =
+    requestedView && allowedViews.some((view) => view.id === requestedView)
+      ? requestedView
+      : allowedViews[0]?.id ?? null;
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    if (!requestedModule) {
+      const defaultModule = getDefaultDashboardModuleForRole(user.role);
+      if (defaultModule) {
+        const defaultView = getDashboardModuleConfig(defaultModule).defaultView;
+        router.replace(buildDashboardHref(defaultModule, defaultView));
+      }
+      return;
+    }
+
+    if (!activeModule) {
+      const fallbackModule = allowedModules[0];
+      if (fallbackModule) {
+        router.replace(buildDashboardHref(fallbackModule.id, fallbackModule.defaultView));
+      }
+      return;
+    }
+
+    if (!activeView) {
+      const fallbackView = allowedViews[0];
+      if (fallbackView) {
+        router.replace(buildDashboardHref(activeModule, fallbackView.id));
+      }
+    }
+  }, [
+    activeModule,
+    activeView,
+    allowedModules,
+    allowedViews,
+    requestedModule,
+    router,
+    user,
+  ]);
+
+  if (!user) {
+    return null;
+  }
+
+  if (!requestedModule && isCrossDomainDashboardRole(user.role)) {
+    return <ControlTowerOverview />;
+  }
+
+  if (!activeModule || !activeView) {
+    return null;
+  }
+
+  const moduleConfig = getDashboardModuleConfig(activeModule);
+
+  return (
+    <div className="mx-auto max-w-[1500px] space-y-6 pb-28">
+      <Card className="border border-slate-200 bg-white/90 shadow-none">
+        <CardContent className="p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+                Unified Dashboard
+              </p>
+              <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">
+                {moduleConfig.label}
+              </h1>
+              <p className="mt-2 max-w-3xl text-sm text-slate-500">
+                {moduleConfig.description}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <Button asChild variant="outline" className="rounded-full">
+                <Link href={buildDashboardHref()}>Control tower</Link>
+              </Button>
+              <Button asChild className="rounded-full bg-slate-900 hover:bg-slate-950">
+                <Link
+                  href={buildKnowledgeGraphHref({
+                    graphPreset: "full-graph",
+                    graphCenterNodeId: "graph-control-tower",
+                  })}
+                >
+                  Explore Knowledge Graph
+                </Link>
+              </Button>
+            </div>
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            {allowedViews.map((view) => (
+              <Link
+                key={view.id}
+                href={buildDashboardHref(activeModule, view.id)}
+                className={cn(
+                  "rounded-full border px-4 py-2 text-sm font-medium transition",
+                  activeView === view.id
+                    ? "border-slate-900 bg-slate-900 text-white"
+                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-800",
+                )}
+              >
+                {view.label}
+              </Link>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <DashboardModuleSurface module={activeModule} view={activeView} />
+    </div>
+  );
+}

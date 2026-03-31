@@ -1,0 +1,65 @@
+{
+  "default": {
+    "themeId": "default",
+    "themeName": "Default Theme",
+    "variables": {
+      "--chart-primary": "#66b6dd",
+      "--chart-secondary": "#83e4b7",
+      "--chart-axis-text": "#667085",
+      "--chart-label-text": "#475467",
+      "--chart-title-text": "#101828",
+      "--chart-category-1": "#66b6dd",
+      "--chart-category-2": "#83e4b7",
+      "--chart-category-3": "#fe7f34",
+      "--chart-category-4": "#f2a8d5",
+      "--chart-category-5": "#bd8fe1",
+      "--chart-category-6": "#4da3ff",
+      "--chart-category-7": "#4dc98c",
+      "--chart-category-8": "#febb5c",
+      "--chart-category-9": "#f26fb0",
+      "--chart-category-10": "#d5b2f3"
+    }
+  },
+  "client-acme": {
+    "themeId": "client-acme",
+    "themeName": "ACME Corporation Theme",
+    "variables": {
+      "--chart-primary": "#E31837",
+      "--chart-secondary": "#FFC000",
+      "--chart-axis-text": "#3D3D3D",
+      "--chart-label-text": "#5A5A5A",
+      "--chart-title-text": "#1A1A1A",
+      "--chart-category-1": "#E31837",
+      "--chart-category-2": "#FFC000",
+      "--chart-category-3": "#00A859",
+      "--chart-category-4": "#6B46C1",
+      "--chart-category-5": "#EC4899",
+      "--chart-category-6": "#F59E0B",
+      "--chart-category-7": "#10B981",
+      "--chart-category-8": "#3B82F6",
+      "--chart-category-9": "#8B5CF6",
+      "--chart-category-10": "#EF4444"
+    }
+  },
+  "tvg": {
+    "themeId": "tvg",
+    "themeName": "The Very Group theme",
+    "variables": {
+      "--chart-primary": "#df007a",
+      "--chart-secondary": "#fdf2f8",
+      "--chart-axis-text": "#667085",
+      "--chart-label-text": "#475467",
+      "--chart-title-text": "#101828",
+      "--chart-category-1": "#df007a",
+      "--chart-category-2": "#00175a",
+      "--chart-category-3": "#FFC000",
+      "--chart-category-4": "#00A859",
+      "--chart-category-5": "#E31837",
+      "--chart-category-6": "#6B46C1",
+      "--chart-category-7": "#EC4899",
+      "--chart-category-8": "#F59E0B",
+      "--chart-category-9": "#10B981",
+      "--chart-category-10": "#3B82F6"
+    }
+  }
+}

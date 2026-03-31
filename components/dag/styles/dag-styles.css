@@ -1,0 +1,248 @@
+/* DAG-specific styles */
+
+.react-flow__node {
+  @apply transition-all duration-300;
+  cursor: pointer !important;
+}
+
+.react-flow__node:hover {
+  @apply shadow-md;
+  transform: scale(1.02);
+  z-index: 10;
+}
+
+.react-flow__edge-path {
+  @apply transition-all duration-300;
+}
+
+.react-flow__controls {
+  @apply rounded-md border border-gray-200;
+  border-color: rgba(229, 231, 235, 0.8) !important;
+  border-radius: 0.375rem !important;
+  background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.react-flow__controls-button {
+  @apply border-gray-200;
+  border-color: rgba(229, 231, 235, 0.8) !important;
+  background-color: rgba(249, 250, 251, 0.9) !important;
+  color: #4b5563 !important;
+}
+
+.react-flow__minimap {
+  @apply rounded-md border border-gray-200;
+  border-color: rgba(229, 231, 235, 0.8) !important;
+  border-radius: 0.375rem !important;
+  background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Reset View Button Hover Style */
+.react-flow__panel button:hover {
+  background-color: rgba(161, 139, 92, 0.1) !important;
+  color: #a18b5c !important;
+  border-color: #a18b5c !important;
+}
+
+/* M2M Popup Styles */
+.m2m-popup-enter {
+  opacity: 0;
+}
+
+.m2m-popup-enter-active {
+  opacity: 1;
+  transition: opacity 200ms;
+}
+
+.m2m-popup-exit {
+  opacity: 1;
+}
+
+.m2m-popup-exit-active {
+  opacity: 0;
+  transition: opacity 200ms;
+}
+
+/* Edge styling - subtle and professional */
+.react-flow__edge-path {
+  stroke-dasharray: 0;
+  filter: none;
+}
+
+/* Node entrance animation - subtle fade in */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.node-enter {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Background styling */
+.react-flow__background {
+  background: none;
+}
+
+/* Custom background for the flow */
+.dag-container {
+  position: relative;
+  overflow: clip;
+  background: #ffffff;
+}
+
+/* Professional background */
+.professional-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom right, #ffffff, #f8f9fa);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Subtle grid pattern */
+.grid-pattern {
+  display: none;
+}
+
+/* Subtle accent elements */
+.accent-element {
+  position: absolute;
+  z-index: 1;
+  opacity: 0.05;
+}
+
+/* Make sure handles are visible and interactive */
+.react-flow__handle {
+  opacity: 1 !important;
+  cursor: crosshair !important;
+  z-index: 10 !important;
+}
+
+/* Enhanced scrollbar styling */
+.dag-container ::-webkit-scrollbar {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.dag-container ::-webkit-scrollbar-track {
+  background-color: #e5e7eb !important;
+  border-radius: 4px !important;
+}
+
+.dag-container ::-webkit-scrollbar-thumb {
+  background-color: #9ca3af !important;
+  border-radius: 4px !important;
+  border: 3px solid #e5e7eb !important;
+  min-height: 40px !important;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dag-container ::-webkit-scrollbar-thumb:hover {
+  background-color: #6b7280 !important;
+}
+
+/* Firefox scrollbar styling */
+.dag-container * {
+  scrollbar-width: auto !important;
+  scrollbar-color: #9ca3af #e5e7eb !important;
+}
+
+/* Add this class for scrollable areas */
+.dag-container [data-scrollable="true"] {
+  scrollbar-width: auto !important;
+  scrollbar-color: #9ca3af #e5e7eb !important;
+  overflow-y: scroll !important;
+  overflow-x: hidden !important;
+}
+
+/* Add these styles to ensure scrollbars are always visible and interactive */
+.dag-container .scrollable-area {
+  position: relative;
+  height: 150px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background-color: #f9fafb;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+.dag-container .scrollable-content {
+  height: 100%;
+  width: 100%;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  padding: 8px;
+  font-size: 12px;
+  font-family: monospace;
+  position: relative;
+  scrollbar-width: auto;
+  scrollbar-color: #9ca3af #e5e7eb;
+  pointer-events: auto !important;
+  user-select: text;
+  z-index: 10000;
+}
+
+/* Make scrollbars very prominent */
+.dag-container .scrollable-content::-webkit-scrollbar {
+  width: 12px !important;
+  height: 12px !important;
+  display: block !important;
+}
+
+.dag-container .scrollable-content::-webkit-scrollbar-track {
+  background: #e5e7eb !important;
+  border-radius: 4px !important;
+}
+
+.dag-container .scrollable-content::-webkit-scrollbar-thumb {
+  background-color: #9ca3af !important;
+  border-radius: 4px !important;
+  border: 2px solid #e5e7eb !important;
+  min-height: 40px !important;
+}
+
+.dag-container .scrollable-content::-webkit-scrollbar-thumb:hover {
+  background-color: #6b7280 !important;
+}
+
+/* Add a special class to prevent event propagation */
+.dag-container .event-blocker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9998;
+  pointer-events: none;
+}
+
+.dag-container .scrollable-content pre {
+  margin: 0;
+  white-space: pre-wrap;
+  user-select: text;
+}
+
+/* Add a special class for the scrollbar track to make it more clickable */
+.dag-container .scrollable-content::-webkit-scrollbar-track:hover {
+  background-color: #d1d5db;
+}
+
+/* Add a special class for the scrollbar corner */
+.dag-container .scrollable-content::-webkit-scrollbar-corner {
+  background-color: #e5e7eb;
+}
+
+/* Add this new class to isolate scrolling */
+.dag-container .scroll-isolate {
+  pointer-events: auto !important;
+  touch-action: auto !important;
+}

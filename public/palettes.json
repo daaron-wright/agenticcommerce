@@ -1,0 +1,65 @@
+{
+  "default": {
+    "clientId": "default",
+    "clientName": "Default",
+    "chartTokens": {
+      "primary": "#66b6dd",
+      "secondary": "#83e4b7",
+      "axisText": "#667085",
+      "labelText": "#475467",
+      "titleText": "#101828",
+      "category1": "#66b6dd",
+      "category2": "#83e4b7",
+      "category3": "#fe7f34",
+      "category4": "#f2a8d5",
+      "category5": "#bd8fe1",
+      "category6": "#4da3ff",
+      "category7": "#4dc98c",
+      "category8": "#febb5c",
+      "category9": "#f26fb0",
+      "category10": "#d5b2f3"
+    }
+  },
+  "tvg": {
+    "clientId": "tvg",
+    "clientName": "The Very Group",
+    "chartTokens": {
+      "primary": "#df007a",
+      "secondary": "#fdf2f8",
+      "axisText": "#667085",
+      "labelText": "#475467",
+      "titleText": "#101828",
+      "category1": "#df007a",
+      "category2": "#fdf2f8",
+      "category3": "#fe7f34",
+      "category4": "#f2a8d5",
+      "category5": "#bd8fe1",
+      "category6": "#4da3ff",
+      "category7": "#4dc98c",
+      "category8": "#febb5c",
+      "category9": "#f26fb0",
+      "category10": "#d5b2f3"
+    }
+  },
+  "otherclient": {
+    "clientId": "otherclient",
+    "clientName": "Other Client",
+    "chartTokens": {
+      "primary": "#FF6B6B",
+      "secondary": "#FFD93D",
+      "axisText": "#3D3D3D",
+      "labelText": "#5A5A5A",
+      "titleText": "#1A1A1A",
+      "category1": "#FF6B6B",
+      "category2": "#FFD93D",
+      "category3": "#6BCB77",
+      "category4": "#4ECDC4",
+      "category5": "#95E1D3",
+      "category6": "#F38181",
+      "category7": "#AA96DA",
+      "category8": "#FCBAD3",
+      "category9": "#FFD3A5",
+      "category10": "#FDFFAB"
+    }
+  }
+}
