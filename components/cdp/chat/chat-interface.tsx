@@ -215,10 +215,10 @@ const PROMPT_ICON_MAP: Record<string, React.ElementType> = {
 };
 
 const DOMAIN_TAG_STYLES: Record<SuggestedPromptDomain, { label: string; className: string }> = {
-  platform: { label: "Platform", className: "bg-slate-800 text-white" },
-  demand:   { label: "Demand",   className: "bg-teal-50 text-teal-700 border border-teal-200" },
-  udp:      { label: "UDP",      className: "bg-slate-100 text-slate-600" },
-  campaign: { label: "Campaign", className: "bg-violet-50 text-violet-700 border border-violet-200" },
+  platform: { label: "Platform", className: "bg-stone-700 text-white" },
+  demand:   { label: "Demand",   className: "bg-stone-100 text-stone-600 border border-stone-200" },
+  udp:      { label: "UDP",      className: "bg-stone-100 text-stone-600 border border-stone-200" },
+  campaign: { label: "Campaign", className: "bg-stone-100 text-stone-600 border border-stone-200" },
 };
 
 function getGraphDomainFromPromptDomain(
@@ -1121,8 +1121,8 @@ export function ChatInterface({
                         className={cn(
                           "rounded-full border px-3 py-1 text-[11px] font-medium transition",
                           promptDomainFilter === opt.id
-                            ? "border-slate-800 bg-slate-800 text-white"
-                            : "border-slate-200 bg-white/80 text-slate-500 hover:border-slate-400 hover:text-slate-800",
+                            ? "border-stone-700 bg-stone-700 text-white"
+                            : "border-stone-200 bg-white/80 text-stone-500 hover:border-stone-400 hover:text-stone-700",
                         )}
                       >
                         {opt.label}
