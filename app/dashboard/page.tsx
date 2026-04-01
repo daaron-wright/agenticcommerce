@@ -5,7 +5,9 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   CONTROL_TOWER_ACTIONS,
+  CONTROL_TOWER_ALERTS,
   CONTROL_TOWER_HERO_METRICS,
+  CONTROL_TOWER_SUMMARY,
   CONTROL_TOWER_WIDGETS,
   type ControlTowerAction,
   type ControlTowerActionState,
@@ -54,6 +56,7 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
+  Clock,
   Database,
   Megaphone,
   Network,
@@ -1455,6 +1458,18 @@ function ControlTowerOverview() {
   );
   const [actions, setActions] = useState(CONTROL_TOWER_ACTIONS);
   const [isGraphDialogOpen, setIsGraphDialogOpen] = useState(false);
+
+  const pendingActions = useMemo(
+    () => actions.filter((a) => a.state === "pending"),
+    [actions],
+  );
+  const criticalAlert = CONTROL_TOWER_ALERTS.find((a) => a.severity === "critical");
+  const decliningMetric = CONTROL_TOWER_HERO_METRICS.find(
+    (m) =>
+      (m.status === "attention" || m.status === "critical") &&
+      m.sparkline.length >= 2 &&
+      m.sparkline[m.sparkline.length - 1] < m.sparkline[0],
+  );
   const [graphPrefill, setGraphPrefill] = useState<GraphInstancePrefill | undefined>(
     undefined,
   );
@@ -1511,9 +1526,37 @@ function ControlTowerOverview() {
               <p className="mt-2 max-w-3xl text-sm text-stone-500">
                 A single business-facing dashboard for customer data readiness, campaign activation, demand-informed decisions, and the approvals that connect them.
               </p>
+              <p className="mt-1.5 flex items-center gap-1.5 text-xs text-stone-400">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#cc1800]/10 px-2 py-0.5 text-[11px] font-medium text-[#cc1800]">
+                  {CONTROL_TOWER_SUMMARY.criticalAlerts} critical
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+                  {CONTROL_TOWER_SUMMARY.highAlerts} high priority
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600">
+                  {pendingActions.length} open approvals
+                </span>
+                <span className="text-stone-300">·</span>
+                <span className="inline-flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  {CONTROL_TOWER_SUMMARY.dataFreshness}
+                </span>
+              </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
+              <Button
+                className="rounded-full bg-[#3d3c3c] text-white hover:bg-[#2a2a2a]"
+                onClick={() => {
+                  document.getElementById("action-board")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+              >
+                <Check className="mr-1 h-4 w-4" />
+                Review open approvals
+                <Badge className="ml-1.5 rounded-full bg-white/20 px-1.5 text-[10px] text-white">
+                  {pendingActions.length}
+                </Badge>
+              </Button>
               <Button asChild variant="outline" className="rounded-full">
                 <Link href={buildIncrementalityHref({ entry: "udp", create: true })}>
                   <Sparkles className="mr-1 h-4 w-4" />
@@ -1529,9 +1572,6 @@ function ControlTowerOverview() {
                 Create graph
               </Button>
               <Button asChild variant="outline" className="rounded-full">
-                <Link href="/dashboard/graphs">Graph library</Link>
-              </Button>
-              <Button asChild variant="outline" className="rounded-full">
                 <Link
                   href={buildKnowledgeGraphHref({
                     graphPreset: "full-graph",
@@ -1542,6 +1582,83 @@ function ControlTowerOverview() {
                 </Link>
               </Button>
             </div>
+          </div>
+
+          {/* Needs Attention action strip */}
+          <div className="mt-4 flex flex-wrap items-stretch gap-3">
+            {criticalAlert && (
+              <div className="flex min-w-[220px] flex-1 items-center gap-3 rounded-xl border border-[#cc1800]/20 bg-[#cc1800]/5 px-3.5 py-2.5">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#cc1800]/10">
+                  <AlertCircle className="h-4 w-4 text-[#cc1800]" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[11px] font-semibold text-[#cc1800]">
+                    {CONTROL_TOWER_SUMMARY.criticalAlerts} critical alert
+                  </p>
+                  <p className="truncate text-[11px] text-stone-600">
+                    {criticalAlert.title} — {criticalAlert.drilldown?.title ?? "Needs review"}
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  className="shrink-0 rounded-full bg-[#3d3c3c] text-[11px] text-white hover:bg-[#2a2a2a]"
+                  onClick={() => {
+                    document.getElementById("action-board")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                >
+                  Review now
+                </Button>
+              </div>
+            )}
+
+            {pendingActions.length > 0 && (
+              <div className="flex min-w-[220px] flex-1 items-center gap-3 rounded-xl border border-amber-200 bg-amber-50/60 px-3.5 py-2.5">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-100">
+                  <Clock className="h-4 w-4 text-amber-700" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[11px] font-semibold text-amber-800">
+                    {pendingActions.length} approvals pending
+                  </p>
+                  <p className="truncate text-[11px] text-stone-600">
+                    {pendingActions.filter((a) => a.dueLabel?.includes("4h") || a.dueLabel?.includes("today")).length} due today
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  className="shrink-0 rounded-full bg-[#3d3c3c] text-[11px] text-white hover:bg-[#2a2a2a]"
+                  onClick={() => {
+                    document.getElementById("action-board")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                >
+                  Review approvals
+                </Button>
+              </div>
+            )}
+
+            {decliningMetric && (
+              <div className="flex min-w-[220px] flex-1 items-center gap-3 rounded-xl border border-stone-200 bg-stone-50 px-3.5 py-2.5">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-stone-100">
+                  <TrendingDown className="h-4 w-4 text-stone-500" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[11px] font-semibold text-stone-700">
+                    {decliningMetric.label} declining
+                  </p>
+                  <p className="truncate text-[11px] text-stone-500">
+                    {decliningMetric.value} — {decliningMetric.detail}
+                  </p>
+                </div>
+                <Button
+                  asChild
+                  size="sm"
+                  variant="outline"
+                  className="shrink-0 rounded-full text-[11px]"
+                >
+                  <Link href="/demand/dashboard">Investigate</Link>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -1581,11 +1698,13 @@ function ControlTowerOverview() {
             </div>
           </div>
 
-          <ActionBoard
-            actions={visibleActions}
-            onAction={updateActionState}
-            onCreateGraph={handleCreateGraph}
-          />
+          <div id="action-board">
+            <ActionBoard
+              actions={visibleActions}
+              onAction={updateActionState}
+              onCreateGraph={handleCreateGraph}
+            />
+          </div>
         </div>
       </div>
 
