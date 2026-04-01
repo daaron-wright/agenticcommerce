@@ -963,6 +963,228 @@ export const CONTROL_TOWER_ASSISTANT_SUGGESTIONS: ControlTowerAssistantSuggestio
   { id: "assist-udp", label: "Which UDP issues are blocking activation?", href: "/chat", domain: "udp" },
 ];
 
+export interface ControlTowerJourneySignal {
+  id: string;
+  metricId: string;
+  signalType: string;
+  badgeLabel: string;
+  badgeColor: string;
+  title: string;
+  description: string;
+  customerName: string;
+  customerRole: string;
+  impact: string;
+  channel: string;
+  timestamp: string;
+  sidebarLabel: string;
+  drilldown: {
+    narrative: string;
+    ndcExplainer?: string;
+    journeySteps: string[];
+    nextSteps: string[];
+  };
+}
+
+export const CONTROL_TOWER_JOURNEY_SIGNALS: ControlTowerJourneySignal[] = [
+  {
+    id: "signal-bleisure",
+    metricId: "platform-health",
+    signalType: "bleisure_intent",
+    badgeLabel: "Bleisure Intent",
+    badgeColor: "border-violet-200 bg-violet-50 text-violet-700",
+    title: "Bleisure segment signal detected",
+    description:
+      "Emily's profile shows a business-to-leisure trip extension pattern. 42 similar profiles detected this week.",
+    customerName: "Emily R.",
+    customerRole: "CMO, Multinational Corp",
+    impact: "Unlocks ancillary revenue from bleisure segment — hotel, restaurant, and extended-stay upsell.",
+    channel: "App",
+    timestamp: "12 min ago",
+    sidebarLabel: "Bleisure segment signals",
+    drilldown: {
+      narrative:
+        "Emily is the Chief Marketing Officer (CMO) of a multinational corporation and frequently travels to attend meetings and conferences. She decides to extend her business trip and instead make it a \"bleisure\" trip, blending business with leisure to explore the city's culture with her husband Marcus. As a CMO, Emily expects top-notch customer experiences.",
+      journeySteps: [
+        "Business trip to Paris booked for industry conference",
+        "Emily texts husband Marcus about extending the trip",
+        "Marcus agrees — bleisure trip confirmed",
+        "Profile updated with leisure extension and +1 traveler",
+      ],
+      nextSteps: [
+        "Activate bleisure segment targeting for hotel and restaurant recommendations",
+        "Monitor conversion rate on ancillary offers for this segment",
+        "Feed bleisure pattern data back into demand forecasting models",
+      ],
+    },
+  },
+  {
+    id: "signal-ndc-upsell",
+    metricId: "active-alerts",
+    signalType: "ndc_upsell",
+    badgeLabel: "NDC Offer",
+    badgeColor: "border-blue-200 bg-blue-50 text-blue-700",
+    title: "NDC upsell opportunity fired",
+    description:
+      "Real-time NDC +1 seat offer pushed to Emily. Personalized pricing based on past preferences and trip purpose.",
+    customerName: "Emily R.",
+    customerRole: "CMO, Multinational Corp",
+    impact: "NDC-powered personalized offers drive higher attach rates and incremental seat revenue.",
+    channel: "NDC",
+    timestamp: "18 min ago",
+    sidebarLabel: "NDC offer alerts",
+    drilldown: {
+      narrative:
+        "Heading to Paris for an industry conference, Emily receives a notification from her airline that a low-fare seat is available on her flight. The airline asks: \"Want a +1 to Paris? You can book a second ticket at a discounted price.\"",
+      ndcExplainer:
+        "New Distribution Capability (NDC) is a set of standards launched by the International Air Transport Association (IATA) to modernize airline distribution and retailing. It enables airlines, including third-party technology partners, to provide more personalized offers and content directly to travel sellers and consumers. By facilitating direct connections between airlines and travel providers, NDC enhances the booking experience, fosters innovation, and improves the overall efficiency of the travel industry.",
+      journeySteps: [
+        "Emily books Paris flight for conference",
+        "NDC engine detects +1 seat opportunity at discounted price",
+        "Push notification sent via airline app",
+        "Emily views seat map and selects Economy seat D4",
+        "Second ticket booked at discounted rate",
+      ],
+      nextSteps: [
+        "Track NDC offer acceptance rate across similar profiles",
+        "A/B test offer timing — pre-departure vs. day-of notifications",
+        "Feed conversion data into NDC personalization engine",
+      ],
+    },
+  },
+  {
+    id: "signal-payment-routing",
+    metricId: "pending-actions",
+    signalType: "payment_routing",
+    badgeLabel: "Payment Review",
+    badgeColor: "border-amber-200 bg-amber-50 text-amber-700",
+    title: "Payment routing decision",
+    description:
+      "Emily selected personal card over business card for bleisure add-ons. Policy review: split payment eligibility.",
+    customerName: "Emily R.",
+    customerRole: "CMO, Multinational Corp",
+    impact: "Split-payment insight helps optimize checkout UX and corporate travel policy compliance.",
+    channel: "App",
+    timestamp: "8 min ago",
+    sidebarLabel: "Payment routing review",
+    drilldown: {
+      narrative:
+        "Emily reviews the final trip summary and she is ready to make the payment. She is presented with two cards on file — a personal card and a business card — and selects the personal card for the bleisure add-ons.",
+      journeySteps: [
+        "Trip summary presented — extra seat added, USD 220 total",
+        "Payment screen shows two saved cards",
+        "Emily selects personal card (ending 1289, exp 07/25)",
+        "Business card available but not used for leisure add-ons",
+        "Payment processed successfully",
+      ],
+      nextSteps: [
+        "Evaluate split-payment feature for mixed business/leisure bookings",
+        "Review corporate policy compliance for dual-card scenarios",
+        "Surface payment preference insights to the finance team",
+      ],
+    },
+  },
+  {
+    id: "signal-omnichannel",
+    metricId: "udp-readiness",
+    signalType: "omni_channel",
+    badgeLabel: "Cross-Channel",
+    badgeColor: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    title: "Omni-channel engagement journey",
+    description:
+      "Emily engaged across app → airline platform → hotel → restaurant. 4-channel journey within a single booking flow.",
+    customerName: "Emily R.",
+    customerRole: "CMO, Multinational Corp",
+    impact: "Cross-channel data enables holistic service delivery and highly segmented consumer offerings.",
+    channel: "Omni-channel",
+    timestamp: "5 min ago",
+    sidebarLabel: "Cross-channel journey map",
+    drilldown: {
+      narrative:
+        "The platform offers personalized recommendations based on Emily's past preferences, trip purpose, willingness to pay, trip geolocation and psychographics. Emily asks for hotels near her conference center and receives curated hotel recommendations with ratings, pricing, and map locations.",
+      ndcExplainer:
+        "Omni-channel commerce platforms integrate physical, mobile and online channels to provide holistic services to guests. The collection of cross-channel data allows for the delivery of offerings that meet the needs of highly segmented and demanding consumers.",
+      journeySteps: [
+        "Flight itinerary confirmed via airline app (JFK → CDG)",
+        "Emily asks: \"Could you show me hotels near my conference center?\"",
+        "Platform surfaces curated hotel list — Hôtel R de Paris ($200), Hotel Milie Rose ($180), Britannique Hotel ($164)",
+        "Restaurant recommendations also offered based on geolocation",
+        "Emily responds: \"I'd love to see those recommendations\"",
+      ],
+      nextSteps: [
+        "Measure cross-channel conversion funnel for bleisure segment",
+        "Optimize hotel/restaurant recommendation engine with trip-purpose data",
+        "Expand omni-channel journey tracking to include ground transport",
+      ],
+    },
+  },
+  {
+    id: "signal-ancillary-demand",
+    metricId: "forecast-accuracy",
+    signalType: "ancillary_demand",
+    badgeLabel: "Ancillary Demand",
+    badgeColor: "border-teal-200 bg-teal-50 text-teal-700",
+    title: "Seat selection + ancillary demand signal",
+    description:
+      "Economy seat D4 selected. Ancillary attach rate trending up — hotel + restaurant recommendations accepted.",
+    customerName: "Emily R.",
+    customerRole: "CMO, Multinational Corp",
+    impact: "Ancillary demand signals improve forecasting accuracy for partner inventory and upsell capacity.",
+    channel: "App",
+    timestamp: "15 min ago",
+    sidebarLabel: "Ancillary demand signals",
+    drilldown: {
+      narrative:
+        "Emily selects Economy seat D4 from the seat map. After booking, the platform surfaces hotel and restaurant recommendations which she accepts, creating a multi-service ancillary demand signal that feeds back into forecasting models.",
+      journeySteps: [
+        "Seat map displayed — Economy Class layout",
+        "Emily selects seat D4 (highlighted in blue)",
+        "Button changes from \"View details\" to \"Book seat\"",
+        "Post-booking: hotel recommendations surfaced and accepted",
+        "Restaurant recommendations accepted — full ancillary bundle",
+      ],
+      nextSteps: [
+        "Update ancillary demand forecast with real-time attach rate data",
+        "Feed seat selection patterns into inventory optimization",
+        "Track bundle conversion rates for bleisure vs. business-only segments",
+      ],
+    },
+  },
+  {
+    id: "signal-iva-conversion",
+    metricId: "activation-readiness",
+    signalType: "iva_interaction",
+    badgeLabel: "IVA Interaction",
+    badgeColor: "border-indigo-200 bg-indigo-50 text-indigo-700",
+    title: "IVA conversion path completed",
+    description:
+      "Emily used IVA during payment processing. Chat-to-resolution: 1 interaction. IVA drove seamless payment completion.",
+    customerName: "Emily R.",
+    customerRole: "CMO, Multinational Corp",
+    impact: "IVA-assisted journeys show higher completion rates and reduced support escalation.",
+    channel: "IVA",
+    timestamp: "3 min ago",
+    sidebarLabel: "IVA conversion paths",
+    drilldown: {
+      narrative:
+        "Emily glances at the loading screen, unsure how long it will take. She waits a few seconds, then taps 'Chat with Sky' to see what's happening. The IVA greets her: \"Hey Emily, I see your payment is being fixed. Start the chat to see Live Payment Status.\"",
+      ndcExplainer:
+        "IVA provides modernized customer care that's not just conversational, but also personal. It utilizes Adaptive Understanding Technology, which seamlessly blends artificial intelligence and human understanding, and allows us to deliver human-like experiences across all customer care channels.",
+      journeySteps: [
+        "Payment processing initiated",
+        "Loading screen displayed — Emily uncertain about status",
+        "Emily taps 'Chat with Sky' (IVA)",
+        "IVA recognizes Emily and provides live payment status",
+        "Payment completed successfully with IVA assistance",
+      ],
+      nextSteps: [
+        "Monitor IVA resolution rate for payment-related queries",
+        "Optimize IVA proactive messaging for payment wait times",
+        "Expand IVA capability to handle split-payment scenarios",
+      ],
+    },
+  },
+];
+
 export const CONTROL_TOWER_SUMMARY = {
   totalAlerts: CONTROL_TOWER_ALERTS.length,
   criticalAlerts: CONTROL_TOWER_ALERTS.filter((alert) => alert.severity === "critical").length,

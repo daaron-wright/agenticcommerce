@@ -7,6 +7,7 @@ import {
   CONTROL_TOWER_ACTIONS,
   CONTROL_TOWER_ALERTS,
   CONTROL_TOWER_HERO_METRICS,
+  CONTROL_TOWER_JOURNEY_SIGNALS,
   CONTROL_TOWER_SUMMARY,
   CONTROL_TOWER_WIDGETS,
   type ControlTowerAction,
@@ -18,6 +19,7 @@ import {
   type ControlTowerSeverity,
   type ControlTowerStatus,
   type ControlTowerWidget,
+  type ControlTowerJourneySignal,
 } from "@/lib/control-tower-data";
 import { useAuth } from "@/lib/auth-context";
 import { DashboardModuleSurface } from "@/components/dashboard/module-dashboard-content";
@@ -48,6 +50,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   AlertCircle,
   AlertTriangle,
@@ -319,10 +327,12 @@ function MetricNavigator() {
     return criticalIdx >= 0 ? criticalIdx : 0;
   });
 
+  const [signalSheetOpen, setSignalSheetOpen] = useState(false);
   const metric = CONTROL_TOWER_HERO_METRICS[selectedIndex];
   const status = STATUS_META[metric.status];
   const sparkColor = SPARKLINE_COLORS[metric.status];
   const actions = METRIC_ACTIONS[metric.id] ?? [];
+  const signal = CONTROL_TOWER_JOURNEY_SIGNALS.find((s) => s.metricId === metric.id);
 
   return (
     <div className="space-y-0">
@@ -370,6 +380,22 @@ function MetricNavigator() {
                   {a.label} →
                 </a>
               ))}
+              {signal && (
+                <button
+                  onClick={() => setSignalSheetOpen(true)}
+                  className="mt-2 flex items-center gap-1.5 text-left"
+                >
+                  <Badge
+                    variant="outline"
+                    className={cn("text-[9px] shrink-0", signal.badgeColor)}
+                  >
+                    {signal.badgeLabel}
+                  </Badge>
+                  <span className="text-[11px] font-medium text-stone-500 hover:text-[#3d3c3c] transition-colors">
+                    {signal.sidebarLabel} →
+                  </span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -423,10 +449,152 @@ function MetricNavigator() {
               </ResponsiveContainer>
             </div>
             <p className="mt-2 text-[12px] text-stone-500">{metric.detail}</p>
+
+            {/* Journey signal insight card */}
+            {signal && (
+              <div className="mt-4 rounded-xl border border-stone-200 bg-white p-4" style={{ borderLeft: `3px solid ${sparkColor}` }}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Badge
+                        variant="outline"
+                        className={cn("text-[9px]", signal.badgeColor)}
+                      >
+                        {signal.badgeLabel}
+                      </Badge>
+                      <span className="text-[10px] text-stone-400">{signal.timestamp}</span>
+                    </div>
+                    <p className="text-[13px] font-semibold text-[#3d3c3c]">
+                      {signal.title}
+                    </p>
+                    <p className="mt-1 text-[11px] text-stone-500 leading-relaxed">
+                      {signal.description}
+                    </p>
+                    <div className="mt-2 flex items-center gap-3 text-[10px] text-stone-400">
+                      <span>{signal.customerName} · {signal.customerRole}</span>
+                      <span className="rounded-full bg-stone-100 px-2 py-0.5 text-stone-500">{signal.channel}</span>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="shrink-0 text-[11px] h-7"
+                    onClick={() => setSignalSheetOpen(true)}
+                  >
+                    Investigate
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Journey Signal Drill-down Sheet */}
+      {signal && (
+        <JourneySignalSheet
+          signal={signal}
+          open={signalSheetOpen}
+          onOpenChange={setSignalSheetOpen}
+        />
+      )}
     </div>
+  );
+}
+
+function JourneySignalSheet({
+  signal,
+  open,
+  onOpenChange,
+}: {
+  signal: ControlTowerJourneySignal;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="w-[480px] sm:max-w-[480px] overflow-y-auto">
+        <SheetHeader className="pb-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Badge
+              variant="outline"
+              className={cn("text-[10px]", signal.badgeColor)}
+            >
+              {signal.badgeLabel}
+            </Badge>
+            <span className="text-[11px] text-stone-400">{signal.channel}</span>
+          </div>
+          <SheetTitle className="text-[16px] font-semibold text-[#3d3c3c]">
+            {signal.title}
+          </SheetTitle>
+          <p className="text-[12px] text-stone-500">
+            {signal.customerName} · {signal.customerRole}
+          </p>
+        </SheetHeader>
+
+        <div className="space-y-6 pt-2">
+          {/* Impact */}
+          <div className="rounded-lg border border-stone-100 bg-stone-50/60 p-3">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-400 mb-1">Business Impact</p>
+            <p className="text-[12px] text-[#3d3c3c] leading-relaxed">{signal.impact}</p>
+          </div>
+
+          {/* Narrative */}
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-400 mb-2">Customer Story</p>
+            <p className="text-[12px] text-stone-600 leading-relaxed">
+              {signal.drilldown.narrative}
+            </p>
+          </div>
+
+          {/* NDC / IVA / Omni-channel Explainer */}
+          {signal.drilldown.ndcExplainer && (
+            <div className="rounded-lg border border-blue-100 bg-blue-50/40 p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-blue-400 mb-1">Technology Context</p>
+              <p className="text-[12px] text-stone-600 leading-relaxed">
+                {signal.drilldown.ndcExplainer}
+              </p>
+            </div>
+          )}
+
+          {/* Journey Timeline */}
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-400 mb-2">Journey Steps</p>
+            <div className="space-y-0">
+              {signal.drilldown.journeySteps.map((step, i) => (
+                <div key={i} className="flex items-start gap-3 pb-3 last:pb-0">
+                  <div className="flex flex-col items-center">
+                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-stone-200 text-[10px] font-semibold text-stone-600">
+                      {i + 1}
+                    </div>
+                    {i < signal.drilldown.journeySteps.length - 1 && (
+                      <div className="mt-1 h-4 w-px bg-stone-200" />
+                    )}
+                  </div>
+                  <p className="text-[12px] text-stone-600 pt-0.5">{step}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Next Steps */}
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-400 mb-2">Recommended Actions</p>
+            <div className="space-y-2">
+              {signal.drilldown.nextSteps.map((step, i) => (
+                <div
+                  key={i}
+                  className="flex items-start gap-2 rounded-lg border border-stone-100 bg-white p-2.5"
+                >
+                  <ArrowRight className="mt-0.5 h-3 w-3 shrink-0 text-stone-400" />
+                  <p className="text-[12px] text-stone-600">{step}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }
 
