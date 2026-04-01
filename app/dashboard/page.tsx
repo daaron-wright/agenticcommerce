@@ -801,11 +801,11 @@ function ActionBoard({
               key={action.id}
               className={cn(
                 "rounded-2xl border border-stone-200 bg-stone-50/40 px-4 py-3 transition-all duration-500",
-                action.domain === "demand"
-                  ? "border-l-4 border-l-teal-400"
-                  : action.domain === "campaign"
-                      ? "border-l-4 border-l-violet-400"
-                      : "border-l-4 border-l-stone-400",
+                action.severity === "critical"
+                  ? "border-l-4 border-l-[#ff462d]"
+                  : action.severity === "high"
+                      ? "border-l-4 border-l-[#f59e0b]"
+                      : "border-l-4 border-l-stone-300",
                 isHighlighted && "ring-2 ring-stone-700 ring-offset-2 bg-stone-100",
               )}
             >
