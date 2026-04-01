@@ -156,7 +156,7 @@ function BreadcrumbBar({
     return [...base, ...override.items];
   }, [override, pathname, searchParams]);
 
-  if (items.length === 0 || pathname === "/chat") {
+  if (items.length === 0) {
     return null;
   }
 
@@ -187,6 +187,38 @@ function BreadcrumbBar({
         })}
       </BreadcrumbList>
     </Breadcrumb>
+  );
+}
+
+const DATA_SOURCE_MAP: Record<string, { label: string; module: string }> = {
+  "/dashboard": { label: "UDP Control Tower", module: "Control Tower" },
+  "/chat": { label: "UDP Control Tower", module: "Conversational AI" },
+  "/udp": { label: "Unified Data Platform", module: "Customer Profiles" },
+  "/campaigns": { label: "Campaign Management", module: "Campaigns" },
+  "/demand": { label: "Demand Signal Engine", module: "Demand Planning" },
+  "/analytics": { label: "UDP Control Tower", module: "Analytics" },
+};
+
+function resolveDataSource(pathname: string) {
+  const exact = DATA_SOURCE_MAP[pathname];
+  if (exact) return exact;
+  for (const [prefix, source] of Object.entries(DATA_SOURCE_MAP)) {
+    if (pathname.startsWith(prefix + "/")) return source;
+  }
+  return { label: "Unified Data Platform", module: "Platform" };
+}
+
+function ConnectionStatusBar({ pathname }: { pathname: string }) {
+  const source = resolveDataSource(pathname);
+  return (
+    <div className="flex items-center gap-2 border-b bg-stone-50/60 px-6 py-1.5 text-xs text-muted-foreground shrink-0">
+      <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
+      <span className="font-medium text-stone-600">Connected</span>
+      <span className="text-stone-300">—</span>
+      <span className="text-stone-500">{source.label}</span>
+      <span className="text-stone-300">·</span>
+      <span className="text-stone-400">{source.module}</span>
+    </div>
   );
 }
 
@@ -651,6 +683,9 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
             </DropdownMenu>
           </div>
         </header>
+
+        {/* Connection status bar */}
+        <ConnectionStatusBar pathname={pathname} />
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-6 relative">

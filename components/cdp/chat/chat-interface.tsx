@@ -995,24 +995,22 @@ export function ChatInterface({
     : filteredPromptCards.slice(0, 6);
 
   return (
-    <div className="relative flex flex-col h-[calc(100vh-4rem)] -m-6 bg-background">
+    <div className="relative flex flex-col h-[calc(100vh-5.5rem)] -m-6 bg-background">
       {/* Full-panel background */}
       <SubwayMapBackground />
-      {/* Connection status + breadcrumb bar */}
+      {/* Agent activity + controls bar */}
       <div className="flex items-center gap-2 px-4 py-2 border-b bg-stone-50/60 text-xs text-muted-foreground shrink-0">
-        <MdOutlineFiberManualRecord
-          className={cn(
-            "h-3 w-3",
-            isIdle ? "text-emerald-500" : "text-amber-500"
-          )}
-        />
-        <span>
-          {phase === "idle" && "Connected — Ready"}
-          {phase === "thinking" && "Agent thinking..."}
-          {phase === "tool_call" && "Processing..."}
-          {phase === "streaming" && "Generating response..."}
-          {phase === "complete" && "Complete"}
-        </span>
+        {!isIdle && (
+          <>
+            <MdOutlineFiberManualRecord className="h-3 w-3 text-amber-500" />
+            <span>
+              {phase === "thinking" && "Agent thinking..."}
+              {phase === "tool_call" && "Processing..."}
+              {phase === "streaming" && "Generating response..."}
+              {phase === "complete" && "Complete"}
+            </span>
+          </>
+        )}
 
         {(phase === "tool_call" || phase === "streaming") &&
           (completedSteps.length > 0 || currentStep) && (
@@ -1033,12 +1031,6 @@ export function ChatInterface({
               )}
             </div>
           )}
-
-        {/* Breadcrumb inline */}
-        <span className="mx-2 text-stone-300">·</span>
-        <span className="text-[11px] font-medium text-stone-400">Dashboard</span>
-        <span className="text-stone-300">/</span>
-        <span className="text-[11px] font-medium text-[#3d3c3c]">Chat</span>
 
         <div className="ml-auto flex items-center gap-2 shrink-0">
           <span className="text-[10px] text-muted-foreground">Recommendation profile</span>
