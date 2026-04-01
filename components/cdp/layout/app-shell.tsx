@@ -579,19 +579,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                 </div>
               </div>
 
-              {/* Knowledge Graph link */}
-              <div className="flex items-center gap-2">
-                <Link
-                  href={buildKnowledgeGraphHref({
-                    graphPreset: "full-graph",
-                    graphCenterNodeId: "graph-control-tower",
-                  })}
-                  prefetch={false}
-                  className="rounded-full bg-[#3d3c3c] px-3 py-1.5 text-[11px] font-medium text-white hover:bg-[#161616]"
-                >
-                  Knowledge Graph
-                </Link>
-              </div>
+              <div className="flex items-center gap-2" />
             </>
           ) : (
             <>
