@@ -128,10 +128,10 @@ const GROUP_ORDER = ["platform", "data", "commercial", "demand"] as const;
 type NavGroupId = (typeof GROUP_ORDER)[number];
 
 const GROUP_META: Record<NavGroupId, { label: string; icon: React.ElementType }> = {
-  platform: { label: "UDP Control Tower", icon: Monitor },
-  data: { label: "Data Foundation", icon: Database },
+  platform: { label: "Control Tower", icon: Monitor },
+  data: { label: "Data & Insights", icon: Database },
   commercial: { label: "Commercial", icon: Megaphone },
-  demand: { label: "Demand Signal", icon: BarChart3 },
+  demand: { label: "Demand", icon: BarChart3 },
 };
 
 function BreadcrumbBar({
@@ -392,23 +392,17 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
     if (hasPermissionForUser(user, "action_approve_review")) {
       if (!groups.data) groups.data = [];
       if (!groups.data.some((i) => i.href === "/analytics/pending-review")) {
-        groups.data.push({ label: "Pending Review", href: "/analytics/pending-review" });
-      }
-      if (!groups.data.some((i) => i.href === "/analytics/confirmed-actions")) {
-        groups.data.push({ label: "Confirmed Actions", href: "/analytics/confirmed-actions" });
+        groups.data.push({ label: "Action Queue", href: "/analytics/pending-review" });
       }
     }
 
     // Inject graph & experiment items into "data" group
     if (!groups.data) groups.data = [];
-    if (!groups.data.some((i) => i.href.startsWith("/udp/incrementality"))) {
-      groups.data.push({ label: "Launch Experiment", href: "/udp/incrementality?create=true" });
-    }
-    if (!groups.data.some((i) => i.href === "/dashboard/graphs")) {
-      groups.data.push({ label: "Create Graph", href: "/dashboard/graphs" });
-    }
     if (!groups.data.some((i) => i.href.startsWith("/dashboard/graph?"))) {
-      groups.data.push({ label: "Explore Live Graph", href: "/dashboard/graph?preset=full-graph&center=graph-control-tower" });
+      groups.data.push({ label: "Knowledge Graph", href: "/dashboard/graph?preset=full-graph&center=graph-control-tower" });
+    }
+    if (!groups.data.some((i) => i.href.startsWith("/udp/incrementality"))) {
+      groups.data.push({ label: "Experiments", href: "/udp/incrementality?create=true" });
     }
 
     return groups;
