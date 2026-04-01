@@ -1672,6 +1672,26 @@ function ControlTowerOverview() {
           </div>
         </div>
 
+        {/* Alert summary strip */}
+        <div className="flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2.5">
+          <div className="flex items-center gap-1.5 rounded-full border border-[#ff462d4d] bg-[#ff462d14] px-2.5 py-1 text-[11px] font-semibold text-[#ff462d]">
+            <AlertCircle className="h-3 w-3" />
+            {CONTROL_TOWER_SUMMARY.criticalAlerts} critical
+          </div>
+          <div className="flex items-center gap-1.5 rounded-full border border-[#f59e0b33] bg-[#f59e0b14] px-2.5 py-1 text-[11px] font-semibold text-[#f59e0b]">
+            <AlertTriangle className="h-3 w-3" />
+            {CONTROL_TOWER_SUMMARY.highAlerts} high
+          </div>
+          <div className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-[11px] font-medium text-stone-500">
+            {CONTROL_TOWER_SUMMARY.totalAlerts} alerts
+          </div>
+          <span className="ml-1 text-[11px] text-stone-400">·</span>
+          <span className="inline-flex items-center gap-1 text-[11px] text-stone-400">
+            <Clock className="h-3 w-3" />
+            {CONTROL_TOWER_SUMMARY.dataFreshness}
+          </span>
+        </div>
+
         <MetricStrip />
 
         <div className="space-y-5">

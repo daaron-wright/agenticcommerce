@@ -579,24 +579,15 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                 </div>
               </div>
 
-              {/* Alert signal badges + Knowledge Graph */}
+              {/* Knowledge Graph link */}
               <div className="flex items-center gap-2">
-                <div className="rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-[11px] font-semibold text-[#cc1800]">
-                  {CONTROL_TOWER_SUMMARY.criticalAlerts} critical
-                </div>
-                <div className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700">
-                  {CONTROL_TOWER_SUMMARY.highAlerts} high
-                </div>
-                <div className="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-[11px] font-medium text-stone-600">
-                  {CONTROL_TOWER_SUMMARY.totalAlerts} alerts
-                </div>
                 <Link
                   href={buildKnowledgeGraphHref({
                     graphPreset: "full-graph",
                     graphCenterNodeId: "graph-control-tower",
                   })}
                   prefetch={false}
-                  className="ml-2 rounded-full bg-[#3d3c3c] px-3 py-1.5 text-[11px] font-medium text-white hover:bg-[#161616]"
+                  className="rounded-full bg-[#3d3c3c] px-3 py-1.5 text-[11px] font-medium text-white hover:bg-[#161616]"
                 >
                   Knowledge Graph
                 </Link>
