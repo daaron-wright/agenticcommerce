@@ -103,12 +103,11 @@ const HREF_TO_GROUP: Record<string, string> = {
   "/chat": "platform",
   "/analytics/pending-review": "platform",
   "/analytics/confirmed-actions": "platform",
-  // UDP (data foundation / lake)
-  "/udp/dashboard": "udp",
-  "/customers": "udp",
-  "/dashboard/graph": "udp",
-  "/dashboard/graphs": "udp",
-  // Data & Insights
+  // Unified Data (data foundation + insights)
+  "/udp/dashboard": "data",
+  "/customers": "data",
+  "/dashboard/graph": "data",
+  "/dashboard/graphs": "data",
   "/analytics": "data",
   "/udp/incrementality": "data",
   // Commercial
@@ -127,13 +126,12 @@ const HREF_TO_GROUP: Record<string, string> = {
   "/demand/analytics": "demand",
 };
 
-const GROUP_ORDER = ["platform", "udp", "data", "commercial", "demand"] as const;
+const GROUP_ORDER = ["platform", "data", "commercial", "demand"] as const;
 type NavGroupId = (typeof GROUP_ORDER)[number];
 
 const GROUP_META: Record<NavGroupId, { label: string; icon: React.ElementType }> = {
   platform: { label: "Control Tower", icon: Monitor },
-  udp: { label: "UDP", icon: Database },
-  data: { label: "Data & Insights", icon: PieChart },
+  data: { label: "Unified Data", icon: Database },
   commercial: { label: "Commercial", icon: Megaphone },
   demand: { label: "Demand", icon: BarChart3 },
 };
@@ -400,10 +398,10 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
       }
     }
 
-    // Inject Knowledge Graph into "udp" group
-    if (!groups.udp) groups.udp = [];
-    if (!groups.udp.some((i) => i.href.startsWith("/dashboard/graph?"))) {
-      groups.udp.push({ label: "Knowledge Graph", href: "/dashboard/graph?preset=full-graph&center=graph-control-tower" });
+    // Inject Knowledge Graph into "data" group (Unified Data)
+    if (!groups.data) groups.data = [];
+    if (!groups.data.some((i) => i.href.startsWith("/dashboard/graph?"))) {
+      groups.data.push({ label: "Knowledge Graph", href: "/dashboard/graph?preset=full-graph&center=graph-control-tower" });
     }
 
     return groups;

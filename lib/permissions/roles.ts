@@ -219,11 +219,9 @@ export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
     { label: "Chat", href: "/chat", description: "Unified AI Workspace" },
 
-    // UDP (data foundation)
+    // Unified Data
     { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
     { label: "Customers", href: "/customers", description: "Customer Profiles" },
-
-    // Data & Insights
     { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
     { label: "Experiments", href: "/udp/incrementality", description: "All experiments across demand + commercial" },
 
@@ -246,11 +244,9 @@ export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
     // Control Tower
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
 
-    // UDP (data foundation)
+    // Unified Data
     { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
     { label: "Customers", href: "/customers", description: "Customer Profiles" },
-
-    // Data & Insights
     { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
     { label: "Experiments", href: "/udp/incrementality", description: "All experiments across demand + commercial" },
     { label: "Reports", href: "/reports", description: "Performance Reports" },
@@ -261,11 +257,9 @@ export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
     { label: "Chat", href: "/chat", description: "AI Marketing Assistant" },
 
-    // UDP (data foundation)
+    // Unified Data
     { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
     { label: "Customers", href: "/customers", description: "Customer Profiles" },
-
-    // Data & Insights
     { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
     { label: "Experiments", href: "/udp/incrementality", description: "All experiments across demand + commercial" },
 
@@ -281,7 +275,7 @@ export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
     { label: "Chat", href: "/chat", description: "Operator Workspace" },
 
-    // UDP (data foundation)
+    // Unified Data
     { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
     { label: "Customers", href: "/customers", description: "Find Customers" },
 
@@ -294,11 +288,9 @@ export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
     { label: "Chat", href: "/chat", description: "Unified AI Workspace" },
 
-    // UDP (data foundation)
+    // Unified Data
     { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
     { label: "Customers", href: "/customers", description: "Customer Profiles" },
-
-    // Data & Insights
     { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
     { label: "Experiments", href: "/udp/incrementality", description: "All experiments across demand + commercial" },
 
@@ -323,11 +315,9 @@ export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
     { label: "Chat", href: "/chat", description: "Unified AI Workspace" },
 
-    // UDP (data foundation)
+    // Unified Data
     { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
     { label: "Customers", href: "/customers", description: "Customer Profiles" },
-
-    // Data & Insights
     { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
     { label: "Experiments", href: "/udp/incrementality", description: "All experiments across demand + commercial" },
 
