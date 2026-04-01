@@ -116,7 +116,7 @@ const HREF_TO_GROUP: Record<string, string> = {
   "/demand/dashboard": "demand",
   "/demand/mmm": "demand",
   "/demand/incrementality": "demand",
-  "/demand/nba": "demand",
+  "/demand/nba": "platform",
   "/demand/campaigns": "demand",
   "/demand/audiences": "demand",
   "/demand/customers": "demand",
@@ -396,13 +396,10 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
       }
     }
 
-    // Inject graph & experiment items into "data" group
+    // Inject Knowledge Graph into "data" group
     if (!groups.data) groups.data = [];
     if (!groups.data.some((i) => i.href.startsWith("/dashboard/graph?"))) {
       groups.data.push({ label: "Knowledge Graph", href: "/dashboard/graph?preset=full-graph&center=graph-control-tower" });
-    }
-    if (!groups.data.some((i) => i.href.startsWith("/udp/incrementality"))) {
-      groups.data.push({ label: "Experiments", href: "/udp/incrementality?create=true" });
     }
 
     return groups;

@@ -218,39 +218,38 @@ export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
     // Control Tower
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
     { label: "Chat", href: "/chat", description: "Unified AI Workspace" },
+    { label: "NBAs", href: "/demand/nba", description: "Next Best Actions" },
     // Data & Insights
     { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
     { label: "Customers", href: "/customers", description: "Customer Profiles" },
     { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
     { label: "Knowledge Graph", href: "/dashboard/graph?preset=full-graph&center=graph-control-tower", description: "Explore the live knowledge graph" },
-    { label: "Experiments", href: "/udp/incrementality?create=true", description: "Shared Experiment Workspace" },
     // Commercial
     { label: "Campaigns", href: "/campaigns", description: "Campaign Management" },
     { label: "Audiences", href: "/audiences", description: "Segment & Target" },
-    { label: "Experiments", href: "/udp/incrementality", description: "Incrementality Testing" },
+    { label: "Experiments", href: "/udp/incrementality", description: "All experiments across demand + commercial" },
     { label: "Mix Modeling", href: "/mmm", description: "Marketing Mix Modeling" },
     { label: "Reports", href: "/reports", description: "Performance Reports" },
     // Demand
     { label: "Overview", href: "/demand/dashboard", description: "Demand Planning" },
-    { label: "Planning", href: "/demand/nba", description: "Planning Actions" },
     { label: "Campaigns", href: "/demand/campaigns", description: "Demand Activation" },
     { label: "Audiences", href: "/demand/audiences", description: "Demand Segments" },
     { label: "Customers", href: "/demand/customers", description: "Demand Customer View" },
     { label: "Analytics", href: "/demand/analytics", description: "Demand Performance" },
     { label: "Drivers", href: "/demand/mmm", description: "Demand Analysis" },
-    { label: "Experiments", href: "/demand/incrementality", description: "Demand Experiment Results" },
     { label: "Reports", href: "/demand/reports", description: "Demand Reporting" },
   ],
   data_admin: [
     // Control Tower
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
+    { label: "NBAs", href: "/demand/nba", description: "Next Best Actions" },
     // Data & Insights
     { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
     { label: "Customers", href: "/customers", description: "Customer Profiles" },
     { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
     { label: "Knowledge Graph", href: "/dashboard/graph?preset=full-graph&center=graph-control-tower", description: "Explore the live knowledge graph" },
-    { label: "Experiments", href: "/udp/incrementality?create=true", description: "Shared Experiment Workspace" },
     // Commercial
+    { label: "Experiments", href: "/udp/incrementality", description: "All experiments across demand + commercial" },
     { label: "Reports", href: "/reports", description: "Performance Reports" },
   ],
 
@@ -258,16 +257,16 @@ export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
     // Control Tower
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
     { label: "Chat", href: "/chat", description: "AI Marketing Assistant" },
+    { label: "NBAs", href: "/demand/nba", description: "Next Best Actions" },
     // Data & Insights
     { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
     { label: "Customers", href: "/customers", description: "Customer Profiles" },
     { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
     { label: "Knowledge Graph", href: "/dashboard/graph?preset=full-graph&center=graph-control-tower", description: "Explore the live knowledge graph" },
-    { label: "Experiments", href: "/udp/incrementality?create=true", description: "Shared Experiment Workspace" },
     // Commercial
     { label: "Campaigns", href: "/campaigns", description: "Campaign Management" },
     { label: "Audiences", href: "/audiences", description: "Segment & Target" },
-    { label: "Experiments", href: "/udp/incrementality", description: "Incrementality Testing" },
+    { label: "Experiments", href: "/udp/incrementality", description: "All experiments across demand + commercial" },
     { label: "Mix Modeling", href: "/mmm", description: "Marketing Mix Modeling" },
     { label: "Reports", href: "/reports", description: "Performance Reports" },
   ],
@@ -287,27 +286,25 @@ export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
     // Control Tower
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
     { label: "Chat", href: "/chat", description: "Unified AI Workspace" },
+    { label: "NBAs", href: "/demand/nba", description: "Next Best Actions" },
     // Data & Insights
     { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
     { label: "Customers", href: "/customers", description: "Customer Profiles" },
     { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
     { label: "Knowledge Graph", href: "/dashboard/graph?preset=full-graph&center=graph-control-tower", description: "Explore the live knowledge graph" },
-    { label: "Experiments", href: "/udp/incrementality?create=true", description: "Shared Experiment Workspace" },
     // Commercial
     { label: "Campaigns", href: "/campaigns", description: "Campaign Management" },
     { label: "Audiences", href: "/audiences", description: "Segment & Target" },
-    { label: "Experiments", href: "/udp/incrementality", description: "Incrementality Testing" },
+    { label: "Experiments", href: "/udp/incrementality", description: "All experiments across demand + commercial" },
     { label: "Mix Modeling", href: "/mmm", description: "Marketing Mix Modeling" },
     { label: "Reports", href: "/reports", description: "Performance Reports" },
     // Demand
     { label: "Overview", href: "/demand/dashboard", description: "Demand Planning" },
-    { label: "Planning", href: "/demand/nba", description: "Planning Actions" },
     { label: "Campaigns", href: "/demand/campaigns", description: "Demand Activation" },
     { label: "Audiences", href: "/demand/audiences", description: "Demand Segments" },
     { label: "Customers", href: "/demand/customers", description: "Demand Customer View" },
     { label: "Analytics", href: "/demand/analytics", description: "Demand Performance" },
     { label: "Drivers", href: "/demand/mmm", description: "Demand Analysis" },
-    { label: "Experiments", href: "/demand/incrementality", description: "Demand Experiment Results" },
     { label: "Reports", href: "/demand/reports", description: "Demand Reporting" },
   ],
 
@@ -315,27 +312,25 @@ export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
     // Control Tower
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
     { label: "Chat", href: "/chat", description: "Unified AI Workspace" },
+    { label: "NBAs", href: "/demand/nba", description: "Next Best Actions" },
     // Data & Insights
     { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
     { label: "Customers", href: "/customers", description: "Customer Profiles" },
     { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
     { label: "Knowledge Graph", href: "/dashboard/graph?preset=full-graph&center=graph-control-tower", description: "Explore the live knowledge graph" },
-    { label: "Experiments", href: "/udp/incrementality?create=true", description: "Shared Experiment Workspace" },
     // Commercial
     { label: "Campaigns", href: "/campaigns", description: "Campaign Management" },
     { label: "Audiences", href: "/audiences", description: "Segment & Target" },
-    { label: "Experiments", href: "/udp/incrementality", description: "Incrementality Testing" },
+    { label: "Experiments", href: "/udp/incrementality", description: "All experiments across demand + commercial" },
     { label: "Mix Modeling", href: "/mmm", description: "Marketing Mix Modeling" },
     { label: "Reports", href: "/reports", description: "Performance Reports" },
     // Demand
     { label: "Overview", href: "/demand/dashboard", description: "Demand Planning" },
-    { label: "Planning", href: "/demand/nba", description: "Planning Actions" },
     { label: "Campaigns", href: "/demand/campaigns", description: "Demand Activation" },
     { label: "Audiences", href: "/demand/audiences", description: "Demand Segments" },
     { label: "Customers", href: "/demand/customers", description: "Demand Customer View" },
     { label: "Analytics", href: "/demand/analytics", description: "Demand Performance" },
     { label: "Drivers", href: "/demand/mmm", description: "Demand Analysis" },
-    { label: "Experiments", href: "/demand/incrementality", description: "Demand Experiment Results" },
     { label: "Reports", href: "/demand/reports", description: "Demand Reporting" },
   ],
 };
