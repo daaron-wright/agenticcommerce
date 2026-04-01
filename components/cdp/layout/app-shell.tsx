@@ -97,21 +97,26 @@ const ICON_MAP: Record<string, React.ElementType> = {
 };
 
 const HREF_TO_GROUP: Record<string, string> = {
+  // Control Tower
   "/dashboard": "platform",
-  "/dashboard/graph": "data",
-  "/dashboard/graphs": "data",
   "/control-tower": "platform",
   "/chat": "platform",
-  "/udp/dashboard": "data",
-  "/udp/incrementality": "commercial",
-  "/customers": "data",
-  "/analytics": "data",
   "/analytics/pending-review": "platform",
   "/analytics/confirmed-actions": "platform",
+  // UDP (data foundation / lake)
+  "/udp/dashboard": "udp",
+  "/customers": "udp",
+  "/dashboard/graph": "udp",
+  "/dashboard/graphs": "udp",
+  // Data & Insights
+  "/analytics": "data",
+  "/udp/incrementality": "data",
+  // Commercial
   "/campaigns": "commercial",
   "/audiences": "commercial",
   "/mmm": "commercial",
   "/reports": "commercial",
+  // Demand
   "/demand/dashboard": "demand",
   "/demand/mmm": "demand",
   "/demand/incrementality": "demand",
@@ -122,12 +127,13 @@ const HREF_TO_GROUP: Record<string, string> = {
   "/demand/analytics": "demand",
 };
 
-const GROUP_ORDER = ["platform", "data", "commercial", "demand"] as const;
+const GROUP_ORDER = ["platform", "udp", "data", "commercial", "demand"] as const;
 type NavGroupId = (typeof GROUP_ORDER)[number];
 
 const GROUP_META: Record<NavGroupId, { label: string; icon: React.ElementType }> = {
   platform: { label: "Control Tower", icon: Monitor },
-  data: { label: "Data & Insights", icon: Database },
+  udp: { label: "UDP", icon: Database },
+  data: { label: "Data & Insights", icon: PieChart },
   commercial: { label: "Commercial", icon: Megaphone },
   demand: { label: "Demand", icon: BarChart3 },
 };
@@ -394,10 +400,10 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
       }
     }
 
-    // Inject Knowledge Graph into "data" group
-    if (!groups.data) groups.data = [];
-    if (!groups.data.some((i) => i.href.startsWith("/dashboard/graph?"))) {
-      groups.data.push({ label: "Knowledge Graph", href: "/dashboard/graph?preset=full-graph&center=graph-control-tower" });
+    // Inject Knowledge Graph into "udp" group
+    if (!groups.udp) groups.udp = [];
+    if (!groups.udp.some((i) => i.href.startsWith("/dashboard/graph?"))) {
+      groups.udp.push({ label: "Knowledge Graph", href: "/dashboard/graph?preset=full-graph&center=graph-control-tower" });
     }
 
     return groups;
