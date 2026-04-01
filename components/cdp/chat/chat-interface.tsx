@@ -998,8 +998,8 @@ export function ChatInterface({
     <div className="relative flex flex-col h-[calc(100vh-4rem)] -m-6 bg-background">
       {/* Full-panel background */}
       <SubwayMapBackground />
-      {/* Status bar */}
-      <div className="flex items-center gap-2 px-4 py-2 border-b bg-slate-50/60 text-xs text-muted-foreground shrink-0">
+      {/* Connection status + breadcrumb bar */}
+      <div className="flex items-center gap-2 px-4 py-2 border-b bg-stone-50/60 text-xs text-muted-foreground shrink-0">
         <MdOutlineFiberManualRecord
           className={cn(
             "h-3 w-3",
@@ -1020,19 +1020,25 @@ export function ChatInterface({
               {completedSteps.map((step, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-200 text-[10px] font-medium text-slate-600 whitespace-nowrap"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-200 text-[10px] font-medium text-stone-600 whitespace-nowrap"
                 >
                   <span className="text-emerald-500">✓</span> {step}
                 </span>
               ))}
               {currentStep && phase === "tool_call" && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-800 text-[10px] font-medium text-white whitespace-nowrap">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-700 text-[10px] font-medium text-white whitespace-nowrap">
                   <MdOutlineRefresh className="h-2.5 w-2.5 animate-spin" />
                   {currentStep}
                 </span>
               )}
             </div>
           )}
+
+        {/* Breadcrumb inline */}
+        <span className="mx-2 text-stone-300">·</span>
+        <span className="text-[11px] font-medium text-stone-400">Dashboard</span>
+        <span className="text-stone-300">/</span>
+        <span className="text-[11px] font-medium text-[#3d3c3c]">Chat</span>
 
         <div className="ml-auto flex items-center gap-2 shrink-0">
           <span className="text-[10px] text-muted-foreground">Recommendation profile</span>

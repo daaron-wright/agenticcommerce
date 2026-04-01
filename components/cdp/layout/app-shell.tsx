@@ -156,7 +156,7 @@ function BreadcrumbBar({
     return [...base, ...override.items];
   }, [override, pathname, searchParams]);
 
-  if (items.length === 0) {
+  if (items.length === 0 || pathname === "/chat") {
     return null;
   }
 
