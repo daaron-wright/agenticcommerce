@@ -53,7 +53,7 @@ const ChartContainer = React.forwardRef<
         data-chart={chartId}
         ref={ref}
         className={cn(
-          "flex aspect-video justify-center rounded-xl border border-slate-100 bg-slate-50/60 p-3 text-xs [&_.recharts-cartesian-axis-tick_text]:fill-slate-500 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-slate-300 [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-radial-bar-background-sector]:fill-slate-100 [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-slate-100 [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none",
+          "flex aspect-video justify-center rounded-xl border border-stone-100 bg-stone-50/60 p-3 text-xs [&_.recharts-cartesian-axis-tick_text]:fill-stone-500 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-stone-300 [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-radial-bar-background-sector]:fill-stone-100 [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-stone-100 [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none",
           className
         )}
         {...props}

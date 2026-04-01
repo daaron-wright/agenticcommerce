@@ -25,7 +25,7 @@ function TrendIndicator({ trend }: { trend: string }) {
     case "declining":
       return <span className="inline-flex items-center gap-1 text-xs text-emerald-600"><ArrowDownRight className="h-3.5 w-3.5" /> Declining</span>;
     default:
-      return <span className="inline-flex items-center gap-1 text-xs text-slate-500"><Minus className="h-3.5 w-3.5" /> Stable</span>;
+      return <span className="inline-flex items-center gap-1 text-xs text-stone-500"><Minus className="h-3.5 w-3.5" /> Stable</span>;
   }
 }
 
@@ -42,7 +42,7 @@ export default function BusinessServicesPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b bg-slate-50/50">
+              <tr className="border-b bg-stone-50/50">
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Business Service</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Category</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Risk Score</th>
@@ -56,7 +56,7 @@ export default function BusinessServicesPage() {
             </thead>
             <tbody>
               {SERVICES.map((svc) => (
-                <tr key={svc.id} className="border-b last:border-0 hover:bg-slate-50 transition-colors">
+                <tr key={svc.id} className="border-b last:border-0 hover:bg-stone-50 transition-colors">
                   <td className="px-4 py-3">
                     <Link href={`/vendor/${svc.id}`} className="font-medium text-sm hover:underline">
                       {svc.name}
@@ -89,7 +89,7 @@ export default function BusinessServicesPage() {
                     ) : svc.status === "under_review" ? (
                       <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-[10px]">Under Review</Badge>
                     ) : (
-                      <span className="text-xs text-slate-600">Assessed</span>
+                      <span className="text-xs text-stone-600">Assessed</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-xs text-muted-foreground">{svc.lastAssessed}</td>

@@ -17,17 +17,17 @@ import {
 
 function fieldToneClass(field: ExecutionPreviewField, isChanged: boolean) {
   if (!isChanged) {
-    return "text-slate-700";
+    return "text-stone-700";
   }
 
   if (field.tone === "success") return "text-emerald-700";
   if (field.tone === "warning") return "text-amber-700";
   if (field.tone === "accent") return "text-sky-700";
-  return "text-slate-900";
+  return "text-stone-800";
 }
 
 const STATUS_BADGES = {
-  draft: "border-slate-200 bg-slate-50 text-slate-600",
+  draft: "border-stone-200 bg-stone-50 text-stone-600",
   validating: "border-amber-200 bg-amber-50 text-amber-700",
   publishing: "border-sky-200 bg-sky-50 text-sky-700",
   live: "border-emerald-200 bg-emerald-50 text-emerald-700",
@@ -36,7 +36,7 @@ const STATUS_BADGES = {
 const SCENARIO_BADGE_STYLES = {
   Treatment: "border-sky-200 bg-sky-50 text-sky-700",
   Alternate: "border-violet-200 bg-violet-50 text-violet-700",
-  Control: "border-slate-200 bg-slate-50 text-slate-600",
+  Control: "border-stone-200 bg-stone-50 text-stone-600",
 } as const;
 
 export function ExecutionPreviewPlayer({
@@ -122,51 +122,51 @@ export function ExecutionPreviewPlayer({
 
   if (!scene || !currentStep || !activeScenario) {
     return (
-      <div className="flex h-full items-center justify-center bg-slate-50 text-sm text-slate-500">
+      <div className="flex h-full items-center justify-center bg-stone-50 text-sm text-stone-500">
         No execution preview is available for this action.
       </div>
     );
   }
 
   return (
-    <div className="h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.08),transparent_32%),linear-gradient(180deg,#f8fafc,white)] text-slate-900">
+    <div className="h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.08),transparent_32%),linear-gradient(180deg,#f8fafc,white)] text-stone-800">
       <div className="flex h-full flex-col p-4">
-        <div className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm">
+        <div className="rounded-2xl border border-stone-200 bg-white/95 p-4 shadow-sm">
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <div className="rounded-full bg-slate-900 p-1.5 text-white">
+                <div className="rounded-full bg-stone-800 p-1.5 text-white">
                   <Bot className="h-3.5 w-3.5" />
                 </div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-500">
                   Experiment Scenario Preview
                 </p>
               </div>
-              <h1 className="mt-3 text-xl font-semibold tracking-tight text-slate-900">
+              <h1 className="mt-3 text-xl font-semibold tracking-tight text-stone-800">
                 {experimentMeta.title}
               </h1>
-              <p className="mt-1 text-sm text-slate-500">{experimentMeta.hypothesis}</p>
+              <p className="mt-1 text-sm text-stone-500">{experimentMeta.hypothesis}</p>
             </div>
 
             <div className="flex flex-wrap items-center justify-end gap-2">
               <Badge variant="outline" className={cn("text-[10px]", STATUS_BADGES[currentStep.status])}>
                 {currentStep.status}
               </Badge>
-              <Badge variant="outline" className="border-slate-200 bg-slate-50 text-[10px] text-slate-600">
+              <Badge variant="outline" className="border-stone-200 bg-stone-50 text-[10px] text-stone-600">
                 {experimentMeta.applicationLabel}
               </Badge>
-              <Badge variant="outline" className="border-slate-200 bg-slate-50 text-[10px] text-slate-600">
+              <Badge variant="outline" className="border-stone-200 bg-stone-50 text-[10px] text-stone-600">
                 {experimentMeta.templateLabel}
               </Badge>
-              <Badge variant="outline" className="border-slate-200 bg-slate-50 text-[10px] text-slate-600">
+              <Badge variant="outline" className="border-stone-200 bg-stone-50 text-[10px] text-stone-600">
                 Demo simulation
               </Badge>
             </div>
           </div>
 
-          <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
+          <div className="mt-4 h-2 overflow-hidden rounded-full bg-stone-100">
             <div
-              className="h-full rounded-full bg-slate-900 transition-all duration-700"
+              className="h-full rounded-full bg-stone-800 transition-all duration-700"
               style={{ width: `${completionPercent}%` }}
             />
           </div>
@@ -176,7 +176,7 @@ export function ExecutionPreviewPlayer({
               <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-700">
                 Treatment audience
               </p>
-              <p className="mt-1 text-sm font-semibold text-slate-900">
+              <p className="mt-1 text-sm font-semibold text-stone-800">
                 {experimentMeta.primaryAudienceLabel}
               </p>
             </div>
@@ -184,25 +184,25 @@ export function ExecutionPreviewPlayer({
               <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-violet-700">
                 Holdout cohort
               </p>
-              <p className="mt-1 text-sm font-semibold text-slate-900">
+              <p className="mt-1 text-sm font-semibold text-stone-800">
                 {experimentMeta.controlAudienceLabel}
               </p>
             </div>
-            <div className="rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2.5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-600">
+            <div className="rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2.5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-600">
                 Customer scope
               </p>
-              <p className="mt-1 text-sm font-semibold text-slate-900">
+              <p className="mt-1 text-sm font-semibold text-stone-800">
                 {experimentMeta.impactedCustomerScope}
               </p>
             </div>
           </div>
 
           <div className="mt-4 grid gap-3 lg:grid-cols-[260px_minmax(0,1fr)]">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3">
+            <div className="rounded-2xl border border-stone-200 bg-stone-50/80 p-3">
               <div className="mb-3 flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-sky-600" />
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-600">
                   Experiment Setup
                 </p>
               </div>
@@ -221,7 +221,7 @@ export function ExecutionPreviewPlayer({
                           ? "border-sky-200 bg-sky-50 shadow-sm"
                           : isDone
                             ? "border-emerald-200 bg-emerald-50/70"
-                            : "border-slate-200 bg-white",
+                            : "border-stone-200 bg-white",
                       )}
                     >
                       <div className="flex items-start gap-2">
@@ -231,12 +231,12 @@ export function ExecutionPreviewPlayer({
                           ) : isActive ? (
                             <Loader2 className="h-4 w-4 animate-spin text-sky-600" />
                           ) : (
-                            <Radio className="h-4 w-4 text-slate-300" />
+                            <Radio className="h-4 w-4 text-stone-300" />
                           )}
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-slate-900">{step.label}</p>
-                          <p className="mt-0.5 text-[11px] leading-snug text-slate-500">{step.detail}</p>
+                          <p className="text-sm font-semibold text-stone-800">{step.label}</p>
+                          <p className="mt-0.5 text-[11px] leading-snug text-stone-500">{step.detail}</p>
                         </div>
                       </div>
                     </div>
@@ -246,7 +246,7 @@ export function ExecutionPreviewPlayer({
             </div>
 
             <div className="space-y-3">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-3">
+              <div className="rounded-2xl border border-stone-200 bg-stone-50/70 p-3">
                 <div className="flex flex-wrap gap-2">
                   {scene.scenarios.map((scenario, index) => {
                     const isActive = index === activeScenarioIndex;
@@ -258,8 +258,8 @@ export function ExecutionPreviewPlayer({
                         className={cn(
                           "rounded-full border px-3 py-1.5 text-xs font-medium transition",
                           isActive
-                            ? "border-slate-900 bg-slate-900 text-white"
-                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900",
+                            ? "border-stone-800 bg-stone-800 text-white"
+                            : "border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:text-stone-800",
                         )}
                       >
                         {scenario.label}
@@ -268,52 +268,52 @@ export function ExecutionPreviewPlayer({
                   })}
                 </div>
 
-                <div className="mt-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="mt-3 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2">
-                        <h2 className="text-sm font-semibold text-slate-900">{activeScenario.label}</h2>
+                        <h2 className="text-sm font-semibold text-stone-800">{activeScenario.label}</h2>
                         <Badge
                           variant="outline"
                           className={cn(
                             "text-[10px]",
                             SCENARIO_BADGE_STYLES[
                               activeScenario.badge as keyof typeof SCENARIO_BADGE_STYLES
-                            ] ?? "border-slate-200 bg-slate-50 text-slate-600",
+                            ] ?? "border-stone-200 bg-stone-50 text-stone-600",
                           )}
                         >
                           {activeScenario.badge}
                         </Badge>
                       </div>
-                      <p className="mt-1 text-xs text-slate-500">{activeScenario.activationPath}</p>
+                      <p className="mt-1 text-xs text-stone-500">{activeScenario.activationPath}</p>
                     </div>
-                    <div className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-medium text-slate-600">
+                    <div className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-[11px] font-medium text-stone-600">
                       {activeScenario.audienceLabel}
                     </div>
                   </div>
 
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
-                    <div className="rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-2.5">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    <div className="rounded-xl border border-stone-100 bg-stone-50/70 px-3 py-2.5">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
                         Treatment difference
                       </p>
-                      <p className="mt-1 text-sm font-semibold text-slate-900">
+                      <p className="mt-1 text-sm font-semibold text-stone-800">
                         {activeScenario.treatmentDifference}
                       </p>
                     </div>
-                    <div className="rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-2.5">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    <div className="rounded-xl border border-stone-100 bg-stone-50/70 px-3 py-2.5">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
                         Expected impact
                       </p>
-                      <p className="mt-1 text-sm font-semibold text-slate-900">
+                      <p className="mt-1 text-sm font-semibold text-stone-800">
                         {activeScenario.expectedImpact}
                       </p>
                     </div>
-                    <div className="rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-2.5 md:col-span-2">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    <div className="rounded-xl border border-stone-100 bg-stone-50/70 px-3 py-2.5 md:col-span-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
                         Guardrail
                       </p>
-                      <p className="mt-1 text-sm font-semibold text-slate-900">
+                      <p className="mt-1 text-sm font-semibold text-stone-800">
                         {activeScenario.guardrail}
                       </p>
                     </div>
@@ -332,13 +332,13 @@ export function ExecutionPreviewPlayer({
                         "rounded-2xl border bg-white p-4 shadow-sm transition-all duration-500",
                         isFocused
                           ? "border-sky-200 ring-2 ring-sky-100"
-                          : "border-slate-200",
+                          : "border-stone-200",
                       )}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <h2 className="text-sm font-semibold text-slate-900">{panel.title}</h2>
-                          <p className="mt-0.5 text-[11px] text-slate-500">{panel.subtitle}</p>
+                          <h2 className="text-sm font-semibold text-stone-800">{panel.title}</h2>
+                          <p className="mt-0.5 text-[11px] text-stone-500">{panel.subtitle}</p>
                         </div>
                         {panel.badgeValues ? (
                           <Badge
@@ -347,7 +347,7 @@ export function ExecutionPreviewPlayer({
                               "text-[10px]",
                               isFocused
                                 ? "border-sky-200 bg-sky-50 text-sky-700"
-                                : "border-slate-200 bg-slate-50 text-slate-600",
+                                : "border-stone-200 bg-stone-50 text-stone-600",
                             )}
                           >
                             {panel.badgeValues[Math.min(activeStepIndex, panel.badgeValues.length - 1)]}
@@ -363,9 +363,9 @@ export function ExecutionPreviewPlayer({
                           const isChanged = value !== previousValue || activeStepIndex === 0;
 
                           return (
-                            <div key={`${panel.id}-${field.label}`} className="rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5">
+                            <div key={`${panel.id}-${field.label}`} className="rounded-xl border border-stone-100 bg-stone-50/60 px-3 py-2.5">
                               <div className="flex items-center justify-between gap-3">
-                                <span className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+                                <span className="text-[11px] font-medium uppercase tracking-wide text-stone-500">
                                   {field.label}
                                 </span>
                                 {isFocused && isChanged ? (
@@ -387,10 +387,10 @@ export function ExecutionPreviewPlayer({
           </div>
         </div>
 
-        <div className="mt-3 rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 shadow-sm">
+        <div className="mt-3 rounded-2xl border border-stone-200 bg-white/95 px-4 py-3 shadow-sm">
           <div className="flex items-center gap-2">
             <Activity className="h-4 w-4 text-emerald-600" />
-            <p className="text-sm font-medium text-slate-700">{scene.monitoringLabel}</p>
+            <p className="text-sm font-medium text-stone-700">{scene.monitoringLabel}</p>
           </div>
         </div>
       </div>

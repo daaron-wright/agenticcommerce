@@ -134,9 +134,9 @@ export function NewSegmentDialog({
             </div>
           </div>
 
-          <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 flex items-center justify-between">
+          <div className="rounded-lg border border-stone-200 bg-stone-50 px-4 py-3 flex items-center justify-between">
             <span className="text-xs text-muted-foreground">Estimated reach</span>
-            <span className="text-sm font-semibold text-slate-800">{reach}</span>
+            <span className="text-sm font-semibold text-stone-700">{reach}</span>
           </div>
         </div>
 

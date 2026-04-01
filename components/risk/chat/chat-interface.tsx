@@ -608,7 +608,7 @@ export function ChatInterface() {
       {/* Full-panel background */}
       <SubwayMapBackground />
       {/* Status bar */}
-      <div className="flex items-center gap-2 px-4 py-2 border-b bg-slate-50/60 text-xs text-muted-foreground shrink-0">
+      <div className="flex items-center gap-2 px-4 py-2 border-b bg-stone-50/60 text-xs text-muted-foreground shrink-0">
         <CircleDot
           className={cn(
             "h-3 w-3",
@@ -626,7 +626,7 @@ export function ChatInterface() {
         {messages.length > 0 && isIdle && (
           <button
             onClick={handleClearChat}
-            className="ml-auto inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-200 transition-colors"
+            className="ml-auto inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-200 transition-colors"
           >
             <RotateCcw className="h-3 w-3" /> Clear chat
           </button>
@@ -638,13 +638,13 @@ export function ChatInterface() {
               {completedSteps.map((step, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-200 text-[10px] font-medium text-slate-600 whitespace-nowrap"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-200 text-[10px] font-medium text-stone-600 whitespace-nowrap"
                 >
                   <span className="text-emerald-500">{"\u2713"}</span> {step}
                 </span>
               ))}
               {currentStep && phase === "tool_call" && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-800 text-[10px] font-medium text-white whitespace-nowrap">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-700 text-[10px] font-medium text-white whitespace-nowrap">
                   <Loader2 className="h-2.5 w-2.5 animate-spin" />
                   {currentStep}
                 </span>
@@ -659,13 +659,13 @@ export function ChatInterface() {
           {/* Welcome state */}
           {showWelcome && (
             <div className="relative flex flex-col items-center justify-center min-h-[60vh] space-y-6">
-              <h2 className="relative z-10 text-2xl font-semibold tracking-tight text-slate-900">
+              <h2 className="relative z-10 text-2xl font-semibold tracking-tight text-stone-800">
                 {WELCOME_HEADING}
               </h2>
 
               <div className="relative z-10 w-full max-w-xl">
-                <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm focus-within:ring-2 focus-within:ring-slate-300 focus-within:border-slate-300 transition-all">
-                  <span className="text-slate-400 text-sm">+</span>
+                <div className="flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2.5 shadow-sm focus-within:ring-2 focus-within:ring-stone-300 focus-within:border-stone-300 transition-all">
+                  <span className="text-stone-400 text-sm">+</span>
                   <input
                     ref={inputRef}
                     type="text"
@@ -681,8 +681,8 @@ export function ChatInterface() {
                     className={cn(
                       "h-8 w-8 rounded-full flex items-center justify-center transition-colors shrink-0",
                       input.trim()
-                        ? "bg-slate-800 text-white hover:bg-slate-900"
-                        : "bg-slate-200 text-slate-400"
+                        ? "bg-stone-700 text-white hover:bg-stone-800"
+                        : "bg-stone-200 text-stone-400"
                     )}
                   >
                     <Send className="h-3.5 w-3.5" />
@@ -773,7 +773,7 @@ export function ChatInterface() {
           {(phase === "thinking" || phase === "tool_call") && (
             <div className="flex gap-3">
               <div className="flex-shrink-0 mt-1">
-                <div className="h-8 w-8 rounded-lg bg-slate-800 text-white flex items-center justify-center">
+                <div className="h-8 w-8 rounded-lg bg-stone-700 text-white flex items-center justify-center">
                   <Loader2 className="h-4 w-4 animate-spin" />
                 </div>
               </div>
@@ -783,18 +783,18 @@ export function ChatInterface() {
                   const agentName = parts.length > 1 ? parts[0] : null;
                   const finding = parts.length > 1 ? parts.slice(1).join(" \u2014 ") : step;
                   return (
-                    <div key={i} className="flex items-start gap-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-100">
+                    <div key={i} className="flex items-start gap-2 px-3 py-1.5 rounded-lg bg-stone-50 border border-stone-100">
                       <span className="text-emerald-500 mt-0.5 shrink-0">{"\u2713"}</span>
                       <div className="min-w-0">
                         {agentName && (
-                          <span className="text-[10px] font-semibold text-slate-700">{agentName}</span>
+                          <span className="text-[10px] font-semibold text-stone-700">{agentName}</span>
                         )}
-                        <p className="text-[10px] text-slate-500 leading-snug">{finding}</p>
+                        <p className="text-[10px] text-stone-500 leading-snug">{finding}</p>
                       </div>
                     </div>
                   );
                 })}
-                <div className="rounded-lg bg-slate-100 border border-slate-200 px-3 py-2 text-sm text-muted-foreground">
+                <div className="rounded-lg bg-stone-100 border border-stone-200 px-3 py-2 text-sm text-muted-foreground">
                   <span className="flex items-center gap-2">
                     <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" />
                     <span className="text-[11px]">
@@ -818,7 +818,7 @@ export function ChatInterface() {
               <button
                 key={prompt}
                 onClick={() => handleSend(prompt)}
-                className="text-[11px] px-3 py-1.5 rounded-full border border-slate-200 hover:border-slate-400 hover:bg-slate-50 transition-colors text-slate-600"
+                className="text-[11px] px-3 py-1.5 rounded-full border border-stone-200 hover:border-stone-400 hover:bg-stone-50 transition-colors text-stone-600"
               >
                 {prompt}
               </button>
@@ -842,13 +842,13 @@ export function ChatInterface() {
                   : "Waiting for response..."
               }
               disabled={!isIdle}
-              className="flex-1 rounded-lg border border-slate-200 bg-background px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 rounded-lg border border-stone-200 bg-background px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-stone-300 disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <Button
               size="icon"
               onClick={() => handleSend()}
               disabled={!isIdle || !input.trim()}
-              className="h-10 w-10 rounded-lg bg-slate-800 hover:bg-slate-900 text-white shrink-0"
+              className="h-10 w-10 rounded-lg bg-stone-700 hover:bg-stone-800 text-white shrink-0"
             >
               <Send className="h-4 w-4" />
             </Button>
@@ -874,12 +874,12 @@ function PromptCard({
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-start gap-2.5 p-3.5 rounded-xl border border-slate-200 bg-white hover:border-slate-400 hover:shadow-sm transition-all text-left group"
+      className="flex flex-col items-start gap-2.5 p-3.5 rounded-xl border border-stone-200 bg-white hover:border-stone-400 hover:shadow-sm transition-all text-left group"
     >
-      <div className="p-1.5 rounded-lg bg-slate-100 group-hover:bg-slate-200 transition-colors">
-        <Icon className="h-4 w-4 text-slate-700" />
+      <div className="p-1.5 rounded-lg bg-stone-100 group-hover:bg-stone-200 transition-colors">
+        <Icon className="h-4 w-4 text-stone-700" />
       </div>
-      <p className="text-xs leading-snug text-slate-700">{labelParts}</p>
+      <p className="text-xs leading-snug text-stone-700">{labelParts}</p>
     </button>
   );
 }
@@ -897,7 +897,7 @@ function renderBold(text: string, boldWords: string[]) {
       (w) => w.toLowerCase() === part.toLowerCase()
     );
     return isBold ? (
-      <strong key={i} className="font-semibold text-slate-900">
+      <strong key={i} className="font-semibold text-stone-800">
         {part}
       </strong>
     ) : (
@@ -959,12 +959,12 @@ function CyberAssessmentCard({ onSubmit }: { onSubmit: (result: AssessmentResult
 
   return (
     <div className="flex gap-3 ml-11">
-      <Card className="border border-slate-200 shadow-none overflow-hidden w-full">
+      <Card className="border border-stone-200 shadow-none overflow-hidden w-full">
         <CardContent className="p-0">
-          <div className="flex items-center justify-between px-4 py-2.5 border-b bg-slate-50/50">
+          <div className="flex items-center justify-between px-4 py-2.5 border-b bg-stone-50/50">
             <div className="flex items-center gap-2">
-              <Shield className="h-3.5 w-3.5 text-slate-600" />
-              <span className="text-xs font-semibold text-slate-700">Cyber Risk Assessment</span>
+              <Shield className="h-3.5 w-3.5 text-stone-600" />
+              <span className="text-xs font-semibold text-stone-700">Cyber Risk Assessment</span>
             </div>
             <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4">
               Attack Surface Proxy
@@ -973,33 +973,33 @@ function CyberAssessmentCard({ onSubmit }: { onSubmit: (result: AssessmentResult
 
           {/* Business context inputs */}
           <div className="px-4 py-3 border-b bg-white">
-            <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Business Context</p>
+            <p className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider mb-2">Business Context</p>
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className="text-[10px] text-slate-600 font-medium block mb-1">Critical Business Process</label>
+                <label className="text-[10px] text-stone-600 font-medium block mb-1">Critical Business Process</label>
                 <input
                   type="text"
                   value={inputs.processName}
                   onChange={(e) => setInputs((prev) => ({ ...prev, processName: e.target.value }))}
-                  className="w-full rounded-md border border-slate-200 px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-slate-300"
+                  className="w-full rounded-md border border-stone-200 px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-stone-300"
                 />
               </div>
               <div>
-                <label className="text-[10px] text-slate-600 font-medium block mb-1">Business Impact ($/hour)</label>
+                <label className="text-[10px] text-stone-600 font-medium block mb-1">Business Impact ($/hour)</label>
                 <input
                   type="number"
                   value={inputs.businessImpactPerHour}
                   onChange={(e) => setInputs((prev) => ({ ...prev, businessImpactPerHour: Number(e.target.value) || 0 }))}
-                  className="w-full rounded-md border border-slate-200 px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-slate-300"
+                  className="w-full rounded-md border border-stone-200 px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-stone-300"
                 />
               </div>
               <div>
-                <label className="text-[10px] text-slate-600 font-medium block mb-1">Estimated MTCR (hours)</label>
+                <label className="text-[10px] text-stone-600 font-medium block mb-1">Estimated MTCR (hours)</label>
                 <input
                   type="number"
                   value={inputs.mtcrHours}
                   onChange={(e) => setInputs((prev) => ({ ...prev, mtcrHours: Number(e.target.value) || 0 }))}
-                  className="w-full rounded-md border border-slate-200 px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-slate-300"
+                  className="w-full rounded-md border border-stone-200 px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-stone-300"
                 />
               </div>
             </div>
@@ -1007,7 +1007,7 @@ function CyberAssessmentCard({ onSubmit }: { onSubmit: (result: AssessmentResult
 
           {/* Control questions */}
           <div className="px-4 py-3 bg-white">
-            <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Attack Surface Controls</p>
+            <p className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider mb-2">Attack Surface Controls</p>
             <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
               {CONTROL_QUESTIONS.map(({ key, label, inverted }) => (
                 <button
@@ -1022,27 +1022,27 @@ function CyberAssessmentCard({ onSubmit }: { onSubmit: (result: AssessmentResult
                         ? inverted
                           ? "bg-red-500 border-red-500 text-white"
                           : "bg-emerald-500 border-emerald-500 text-white"
-                        : "border-slate-300 group-hover:border-slate-400"
+                        : "border-stone-300 group-hover:border-stone-400"
                     )}
                   >
                     {(inputs[key as keyof typeof inputs] as boolean) && (
                       <span className="text-[8px] font-bold">{"\u2713"}</span>
                     )}
                   </div>
-                  <span className="text-[10px] text-slate-600 leading-snug">{label}</span>
+                  <span className="text-[10px] text-stone-600 leading-snug">{label}</span>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Submit */}
-          <div className="px-4 py-3 border-t bg-slate-50/50 flex items-center justify-between">
-            <span className="text-[10px] text-slate-500">
+          <div className="px-4 py-3 border-t bg-stone-50/50 flex items-center justify-between">
+            <span className="text-[10px] text-stone-500">
               Inputs compared against Gartner industry benchmarks
             </span>
             <button
               onClick={handleSubmit}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-slate-800 text-white text-xs font-medium hover:bg-slate-900 transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-stone-700 text-white text-xs font-medium hover:bg-stone-800 transition-colors"
             >
               <Play className="h-3 w-3" />
               Run Assessment
@@ -1079,12 +1079,12 @@ function ControlsPanel({ assessment }: { assessment: AssessmentResult }) {
 
   return (
     <div className="flex gap-3 ml-11">
-      <Card className="border border-slate-200 shadow-none overflow-hidden w-full">
+      <Card className="border border-stone-200 shadow-none overflow-hidden w-full">
         <CardContent className="p-0">
-          <div className="flex items-center justify-between px-4 py-2.5 border-b bg-slate-50/50">
+          <div className="flex items-center justify-between px-4 py-2.5 border-b bg-stone-50/50">
             <div className="flex items-center gap-2">
-              <Activity className="h-3.5 w-3.5 text-slate-600" />
-              <span className="text-xs font-semibold text-slate-700">Interactive Controls Panel</span>
+              <Activity className="h-3.5 w-3.5 text-stone-600" />
+              <span className="text-xs font-semibold text-stone-700">Interactive Controls Panel</span>
             </div>
             <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4">
               Real-time
@@ -1103,25 +1103,25 @@ function ControlsPanel({ assessment }: { assessment: AssessmentResult }) {
                     "w-full flex items-center gap-3 p-3 rounded-lg border transition-all text-left",
                     isActive
                       ? "border-emerald-300 bg-emerald-50/50"
-                      : "border-slate-200 hover:border-slate-300 bg-white"
+                      : "border-stone-200 hover:border-stone-300 bg-white"
                   )}
                 >
                   <div
                     className={cn(
                       "h-5 w-9 rounded-full relative transition-colors shrink-0",
-                      isActive ? "bg-emerald-500" : "bg-slate-300"
+                      isActive ? "bg-emerald-500" : "bg-stone-300"
                     )}
                   >
                     <div
                       className={cn(
                         "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform",
-                        isActive ? "translate-x-4" : "translate-x-0.5"
+                        isActive ? "transtone-x-4" : "transtone-x-0.5"
                       )}
                     />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold text-slate-800">{control.label}</span>
+                      <span className="text-xs font-semibold text-stone-700">{control.label}</span>
                       {control.sleReduction > 0 && (
                         <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700">
                           SLE -{Math.round(control.sleReduction * 100)}%
@@ -1133,7 +1133,7 @@ function ControlsPanel({ assessment }: { assessment: AssessmentResult }) {
                         </span>
                       )}
                     </div>
-                    <p className="text-[10px] text-slate-500 mt-0.5">{control.description}</p>
+                    <p className="text-[10px] text-stone-500 mt-0.5">{control.description}</p>
                   </div>
                 </button>
               );
@@ -1141,17 +1141,17 @@ function ControlsPanel({ assessment }: { assessment: AssessmentResult }) {
           </div>
 
           {/* Financial comparison */}
-          <div className="px-4 py-3 border-t bg-slate-50/50">
+          <div className="px-4 py-3 border-t bg-stone-50/50">
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 bg-white rounded-lg border border-slate-200">
-                <p className="text-[10px] text-slate-500 mb-1">Single Loss Expectancy</p>
+              <div className="p-3 bg-white rounded-lg border border-stone-200">
+                <p className="text-[10px] text-stone-500 mb-1">Single Loss Expectancy</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-xs text-slate-400 line-through">{fmtCurrency(assessment.sle)}</span>
-                  <span className="text-sm font-bold text-slate-800">{fmtCurrency(reduced.reducedSLE)}</span>
+                  <span className="text-xs text-stone-400 line-through">{fmtCurrency(assessment.sle)}</span>
+                  <span className="text-sm font-bold text-stone-700">{fmtCurrency(reduced.reducedSLE)}</span>
                 </div>
                 {sleReductionPct > 0 && (
                   <div className="mt-1.5">
-                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-stone-100 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-emerald-500 rounded-full transition-all duration-500"
                         style={{ width: `${100 - sleReductionPct}%` }}
@@ -1161,15 +1161,15 @@ function ControlsPanel({ assessment }: { assessment: AssessmentResult }) {
                   </div>
                 )}
               </div>
-              <div className="p-3 bg-white rounded-lg border border-slate-200">
-                <p className="text-[10px] text-slate-500 mb-1">Annualised Loss Expectancy</p>
+              <div className="p-3 bg-white rounded-lg border border-stone-200">
+                <p className="text-[10px] text-stone-500 mb-1">Annualised Loss Expectancy</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-xs text-slate-400 line-through">{fmtCurrency(assessment.ale)}</span>
-                  <span className="text-sm font-bold text-slate-800">{fmtCurrency(reduced.reducedALE)}</span>
+                  <span className="text-xs text-stone-400 line-through">{fmtCurrency(assessment.ale)}</span>
+                  <span className="text-sm font-bold text-stone-700">{fmtCurrency(reduced.reducedALE)}</span>
                 </div>
                 {aleReductionPct > 0 && (
                   <div className="mt-1.5">
-                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-stone-100 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-emerald-500 rounded-full transition-all duration-500"
                         style={{ width: `${100 - aleReductionPct}%` }}
@@ -1208,45 +1208,45 @@ function NBAActionCards({
           {actions.map((action) => (
             <div
               key={action.id}
-              className="p-3.5 rounded-lg border border-slate-200 bg-white hover:border-slate-300 transition-all"
+              className="p-3.5 rounded-lg border border-stone-200 bg-white hover:border-stone-300 transition-all"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-semibold text-slate-800">
+                    <span className="text-xs font-semibold text-stone-700">
                       {action.title}
                     </span>
-                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-stone-100 text-stone-600">
                       {action.confidence}% confidence
                     </span>
                   </div>
                   <p className="text-[10px] text-muted-foreground mb-1.5">
-                    <span className="font-medium text-slate-600">Focus:</span>{" "}
+                    <span className="font-medium text-stone-600">Focus:</span>{" "}
                     {action.segment}
                   </p>
                   <p className="text-[10px] text-muted-foreground mb-1.5">
-                    <span className="font-medium text-slate-600">Action:</span>{" "}
+                    <span className="font-medium text-stone-600">Action:</span>{" "}
                     {action.action} &middot;{" "}
                     <span className="font-semibold text-emerald-700">
                       {action.expectedLift}
                     </span>
                   </p>
-                  <p className="text-[10px] text-slate-500 leading-snug">
+                  <p className="text-[10px] text-stone-500 leading-snug">
                     {action.agentReason}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-100">
+              <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-stone-100">
                 <button
                   onClick={() => onExecute(action)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-slate-800 text-white text-[11px] font-medium hover:bg-slate-900 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-stone-700 text-white text-[11px] font-medium hover:bg-stone-800 transition-colors"
                 >
                   <Play className="h-3 w-3" />
                   Explore
                 </button>
                 <button
                   onClick={() => onDismiss(action.id)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-200 text-slate-500 text-[11px] font-medium hover:bg-slate-50 hover:border-slate-300 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-stone-200 text-stone-500 text-[11px] font-medium hover:bg-stone-50 hover:border-stone-300 transition-colors"
                 >
                   <X className="h-3 w-3" />
                   Dismiss
@@ -1311,26 +1311,26 @@ const COLOR_KEY = [
 function FoundationalExposureTable() {
   return (
     <div className="flex gap-3 ml-11">
-      <Card className="border border-slate-200 shadow-none overflow-hidden w-full">
+      <Card className="border border-stone-200 shadow-none overflow-hidden w-full">
         <CardContent className="p-0">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-2.5 border-b bg-slate-50/50">
-            <span className="text-xs font-semibold text-slate-700">Foundational Service Exposure</span>
+          <div className="flex items-center justify-between px-4 py-2.5 border-b bg-stone-50/50">
+            <span className="text-xs font-semibold text-stone-700">Foundational Service Exposure</span>
             <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4">
               Risk Matrix
             </Badge>
           </div>
 
           {/* Column headers */}
-          <div className="grid grid-cols-[1fr_1fr_auto_auto] gap-0 px-4 py-2 border-b bg-slate-50/30">
-            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Service Category</span>
-            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Backup Status</span>
-            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider min-w-[100px]">Last Recovery Test</span>
-            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider min-w-[90px] text-right">Protection Level</span>
+          <div className="grid grid-cols-[1fr_1fr_auto_auto] gap-0 px-4 py-2 border-b bg-stone-50/30">
+            <span className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Service Category</span>
+            <span className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Backup Status</span>
+            <span className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider min-w-[100px]">Last Recovery Test</span>
+            <span className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider min-w-[90px] text-right">Protection Level</span>
           </div>
 
           {/* Data rows */}
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-stone-100">
             {EXPOSURE_ROWS.map((row) => (
               <div
                 key={row.service}
@@ -1341,16 +1341,16 @@ function FoundationalExposureTable() {
                 )}
               >
                 <div className="px-4 py-2.5">
-                  <span className="text-xs font-semibold text-slate-800">{row.service}</span>
-                  <span className="text-[10px] text-slate-500 ml-1">({row.serviceDetail})</span>
+                  <span className="text-xs font-semibold text-stone-700">{row.service}</span>
+                  <span className="text-[10px] text-stone-500 ml-1">({row.serviceDetail})</span>
                 </div>
                 <div className="px-3 py-2.5">
-                  <span className={cn("text-[11px] text-slate-700 px-2 py-1 rounded", row.backupColor)}>
+                  <span className={cn("text-[11px] text-stone-700 px-2 py-1 rounded", row.backupColor)}>
                     {row.backup}
                   </span>
                 </div>
                 <div className="px-3 py-2.5 min-w-[100px]">
-                  <span className={cn("text-[11px] text-slate-700 px-2 py-1 rounded", row.testColor)}>
+                  <span className={cn("text-[11px] text-stone-700 px-2 py-1 rounded", row.testColor)}>
                     {row.lastTest}
                   </span>
                 </div>
@@ -1367,12 +1367,12 @@ function FoundationalExposureTable() {
           </div>
 
           {/* Color key */}
-          <div className="px-4 py-2.5 border-t bg-slate-50/50 flex items-center gap-4">
-            <span className="text-[10px] font-semibold text-slate-500">Color Key:</span>
+          <div className="px-4 py-2.5 border-t bg-stone-50/50 flex items-center gap-4">
+            <span className="text-[10px] font-semibold text-stone-500">Color Key:</span>
             {COLOR_KEY.map((item) => (
               <div key={item.label} className="flex items-center gap-1.5">
                 <div className={cn("w-4 h-2.5 rounded-sm", item.color)} />
-                <span className="text-[10px] text-slate-600">{item.label}</span>
+                <span className="text-[10px] text-stone-600">{item.label}</span>
               </div>
             ))}
           </div>
@@ -1423,22 +1423,22 @@ function FoundationalScenarioPicker({
               <button
                 key={id}
                 onClick={() => onSelect(id)}
-                className="text-left p-3 rounded-lg border border-slate-200 hover:border-slate-400 hover:bg-slate-50 transition-all group"
+                className="text-left p-3 rounded-lg border border-stone-200 hover:border-stone-400 hover:bg-stone-50 transition-all group"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <div className="p-1.5 rounded-md bg-slate-100 group-hover:bg-slate-200 transition-colors">
-                    <Icon className="h-3.5 w-3.5 text-slate-700" />
+                  <div className="p-1.5 rounded-md bg-stone-100 group-hover:bg-stone-200 transition-colors">
+                    <Icon className="h-3.5 w-3.5 text-stone-700" />
                   </div>
                   <span
                     className={cn(
                       "text-[9px] font-semibold px-1.5 py-0.5 rounded-full",
-                      severityColors[meta.severity] || "bg-slate-100 text-slate-700"
+                      severityColors[meta.severity] || "bg-stone-100 text-stone-700"
                     )}
                   >
                     {meta.severity}
                   </span>
                 </div>
-                <p className="text-xs font-semibold text-slate-800 mb-1">
+                <p className="text-xs font-semibold text-stone-700 mb-1">
                   {meta.label}
                 </p>
                 <p className="text-[10px] text-muted-foreground leading-snug">
@@ -1463,9 +1463,9 @@ function ScenarioPicker({
   const scenarios: ScenarioId[] = ["micro-seg", "edr", "recovery"];
 
   const riskColors: Record<string, string> = {
-    Medium: "bg-slate-100 text-slate-700",
-    High: "bg-slate-200 text-slate-800",
-    Low: "bg-slate-50 text-slate-600 border border-slate-200",
+    Medium: "bg-stone-100 text-stone-700",
+    High: "bg-stone-200 text-stone-700",
+    Low: "bg-stone-50 text-stone-600 border border-stone-200",
   };
 
   return (
@@ -1482,11 +1482,11 @@ function ScenarioPicker({
               <button
                 key={id}
                 onClick={() => onSelect(id)}
-                className="text-left p-3 rounded-lg border border-slate-200 hover:border-slate-400 hover:bg-slate-50 transition-all group"
+                className="text-left p-3 rounded-lg border border-stone-200 hover:border-stone-400 hover:bg-stone-50 transition-all group"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <div className="p-1.5 rounded-md bg-slate-100 group-hover:bg-slate-200 transition-colors">
-                    <Icon className="h-3.5 w-3.5 text-slate-700" />
+                  <div className="p-1.5 rounded-md bg-stone-100 group-hover:bg-stone-200 transition-colors">
+                    <Icon className="h-3.5 w-3.5 text-stone-700" />
                   </div>
                   <span
                     className={cn(
@@ -1497,22 +1497,22 @@ function ScenarioPicker({
                     {meta.risk} risk
                   </span>
                 </div>
-                <p className="text-xs font-semibold text-slate-800 mb-1">
+                <p className="text-xs font-semibold text-stone-700 mb-1">
                   {meta.label}
                 </p>
                 <p className="text-[10px] text-muted-foreground leading-snug mb-2">
                   {meta.description}
                 </p>
                 <div className="flex gap-3 text-[10px]">
-                  <span className="text-slate-500">
+                  <span className="text-stone-500">
                     Outcome:{" "}
-                    <span className="font-semibold text-slate-800">
+                    <span className="font-semibold text-stone-700">
                       {meta.outcome}
                     </span>
                   </span>
-                  <span className="text-slate-500">
+                  <span className="text-stone-500">
                     Budget:{" "}
-                    <span className="font-semibold text-slate-800">
+                    <span className="font-semibold text-stone-700">
                       {meta.budget}
                     </span>
                   </span>

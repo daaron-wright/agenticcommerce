@@ -41,7 +41,7 @@ const mockScenarios: Scenario[] = [
     title: "Maximize Short-Term Profit",
     description: "Shifts budget away from upper-funnel TikTok/Meta awareness into high-converting Google PMAX and Meta Retargeting.",
     icon: TrendingUp,
-    color: "text-green-600 bg-green-50",
+    color: "text-stone-700 bg-stone-100",
     expectedOutcome: "+£12,500 net profit / week",
     budgetChange: "Reallocate £25,000",
     risk: "Low",
@@ -51,7 +51,7 @@ const mockScenarios: Scenario[] = [
     title: "Aggressive Customer Acquisition",
     description: "Over-invests in Meta Prospecting and TikTok to capture the 'New Customers' segment. Temporarily accepts lower ROAS for long-term LTV.",
     icon: Target,
-    color: "text-blue-600 bg-blue-50",
+    color: "text-[#29707a] bg-[#29707a]/[0.1]",
     expectedOutcome: "+1,400 new customers / month",
     budgetChange: "Increase total spend by 15%",
     risk: "Medium",
@@ -61,7 +61,7 @@ const mockScenarios: Scenario[] = [
     title: "Defend High-Value Segment",
     description: "Focuses spend on At-Risk High Value customers through heavily targeted Meta Retargeting and brand search campaigns.",
     icon: Activity,
-    color: "text-purple-600 bg-purple-50",
+    color: "text-stone-600 bg-stone-100",
     expectedOutcome: "-25% churn rate",
     budgetChange: "Reallocate £8,000",
     risk: "Low",
@@ -90,8 +90,8 @@ export function ScenarioBuilderTab({ onModelApplied }: { onModelApplied: () => v
   if (step === "success") {
     return (
       <div className="py-12 flex flex-col items-center justify-center text-center space-y-4 animate-in fade-in zoom-in duration-500">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-          <CheckCircle2 className="w-8 h-8 text-green-600" />
+        <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center">
+          <CheckCircle2 className="w-8 h-8 text-stone-700" />
         </div>
         <div>
           <h3 className="text-xl font-bold">Model Successfully Executed</h3>
@@ -110,8 +110,8 @@ export function ScenarioBuilderTab({ onModelApplied }: { onModelApplied: () => v
     return (
       <div className="py-20 flex flex-col items-center justify-center text-center space-y-6">
         <div className="relative">
-          <div className="absolute inset-0 border-4 border-blue-100 rounded-full animate-ping opacity-75" />
-          <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center animate-pulse relative z-10">
+          <div className="absolute inset-0 border-4 border-[#29707a]/20 rounded-full animate-ping opacity-75" />
+          <div className="w-16 h-16 bg-[#29707a] rounded-full flex items-center justify-center animate-pulse relative z-10">
             <Activity className="w-8 h-8 text-white" />
           </div>
         </div>
@@ -128,8 +128,8 @@ export function ScenarioBuilderTab({ onModelApplied }: { onModelApplied: () => v
   if (step === "generating") {
     return (
       <div className="py-20 flex flex-col items-center justify-center text-center space-y-6">
-        <div className="w-16 h-16 bg-purple-100 rounded-xl flex items-center justify-center animate-pulse">
-          <Zap className="w-8 h-8 text-purple-600" />
+        <div className="w-16 h-16 bg-stone-100 rounded-xl flex items-center justify-center animate-pulse">
+          <Zap className="w-8 h-8 text-stone-700" />
         </div>
         <div>
           <h3 className="text-lg font-semibold">Agent Analyzing Inputs...</h3>
@@ -170,7 +170,7 @@ export function ScenarioBuilderTab({ onModelApplied }: { onModelApplied: () => v
                   <div className="space-y-2 mt-auto mb-6 bg-muted/50 p-3 rounded-lg text-xs">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Expected:</span>
-                      <span className="font-semibold text-green-600">{scenario.expectedOutcome}</span>
+                      <span className="font-semibold text-stone-700">{scenario.expectedOutcome}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Budget:</span>
@@ -178,7 +178,7 @@ export function ScenarioBuilderTab({ onModelApplied }: { onModelApplied: () => v
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Risk Level:</span>
-                      <span className={cn("font-medium", scenario.risk === "Low" ? "text-green-600" : scenario.risk === "Medium" ? "text-orange-500" : "text-red-500")}>
+                      <span className={cn("font-medium", scenario.risk === "Low" ? "text-stone-700" : scenario.risk === "Medium" ? "text-orange-500" : "text-red-500")}>
                         {scenario.risk}
                       </span>
                     </div>
@@ -262,7 +262,7 @@ export function ScenarioBuilderTab({ onModelApplied }: { onModelApplied: () => v
       </Card>
 
       <div className="flex justify-end pt-2">
-        <Button onClick={handleGenerate} className="gap-2 bg-purple-600 hover:bg-purple-700 text-white">
+        <Button onClick={handleGenerate} className="gap-2 bg-stone-700 hover:bg-stone-800 text-white">
           <Zap className="w-4 h-4" /> Generate Scenarios
         </Button>
       </div>

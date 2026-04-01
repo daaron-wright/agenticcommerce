@@ -89,12 +89,12 @@ function RecommendationBadge({ action }: { action: string }) {
 
 function AgentBanner({ onClose }: { onClose: () => void }) {
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
-      <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-slate-500" />
-      <p className="flex-1 text-xs leading-relaxed text-slate-700">
+    <div className="flex items-start gap-3 rounded-lg border border-stone-200 bg-stone-50 px-4 py-3">
+      <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-500" />
+      <p className="flex-1 text-xs leading-relaxed text-stone-700">
         Monday trading uses the previous Monday-Sunday window and benchmarks against the prior week and the equivalent week last year.
       </p>
-      <button onClick={onClose} className="text-xs text-slate-500 hover:text-slate-700">
+      <button onClick={onClose} className="text-xs text-stone-500 hover:text-stone-700">
         Dismiss
       </button>
     </div>
@@ -281,7 +281,7 @@ function WeeklyCommercialPanel() {
             {WEEKLY_COMMERCIAL_REVIEW.discussionFlags.map((flag) => (
               <div
                 key={flag}
-                className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs leading-relaxed text-slate-700"
+                className="rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-xs leading-relaxed text-stone-700"
               >
                 {flag}
               </div>
@@ -296,9 +296,9 @@ function WeeklyCommercialPanel() {
         </CardHeader>
         <CardContent className="space-y-2">
           {WEEKLY_COMMERCIAL_REVIEW.recommendations.map((recommendation) => (
-            <div key={recommendation.id} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
+            <div key={recommendation.id} className="rounded-lg border border-stone-200 bg-stone-50 px-3 py-2.5">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-semibold text-slate-900">{recommendation.title}</p>
+                <p className="text-xs font-semibold text-stone-900">{recommendation.title}</p>
                 <span
                   className={cn(
                     "inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium uppercase",
@@ -306,26 +306,26 @@ function WeeklyCommercialPanel() {
                       ? "bg-rose-100 text-rose-700"
                       : recommendation.priority === "medium"
                         ? "bg-amber-100 text-amber-700"
-                        : "bg-slate-200 text-slate-700"
+                        : "bg-stone-200 text-stone-700"
                   )}
                 >
                   {recommendation.priority}
                 </span>
               </div>
-              <p className="mt-1 text-xs text-slate-700">{recommendation.action}</p>
+              <p className="mt-1 text-xs text-stone-700">{recommendation.action}</p>
               <p className="mt-1 text-xs font-medium text-emerald-700">{recommendation.impact}</p>
               <div className="mt-2 flex items-center gap-2">
                 <Link
                   href={`/chat?actionId=${recommendation.nbaActionId}&intent=${canExecuteAI ? "execute" : "review"}&prompt=${encodeURIComponent(
                     canExecuteAI ? recommendation.executePrompt : recommendation.reviewPrompt
                   )}`}
-                  className="inline-flex items-center rounded-md bg-slate-800 px-2.5 py-1.5 text-[11px] font-medium text-white hover:bg-slate-900"
+                  className="inline-flex items-center rounded-md bg-stone-800 px-2.5 py-1.5 text-[11px] font-medium text-white hover:bg-stone-900"
                 >
                   {canExecuteAI ? "Execute in chat" : "Send for review"}
                 </Link>
                 <Link
                   href={`/chat?prompt=${encodeURIComponent(recommendation.reviewPrompt)}`}
-                  className="inline-flex items-center rounded-md border border-slate-300 px-2.5 py-1.5 text-[11px] font-medium text-slate-700 hover:bg-white"
+                  className="inline-flex items-center rounded-md border border-stone-300 px-2.5 py-1.5 text-[11px] font-medium text-stone-700 hover:bg-white"
                 >
                   Send for review
                 </Link>
@@ -360,7 +360,7 @@ function MarketOverviewPanel({ selectedMarket }: { selectedMarket: string }) {
               <span
                 className={cn(
                   "mt-0.5 flex items-center gap-0.5 text-xs font-medium",
-                  positive ? "text-slate-600" : "text-slate-400"
+                  positive ? "text-stone-600" : "text-stone-400"
                 )}
               >
                 {positive ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
@@ -431,9 +431,9 @@ function FutureScenarioTab() {
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[220px_1fr]">
       <div className="space-y-4">
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Scenario brief</p>
-          <p className="mt-2 text-xs leading-relaxed text-slate-700">
+          <p className="mt-2 text-xs leading-relaxed text-stone-700">
             Reallocate spend toward the most efficient paid channels while protecting acquisition volume in the strongest market clusters.
           </p>
         </div>

@@ -20,16 +20,16 @@ const customers = [
 ];
 
 const segmentColors: Record<string, string> = {
-  "High Value": "bg-slate-100 text-slate-800 border-slate-200",
-  "Growth": "bg-slate-50 text-slate-600 border-slate-200",
-  "At Risk": "bg-slate-100 text-slate-900 border-slate-300",
-  "Dormant": "bg-slate-50 text-slate-500 border-slate-100",
+  "High Value": "bg-stone-100 text-stone-800 border-stone-200",
+  "Growth": "bg-stone-50 text-stone-600 border-stone-200",
+  "At Risk": "bg-stone-100 text-stone-900 border-stone-300",
+  "Dormant": "bg-stone-50 text-stone-500 border-stone-100",
 };
 
 const riskColors: Record<string, string> = {
-  "Low": "text-slate-500",
-  "Medium": "text-slate-700",
-  "High": "text-slate-900",
+  "Low": "text-stone-500",
+  "Medium": "text-stone-700",
+  "High": "text-stone-900",
 };
 
 export default function CustomersPage() {
@@ -60,7 +60,7 @@ export default function CustomersPage() {
           <Card key={seg}>
             <CardContent className="pt-4 pb-4">
               <span className={`inline-block text-xs px-2 py-0.5 rounded border font-medium mb-2 ${segmentColors[seg]}`}>{seg}</span>
-              <p className="text-2xl font-bold">{count}</p>
+              <p className="text-2xl font-semibold">{count}</p>
               <p className="text-xs text-muted-foreground">customers</p>
             </CardContent>
           </Card>
@@ -111,8 +111,8 @@ export default function CustomersPage() {
                   <td className="text-right py-2.5 px-2 text-muted-foreground">{c.lastPurchase}</td>
                   <td className="text-right py-2.5 px-2">
                     {c.trend === "up"
-                      ? <TrendingUp className="h-3.5 w-3.5 text-slate-500 ml-auto" />
-                      : <TrendingDown className="h-3.5 w-3.5 text-slate-400 ml-auto" />
+                      ? <TrendingUp className="h-3.5 w-3.5 text-stone-500 ml-auto" />
+                      : <TrendingDown className="h-3.5 w-3.5 text-stone-400 ml-auto" />
                     }
                   </td>
                   <td className={`text-right py-2.5 px-2 font-semibold ${riskColors[c.riskScore]}`}>{c.riskScore}</td>

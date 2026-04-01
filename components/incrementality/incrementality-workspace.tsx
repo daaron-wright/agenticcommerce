@@ -82,8 +82,8 @@ const STATUS_BADGES: Record<
   { className: string; dotClassName: string; label: string }
 > = {
   draft: {
-    className: "border-slate-200 bg-slate-50 text-slate-500",
-    dotClassName: "text-slate-300",
+    className: "border-stone-200 bg-stone-50 text-stone-500",
+    dotClassName: "text-stone-300",
     label: INCREMENTALITY_STATUS_LABELS.draft,
   },
   running: {
@@ -171,15 +171,15 @@ function WorkspaceMetricStrip({
   return (
     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
       {metrics.map((metric) => (
-        <Card key={metric.label} className="border border-slate-200 bg-white/90 shadow-none">
+        <Card key={metric.label} className="border border-stone-200 bg-white/90 shadow-none">
           <CardContent className="p-4">
-            <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-stone-500">
               {metric.label}
             </p>
-            <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
+            <p className="mt-2 text-2xl font-semibold tracking-tight text-stone-900">
               {metric.value}
             </p>
-            <p className="mt-1 text-[11px] text-slate-500">{metric.detail}</p>
+            <p className="mt-1 text-[11px] text-stone-500">{metric.detail}</p>
           </CardContent>
         </Card>
       ))}
@@ -195,7 +195,7 @@ function ExperimentFilters({
   onFiltersChange: (next: IncrementalityFilterState) => void;
 }) {
   return (
-    <Card className="border border-slate-200 bg-white/90 shadow-none">
+    <Card className="border border-stone-200 bg-white/90 shadow-none">
       <CardContent className="p-4">
         <div className="flex flex-col gap-4">
           <div className="flex flex-wrap gap-2">
@@ -207,8 +207,8 @@ function ExperimentFilters({
                 className={cn(
                   "rounded-full border px-3 py-1.5 text-xs font-medium transition",
                   filters.domainLens === lens
-                    ? "border-slate-900 bg-slate-900 text-white"
-                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-900",
+                    ? "border-stone-900 bg-stone-900 text-white"
+                    : "border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:text-stone-900",
                 )}
               >
                 {lens === "all" ? "All lenses" : `${INCREMENTALITY_DOMAIN_LABELS[lens]} lens`}
@@ -302,8 +302,8 @@ function ExperimentList({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">Experiment library</h2>
-          <p className="text-sm text-slate-500">
+          <h2 className="text-lg font-semibold text-stone-900">Experiment library</h2>
+          <p className="text-sm text-stone-500">
             Shared experiment program across UDP applications, activation, and demand.
           </p>
         </div>
@@ -327,18 +327,18 @@ function ExperimentList({
           return (
             <Card
               key={experiment.id}
-              className="cursor-pointer border border-slate-200 bg-white/90 shadow-none transition hover:border-slate-300 hover:shadow-sm"
+              className="cursor-pointer border border-stone-200 bg-white/90 shadow-none transition hover:border-stone-300 hover:shadow-sm"
               onClick={() => onSelect(experiment)}
             >
               <CardContent className="px-4 py-4">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                   <div className="flex min-w-0 items-start gap-3">
-                    <div className="rounded-xl bg-slate-900 p-2 text-white">
+                    <div className="rounded-xl bg-stone-900 p-2 text-white">
                       <FlaskConical className="h-4 w-4" />
                     </div>
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="truncate text-sm font-semibold text-slate-900">
+                        <p className="truncate text-sm font-semibold text-stone-900">
                           {experiment.name}
                         </p>
                         <Badge variant="outline" className={cn("text-[9px]", statusMeta.className)}>
@@ -351,10 +351,10 @@ function ExperimentList({
                           {INCREMENTALITY_TEMPLATE_LABELS[experiment.template]}
                         </Badge>
                       </div>
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className="mt-1 text-xs text-stone-500">
                         {experiment.scopeLabel} · {experiment.country} · {INCREMENTALITY_DOMAIN_LABELS[experiment.domainLens]} lens
                       </p>
-                      <p className="mt-2 text-[11px] leading-snug text-slate-600">
+                      <p className="mt-2 text-[11px] leading-snug text-stone-600">
                         {experiment.summary}
                       </p>
                       {experiment.primaryAudienceLabel || experiment.controlAudienceLabel ? (
@@ -376,20 +376,20 @@ function ExperimentList({
 
                   <div className="flex shrink-0 items-center gap-4 text-xs">
                     <div className="text-right">
-                      <p className="font-semibold text-slate-800">
+                      <p className="font-semibold text-stone-700">
                         {experiment.incrementalEROAS > 0
                           ? `${experiment.incrementalEROAS.toFixed(0)}%`
                           : "—"}
                       </p>
-                      <p className="text-[10px] text-slate-500">Inc. eROAS</p>
+                      <p className="text-[10px] text-stone-500">Inc. eROAS</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-slate-800">
+                      <p className="font-semibold text-stone-700">
                         {experiment.liftDetected > 0 ? `${experiment.liftDetected.toFixed(1)}%` : "—"}
                       </p>
-                      <p className="text-[10px] text-slate-500">Lift</p>
+                      <p className="text-[10px] text-stone-500">Lift</p>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-slate-400" />
+                    <ChevronRight className="h-4 w-4 text-stone-400" />
                   </div>
                 </div>
               </CardContent>
@@ -419,7 +419,7 @@ function ExperimentDetail({
           <div className="flex items-center gap-2 text-sm">
             <button
               onClick={onBack}
-              className="rounded-full border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
+              className="rounded-full border border-stone-200 px-2.5 py-1 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-50 hover:text-stone-900"
             >
               Back to experiments
             </button>
@@ -428,14 +428,14 @@ function ExperimentDetail({
               {experiment.name}
             </span>
           </div>
-          <Button size="sm" className="bg-slate-800 hover:bg-slate-900 text-white text-xs gap-1.5">
+          <Button size="sm" className="bg-stone-700 hover:bg-stone-900 text-white text-xs gap-1.5">
             <Download className="h-3.5 w-3.5" />
             Export readout
           </Button>
         </div>
 
-        <div className="flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-800">
-          <Info className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-slate-500" />
+        <div className="flex items-start gap-2 rounded-lg border border-stone-200 bg-stone-50 px-3 py-2.5 text-xs text-stone-700">
+          <Info className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-stone-500" />
           <p>{experiment.hypothesis}</p>
         </div>
 
@@ -526,11 +526,11 @@ function ExperimentDetail({
                   <CardTitle className="text-sm">Treatment geography and entity split</CardTitle>
                   <div className="flex items-center gap-4 text-xs">
                     <div className="flex items-center gap-1.5">
-                      <span className="inline-block h-3 w-3 rounded-full bg-slate-800" />
+                      <span className="inline-block h-3 w-3 rounded-full bg-stone-700" />
                       Treatment
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <span className="inline-block h-3 w-3 rounded-full bg-slate-400" />
+                      <span className="inline-block h-3 w-3 rounded-full bg-stone-400" />
                       Control
                     </div>
                   </div>
@@ -539,29 +539,29 @@ function ExperimentDetail({
               <CardContent>
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-[200px_1fr]">
                   <div className="space-y-2 text-xs">
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                    <div className="rounded-lg border border-stone-200 bg-stone-50 p-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-stone-500">
                         Treatment
                       </p>
-                      <p className="mt-1 text-sm font-semibold text-slate-900">
+                      <p className="mt-1 text-sm font-semibold text-stone-900">
                         {experiment.treatmentDesign}
                       </p>
                     </div>
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                    <div className="rounded-lg border border-stone-200 bg-stone-50 p-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-stone-500">
                         Control
                       </p>
-                      <p className="mt-1 text-sm font-semibold text-slate-900">
+                      <p className="mt-1 text-sm font-semibold text-stone-900">
                         {experiment.controlDesign}
                       </p>
                     </div>
-                    <button className="flex items-center gap-1.5 text-xs text-slate-700 hover:underline">
+                    <button className="flex items-center gap-1.5 text-xs text-stone-700 hover:underline">
                       <Download className="h-3 w-3" />
                       Download design file
                     </button>
                   </div>
 
-                  <div className="relative overflow-hidden rounded-lg bg-slate-50" style={{ height: 220 }}>
+                  <div className="relative overflow-hidden rounded-lg bg-stone-50" style={{ height: 220 }}>
                     <svg viewBox="0 0 100 70" className="h-full w-full">
                       <rect x="5" y="5" width="90" height="55" rx="2" fill="#f1f5f9" stroke="#e2e8f0" strokeWidth="0.3" />
                       {Array.from({ length: 10 }, (_, col) =>
@@ -730,7 +730,7 @@ function ExperimentDetail({
           <div key={row.label} className="flex justify-between gap-3 border-b pb-2">
             <span className="text-muted-foreground">{row.label}</span>
             {row.status ? (
-              <span className="flex items-center gap-1 font-medium text-slate-800">
+              <span className="flex items-center gap-1 font-medium text-stone-700">
                 <CheckCircle2 className="h-3 w-3" />
                 {row.value}
               </span>
@@ -846,7 +846,7 @@ function NewExperimentDialog({
 
         <div className="grid gap-4 py-2">
           <div className="grid gap-2">
-            <label className="text-sm font-medium text-slate-700">Experiment title</label>
+            <label className="text-sm font-medium text-stone-700">Experiment title</label>
             <Input
               value={title}
               onChange={(event) => setTitle(event.target.value)}
@@ -856,7 +856,7 @@ function NewExperimentDialog({
 
           <div className="grid gap-4 md:grid-cols-3">
             <div className="grid gap-2">
-              <label className="text-sm font-medium text-slate-700">Application</label>
+              <label className="text-sm font-medium text-stone-700">Application</label>
               <Select value={application} onValueChange={(value) => setApplication(value as IncrementalityApplication)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -872,7 +872,7 @@ function NewExperimentDialog({
             </div>
 
             <div className="grid gap-2">
-              <label className="text-sm font-medium text-slate-700">Template</label>
+              <label className="text-sm font-medium text-stone-700">Template</label>
               <Select value={template} onValueChange={(value) => setTemplate(value as IncrementalityTemplate)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -888,7 +888,7 @@ function NewExperimentDialog({
             </div>
 
             <div className="grid gap-2">
-              <label className="text-sm font-medium text-slate-700">Lens</label>
+              <label className="text-sm font-medium text-stone-700">Lens</label>
               <Select value={domainLens} onValueChange={(value) => setDomainLens(value as IncrementalityDomainLens)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -902,7 +902,7 @@ function NewExperimentDialog({
           </div>
 
           <div className="grid gap-2">
-            <label className="text-sm font-medium text-slate-700">Hypothesis</label>
+            <label className="text-sm font-medium text-stone-700">Hypothesis</label>
             <Textarea
               value={hypothesis}
               onChange={(event) => setHypothesis(event.target.value)}
@@ -910,7 +910,7 @@ function NewExperimentDialog({
             />
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
+          <div className="rounded-xl border border-stone-200 bg-stone-50 p-3 text-sm text-stone-600">
             This creates a demo-ready draft experiment in the shared workspace. Operators can review the design, treatment/control split, and early visualizations before promoting it into execution.
           </div>
 
@@ -1023,17 +1023,17 @@ export function IncrementalityWorkspace({
   return (
     <>
       <div className="space-y-6">
-        <Card className="border border-slate-200 bg-white/90 shadow-none">
+        <Card className="border border-stone-200 bg-white/90 shadow-none">
           <CardContent className="p-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div>
-                <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+                <p className="text-xs font-medium uppercase tracking-[0.2em] text-stone-500">
                   Shared Experiment Workspace
                 </p>
-                <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">
+                <h1 className="mt-1 text-3xl font-semibold tracking-tight text-stone-900">
                   {title}
                 </h1>
-                <p className="mt-2 max-w-3xl text-sm text-slate-500">{description}</p>
+                <p className="mt-2 max-w-3xl text-sm text-stone-500">{description}</p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
@@ -1051,7 +1051,7 @@ export function IncrementalityWorkspace({
                     <ArrowRight className="ml-1 h-3.5 w-3.5" />
                   </Link>
                 </Button>
-                <Button className="rounded-full bg-slate-900 hover:bg-slate-950" onClick={() => setCreateOpen(true)}>
+                <Button className="rounded-full bg-stone-900 hover:bg-stone-950" onClick={() => setCreateOpen(true)}>
                   <Sparkles className="mr-1 h-4 w-4" />
                   New experiment
                 </Button>

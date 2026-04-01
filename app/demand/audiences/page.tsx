@@ -18,9 +18,9 @@ const segments = [
 ];
 
 const typeColors: Record<string, string> = {
-  "Touchless": "bg-green-50 text-green-700 border-green-200",
-  "Driver-Based": "bg-blue-50 text-blue-700 border-blue-200",
-  "Planner-Assisted": "bg-purple-50 text-purple-700 border-purple-200",
+  "Touchless": "bg-stone-100 text-stone-700 border-stone-200",
+  "Driver-Based": "bg-[#29707a]/[0.1] text-[#29707a] border-[#29707a]/20",
+  "Planner-Assisted": "bg-stone-50 text-stone-600 border-stone-200",
 };
 
 export default function AudiencesPage() {
@@ -62,7 +62,7 @@ export default function AudiencesPage() {
             <p className="text-xs text-muted-foreground mb-1">Planner-Assisted</p>
             <div className="flex items-center gap-2">
               <p className="text-2xl font-bold">{segments.filter(s => s.type === "Planner-Assisted").length}</p>
-              <Zap className="h-4 w-4 text-purple-500" />
+              <Zap className="h-4 w-4 text-stone-500" />
             </div>
           </CardContent>
         </Card>

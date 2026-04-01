@@ -126,8 +126,8 @@ const SCENARIO_COLORS: Record<ScenarioId, { primary: string; fill: string }> = {
 function ProjectionTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-slate-200 rounded-lg shadow-lg px-3 py-2 text-xs">
-      <p className="font-semibold text-slate-800 mb-1">{label}</p>
+    <div className="bg-white border border-stone-200 rounded-lg shadow-lg px-3 py-2 text-xs">
+      <p className="font-semibold text-stone-700 mb-1">{label}</p>
       {payload.map((entry: any, i: number) => (
         <div key={i} className="flex items-center gap-2">
           <span
@@ -158,12 +158,12 @@ export function CurrentStateCard() {
   }));
 
   return (
-    <Card className="border border-slate-200 shadow-none overflow-hidden">
+    <Card className="border border-stone-200 shadow-none overflow-hidden">
       <CardContent className="p-0">
-        <div className="flex items-center justify-between px-3 py-2 border-b bg-slate-50/50">
+        <div className="flex items-center justify-between px-3 py-2 border-b bg-stone-50/50">
           <div className="flex items-center gap-2">
-            <Activity className="h-3.5 w-3.5 text-slate-600" />
-            <span className="text-xs font-semibold text-slate-700">
+            <Activity className="h-3.5 w-3.5 text-stone-600" />
+            <span className="text-xs font-semibold text-stone-700">
               Current Cyber Risk Posture
             </span>
             <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4">
@@ -173,7 +173,7 @@ export function CurrentStateCard() {
           <Link
             href="/risk/dashboard"
             prefetch={false}
-            className="text-[10px] font-medium text-slate-500 hover:text-slate-800 flex items-center gap-1 transition-colors"
+            className="text-[10px] font-medium text-stone-500 hover:text-stone-700 flex items-center gap-1 transition-colors"
           >
             Open dashboard <ArrowRight className="h-3 w-3" />
           </Link>
@@ -181,7 +181,7 @@ export function CurrentStateCard() {
 
         <div className="grid grid-cols-4 gap-2 p-3">
           {kpis.map((kpi) => (
-            <div key={kpi.label} className="text-center p-2 bg-slate-50 rounded-md">
+            <div key={kpi.label} className="text-center p-2 bg-stone-50 rounded-md">
               <p className="text-[10px] text-muted-foreground">{kpi.label}</p>
               <p className="text-sm font-bold mt-0.5">{kpi.value}</p>
               <p className={`text-[10px] font-medium ${kpi.positive ? "text-emerald-600" : "text-amber-600"}`}>{kpi.change}</p>
@@ -233,19 +233,19 @@ export function ScenarioProjectionCard({ scenarioId }: { scenarioId: ScenarioId 
   };
 
   return (
-    <Card className="border border-slate-200 shadow-none overflow-hidden">
+    <Card className="border border-stone-200 shadow-none overflow-hidden">
       <CardContent className="p-0">
-        <div className="flex items-center justify-between px-3 py-2 border-b bg-slate-50/50">
+        <div className="flex items-center justify-between px-3 py-2 border-b bg-stone-50/50">
           <div className="flex items-center gap-2">
-            <div className="p-1 rounded bg-slate-100">
-              <Icon className="h-3.5 w-3.5 text-slate-700" />
+            <div className="p-1 rounded bg-stone-100">
+              <Icon className="h-3.5 w-3.5 text-stone-700" />
             </div>
-            <span className="text-xs font-semibold text-slate-700">
+            <span className="text-xs font-semibold text-stone-700">
               {meta.label}
             </span>
             <Badge
               variant="outline"
-              className="text-[9px] px-1.5 py-0 h-4 border-slate-300"
+              className="text-[9px] px-1.5 py-0 h-4 border-stone-300"
             >
               <AiRecommend size={12} className="mr-0.5" /> Projected
             </Badge>
@@ -253,22 +253,22 @@ export function ScenarioProjectionCard({ scenarioId }: { scenarioId: ScenarioId 
           <Link
             href="/risk/dashboard"
             prefetch={false}
-            className="text-[10px] font-medium text-slate-500 hover:text-slate-800 flex items-center gap-1 transition-colors"
+            className="text-[10px] font-medium text-stone-500 hover:text-stone-700 flex items-center gap-1 transition-colors"
           >
             View dashboard <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
 
         <div className="grid grid-cols-3 gap-2 p-3">
-          <div className="text-center p-2 bg-slate-50 rounded-md">
+          <div className="text-center p-2 bg-stone-50 rounded-md">
             <p className="text-[10px] text-muted-foreground">Expected Outcome</p>
             <p className="text-sm font-bold mt-0.5">{meta.outcome}</p>
           </div>
-          <div className="text-center p-2 bg-slate-50 rounded-md">
+          <div className="text-center p-2 bg-stone-50 rounded-md">
             <p className="text-[10px] text-muted-foreground">Investment</p>
             <p className="text-sm font-bold mt-0.5">{meta.budget}</p>
           </div>
-          <div className="text-center p-2 bg-slate-50 rounded-md">
+          <div className="text-center p-2 bg-stone-50 rounded-md">
             <p className="text-[10px] text-muted-foreground">ALE Reduction</p>
             <p className="text-sm font-bold mt-0.5 text-emerald-700">
               -{aleReduction}%
@@ -352,7 +352,7 @@ export function ScenarioProjectionCard({ scenarioId }: { scenarioId: ScenarioId 
             <span className="inline-block w-4 h-[2px] bg-red-500" /> Historical
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="inline-block w-4 h-[2px] bg-slate-400" style={{ borderTop: "2px dashed #94a3b8", height: 0 }} />
+            <span className="inline-block w-4 h-[2px] bg-stone-400" style={{ borderTop: "2px dashed #94a3b8", height: 0 }} />
             No Action
           </span>
           <span className="flex items-center gap-1.5">

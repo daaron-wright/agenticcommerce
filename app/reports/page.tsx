@@ -53,7 +53,7 @@ function ChangeBadge({ value }: { value: string }) {
           ? "bg-emerald-50 text-emerald-700"
           : value.startsWith("-")
             ? "bg-rose-50 text-rose-700"
-            : "bg-slate-100 text-slate-600"
+            : "bg-stone-100 text-stone-600"
       )}
     >
       {value}
@@ -137,7 +137,7 @@ export default function ReportsPage() {
         description="Paid channel, KPI, and gross sales reporting aligned to the Monday trading summary."
         actions={
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1 bg-blue-600 text-white text-xs rounded px-3 py-1.5 font-medium">
+            <div className="flex items-center gap-1 bg-stone-700 text-white text-xs rounded px-3 py-1.5 font-medium">
               {dateRangeLabels[dateRange]}
             </div>
             <Select value={dateRange} onValueChange={setDateRange}>
@@ -276,7 +276,7 @@ export default function ReportsPage() {
             {WEEKLY_COMMERCIAL_REVIEW.discussionFlags.map((flag) => (
               <div
                 key={flag}
-                className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 leading-relaxed"
+                className="rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-stone-700 leading-relaxed"
               >
                 {flag}
               </div>
@@ -339,9 +339,9 @@ export default function ReportsPage() {
         </CardHeader>
         <CardContent className="space-y-2">
           {WEEKLY_COMMERCIAL_REVIEW.recommendations.map((recommendation) => (
-            <div key={recommendation.id} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
+            <div key={recommendation.id} className="rounded-lg border border-stone-200 bg-stone-50 px-3 py-2.5">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-semibold text-slate-900">{recommendation.title}</p>
+                <p className="text-xs font-semibold text-stone-900">{recommendation.title}</p>
                 <span
                   className={cn(
                     "inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium uppercase",
@@ -349,26 +349,26 @@ export default function ReportsPage() {
                       ? "bg-rose-100 text-rose-700"
                       : recommendation.priority === "medium"
                         ? "bg-amber-100 text-amber-700"
-                        : "bg-slate-200 text-slate-700"
+                        : "bg-stone-200 text-stone-700"
                   )}
                 >
                   {recommendation.priority}
                 </span>
               </div>
-              <p className="mt-1 text-xs text-slate-700">{recommendation.action}</p>
+              <p className="mt-1 text-xs text-stone-700">{recommendation.action}</p>
               <p className="mt-1 text-xs font-medium text-emerald-700">{recommendation.impact}</p>
               <div className="mt-2 flex items-center gap-2">
                 <Link
                   href={`/chat?actionId=${recommendation.nbaActionId}&intent=${canExecuteAI ? "execute" : "review"}&prompt=${encodeURIComponent(
                     canExecuteAI ? recommendation.executePrompt : recommendation.reviewPrompt
                   )}`}
-                  className="inline-flex items-center rounded-md bg-slate-800 px-2.5 py-1.5 text-[11px] font-medium text-white hover:bg-slate-900"
+                  className="inline-flex items-center rounded-md bg-stone-800 px-2.5 py-1.5 text-[11px] font-medium text-white hover:bg-stone-900"
                 >
                   {canExecuteAI ? "Execute in chat" : "Send for review"}
                 </Link>
                 <Link
                   href={`/chat?prompt=${encodeURIComponent(recommendation.reviewPrompt)}`}
-                  className="inline-flex items-center rounded-md border border-slate-300 px-2.5 py-1.5 text-[11px] font-medium text-slate-700 hover:bg-white"
+                  className="inline-flex items-center rounded-md border border-stone-300 px-2.5 py-1.5 text-[11px] font-medium text-stone-700 hover:bg-white"
                 >
                   Send for review
                 </Link>

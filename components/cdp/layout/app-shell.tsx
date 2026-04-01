@@ -170,7 +170,7 @@ function BreadcrumbBar({
             <Fragment key={`${item.label}-${item.href ?? index}`}>
               <BreadcrumbItem>
                 {isLast ? (
-                  <BreadcrumbPage className="font-medium text-slate-900">
+                  <BreadcrumbPage className="font-medium text-[#3d3c3c]">
                     {item.label}
                   </BreadcrumbPage>
                 ) : (
@@ -187,6 +187,38 @@ function BreadcrumbBar({
         })}
       </BreadcrumbList>
     </Breadcrumb>
+  );
+}
+
+const DATA_SOURCE_MAP: Record<string, { label: string; module: string }> = {
+  "/dashboard": { label: "UDP Control Tower", module: "Control Tower" },
+  "/chat": { label: "UDP Control Tower", module: "Conversational AI" },
+  "/udp": { label: "Unified Data Platform", module: "Customer Profiles" },
+  "/campaigns": { label: "Campaign Management", module: "Campaigns" },
+  "/demand": { label: "Demand Signal Engine", module: "Demand Planning" },
+  "/analytics": { label: "UDP Control Tower", module: "Analytics" },
+};
+
+function resolveDataSource(pathname: string) {
+  const exact = DATA_SOURCE_MAP[pathname];
+  if (exact) return exact;
+  for (const [prefix, source] of Object.entries(DATA_SOURCE_MAP)) {
+    if (pathname.startsWith(prefix + "/")) return source;
+  }
+  return { label: "Unified Data Platform", module: "Platform" };
+}
+
+function ConnectionStatusBar({ pathname }: { pathname: string }) {
+  const source = resolveDataSource(pathname);
+  return (
+    <div className="flex items-center gap-2 border-b bg-stone-50/60 px-6 py-1.5 text-xs text-muted-foreground shrink-0">
+      <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
+      <span className="font-medium text-stone-600">Connected</span>
+      <span className="text-stone-300">—</span>
+      <span className="text-stone-500">{source.label}</span>
+      <span className="text-stone-300">·</span>
+      <span className="text-stone-400">{source.module}</span>
+    </div>
   );
 }
 
@@ -507,13 +539,13 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
         {/* Sidebar Footer */}
         <div className="p-2 flex flex-col gap-1">
           <Button
-            className="w-full justify-start gap-3 rounded-md px-3 py-2 h-auto font-medium bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-800 border border-rose-200 shadow-none"
+            className="w-full justify-start gap-3 rounded-md px-3 py-2 h-auto font-medium bg-red-50 text-[#cc1800] hover:bg-red-100 hover:text-[#cc1800] border border-red-200 shadow-none"
             variant="outline"
             onClick={() => openUtilityPanel("notifications")}
           >
             <AlertTriangle className="h-4 w-4" />
             <span className="flex-1 text-left">Notifications</span>
-            <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
+            <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ff462d] px-1 text-[10px] font-bold text-white">
               {CONTROL_TOWER_ALERTS.length}
             </span>
           </Button>
@@ -565,7 +597,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                   <Menu className="h-5 w-5" />
                 </Button>
                 <div className="flex items-center gap-3">
-                  <div className="rounded-lg bg-slate-900 p-1.5">
+                  <div className="rounded-lg bg-[#3d3c3c] p-1.5">
                     <Monitor className="h-4 w-4 text-white" />
                   </div>
                   <div>
@@ -579,28 +611,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                 </div>
               </div>
 
-              {/* Alert signal badges + Knowledge Graph */}
-              <div className="flex items-center gap-2">
-                <div className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] font-semibold text-rose-700">
-                  {CONTROL_TOWER_SUMMARY.criticalAlerts} critical
-                </div>
-                <div className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700">
-                  {CONTROL_TOWER_SUMMARY.highAlerts} high
-                </div>
-                <div className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600">
-                  {CONTROL_TOWER_SUMMARY.totalAlerts} alerts
-                </div>
-                <Link
-                  href={buildKnowledgeGraphHref({
-                    graphPreset: "full-graph",
-                    graphCenterNodeId: "graph-control-tower",
-                  })}
-                  prefetch={false}
-                  className="ml-2 rounded-full bg-slate-900 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-slate-950"
-                >
-                  Knowledge Graph
-                </Link>
-              </div>
+              <div className="flex items-center gap-2" />
             </>
           ) : (
             <>
@@ -608,6 +619,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                 <Button
                   variant="ghost"
                   size="icon"
+                 
                   onClick={() => setSidebarOpen(!sidebarOpen)}
                 >
                   <Menu className="h-5 w-5" />
@@ -630,7 +642,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white shadow-sm"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-[#3d3c3c] text-xs font-semibold text-white shadow-sm"
                   aria-label="User menu"
                 >
                   {userInitials}
@@ -673,6 +685,9 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
+        {/* Connection status bar */}
+        <ConnectionStatusBar pathname={pathname} />
+
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-6 relative">
           <BreadcrumbBar pathname={pathname} searchParams={searchParams} />
@@ -709,9 +724,9 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
         {rightSidebarOpen && (
           <div
             onMouseDown={handleResizeStart}
-            className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize z-[60] group hover:bg-slate-400/40 active:bg-slate-400/60 transition-colors"
+            className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize z-[60] group hover:bg-stone-400/40 active:bg-stone-400/60 transition-colors"
           >
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 rounded-full bg-slate-300 group-hover:bg-slate-500 transition-colors" />
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 rounded-full bg-stone-300 group-hover:bg-stone-500 transition-colors" />
           </div>
         )}
         {/* Toggle Tab */}
@@ -730,10 +745,10 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
 
         {/* Content */}
         <div className="flex h-full flex-col overflow-hidden bg-background" style={{ width: dagPanelWidth }}>
-          <div className="flex h-16 items-center justify-between border-b px-4 shrink-0 bg-slate-50/50">
+          <div className="flex h-16 items-center justify-between border-b px-4 shrink-0 bg-stone-50/50">
             <div>
               <h2 className="text-sm font-semibold flex items-center gap-2">
-                <DataEnrichment size={16} className="text-slate-700" /> Agentic Workflow Pipeline
+                <DataEnrichment size={16} className="text-[#3d3c3c]" /> Agentic Workflow Pipeline
               </h2>
               <p className="text-[10px] text-muted-foreground mt-0.5">
                 Live monitoring of autonomous pipelines
@@ -743,7 +758,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
               <ChevronsRight className="h-4 w-4" />
             </Button>
           </div>
-          <div className="flex-1 w-full relative min-h-0 bg-slate-50/50">
+          <div className="flex-1 w-full relative min-h-0 bg-stone-50/50">
             {rightSidebarOpen && (
               <DAGVisualization
                 messageId={`${user?.role ?? "guest"}-${journeyState}-persistent-dag`}
@@ -812,7 +827,7 @@ const CONTROL_TOWER_ALERT_BADGE_STYLES: Record<
   { className: string; label: string }
 > = {
   critical: {
-    className: "border-rose-200 bg-rose-50 text-rose-700",
+    className: "border-red-200 bg-red-50 text-[#cc1800]",
     label: "Critical",
   },
   high: {
@@ -820,11 +835,11 @@ const CONTROL_TOWER_ALERT_BADGE_STYLES: Record<
     label: "High Priority",
   },
   medium: {
-    className: "border-slate-200 bg-slate-100 text-slate-700",
+    className: "border-stone-200 bg-stone-100 text-stone-700",
     label: "Medium",
   },
   info: {
-    className: "border-slate-200 bg-slate-50 text-slate-600",
+    className: "border-stone-200 bg-stone-50 text-stone-600",
     label: "Info",
   },
 };
@@ -848,11 +863,11 @@ function NotificationsPanel() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-slate-50/80 shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b bg-stone-50/80 shrink-0">
         <div className="flex items-center gap-2">
-          <AlertTriangle className="h-4 w-4 text-rose-500" />
+          <AlertTriangle className="h-4 w-4 text-[#ff462d]" />
           <div>
-            <h2 className="text-sm font-semibold text-slate-800">Notifications</h2>
+            <h2 className="text-sm font-semibold text-[#3d3c3c]">Notifications</h2>
             <p className="text-[10px] text-muted-foreground">
               Business alerts and decision support
             </p>
@@ -863,9 +878,9 @@ function NotificationsPanel() {
         </Badge>
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-3 bg-slate-50/50 px-4 py-4">
-        <div className="overflow-hidden rounded-xl border border-rose-200 bg-white shadow-[0_6px_24px_rgba(239,68,68,0.08)]">
-          <div className="border-b border-rose-200 bg-rose-500 px-4 py-3 text-white">
+      <div className="flex-1 overflow-y-auto space-y-3 bg-stone-50/50 px-4 py-4">
+        <div className="overflow-hidden rounded-xl border border-red-200 bg-white shadow-[0_6px_24px_rgba(255,70,45,0.08)]">
+          <div className="border-b border-red-200 bg-[#ff462d] px-4 py-3 text-white">
             <div className="flex items-start justify-between gap-2">
               <div>
                 <p className="text-sm font-semibold">{activeAlert.title}</p>
@@ -881,14 +896,14 @@ function NotificationsPanel() {
           </div>
 
           <div className="space-y-3 px-4 py-4">
-            <div className="rounded-xl border border-rose-100 bg-rose-50/70 p-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-rose-600">
+            <div className="rounded-xl border border-red-100 bg-red-50/70 p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#cc1800]">
                 Overview
               </p>
               <ul className="mt-2 space-y-2">
                 {activeAlert.drilldown.summary.slice(0, 3).map((line) => (
-                  <li key={line} className="flex gap-2 text-[11px] text-slate-700">
-                    <span className="mt-1 h-1.5 w-1.5 rounded-full bg-rose-400" />
+                  <li key={line} className="flex gap-2 text-[11px] text-stone-700">
+                    <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#ff6b57]" />
                     <span>{line}</span>
                   </li>
                 ))}
@@ -896,19 +911,19 @@ function NotificationsPanel() {
             </div>
 
             <div className="space-y-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
                 Requiring attention
               </p>
               {activeAlert.drilldown.items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-start justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2"
+                  className="flex items-start justify-between gap-3 rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2"
                 >
                   <div className="min-w-0">
-                    <p className="truncate text-xs font-semibold text-slate-900">
+                    <p className="truncate text-xs font-semibold text-[#3d3c3c]">
                       {item.title}
                     </p>
-                    <p className="mt-0.5 text-[10px] text-slate-500">{item.subtitle}</p>
+                    <p className="mt-0.5 text-[10px] text-stone-500">{item.subtitle}</p>
                   </div>
                   <Badge
                     variant="outline"
@@ -920,13 +935,13 @@ function NotificationsPanel() {
               ))}
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-[11px] text-slate-500">
+            <div className="rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2 text-[11px] text-stone-500">
               {CONTROL_TOWER_SUMMARY.dataFreshness} · {activeAlert.timestamp}
             </div>
 
             <Button
               asChild
-              className="w-full rounded-full bg-rose-500 text-white hover:bg-rose-600"
+              className="w-full rounded-full bg-[#3d3c3c] text-white hover:bg-[#161616]"
             >
               <Link href="/dashboard">Resolve</Link>
             </Button>
@@ -934,7 +949,7 @@ function NotificationsPanel() {
               <Button
                 asChild
                 variant="outline"
-                className="w-full rounded-full border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100 hover:text-violet-800"
+                className="w-full rounded-full border-[#8ecfd9] bg-[#29707a]/[0.25] text-[#29707a] hover:bg-[#29707a]/[0.15] hover:text-[#163d43]"
               >
                 <Link href={activeAlert.experimentHref}>Open experiment</Link>
               </Button>
@@ -942,9 +957,9 @@ function NotificationsPanel() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white px-3 py-3">
+        <div className="rounded-xl border border-stone-200 bg-white px-3 py-3">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
               Other business alerts
             </p>
             <Badge variant="outline" className="text-[9px]">
@@ -959,13 +974,13 @@ function NotificationsPanel() {
                   key={alert.id}
                   type="button"
                   onClick={() => setActiveAlertId(alert.id)}
-                  className="flex w-full items-start justify-between gap-3 rounded-xl border border-slate-200 px-3 py-2 text-left transition hover:border-slate-300 hover:bg-slate-50"
+                  className="flex w-full items-start justify-between gap-3 rounded-xl border border-stone-200 px-3 py-2 text-left transition hover:border-stone-300 hover:bg-stone-50"
                 >
                   <div className="min-w-0">
-                    <p className="truncate text-xs font-semibold text-slate-900">
+                    <p className="truncate text-xs font-semibold text-[#3d3c3c]">
                       {alert.title}
                     </p>
-                    <p className="mt-0.5 text-[10px] text-slate-500">
+                    <p className="mt-0.5 text-[10px] text-stone-500">
                       {alert.description}
                     </p>
                   </div>
@@ -981,9 +996,9 @@ function NotificationsPanel() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white px-3 py-3">
+        <div className="rounded-xl border border-stone-200 bg-white px-3 py-3">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
               Experiment shortcuts
             </p>
             <Badge variant="outline" className="text-[9px]">
@@ -993,10 +1008,10 @@ function NotificationsPanel() {
           <div className="mt-3 space-y-2">
             <Link
               href={buildIncrementalityHref({ entry: "udp", create: true })}
-              className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-xs text-slate-700 transition hover:border-slate-300 hover:bg-slate-100"
+              className="flex items-center justify-between rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2 text-xs text-stone-700 transition hover:border-stone-300 hover:bg-stone-100"
             >
               <span>Launch shared experiment</span>
-              <FlaskConical className="h-3.5 w-3.5 text-violet-600" />
+              <FlaskConical className="h-3.5 w-3.5 text-[#29707a]" />
             </Link>
             <Link
               href={buildIncrementalityHref({
@@ -1004,10 +1019,10 @@ function NotificationsPanel() {
                 lens: "udp",
                 application: "identity",
               })}
-              className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-xs text-slate-700 transition hover:border-slate-300 hover:bg-slate-100"
+              className="flex items-center justify-between rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2 text-xs text-stone-700 transition hover:border-stone-300 hover:bg-stone-100"
             >
               <span>Identity resolution tests</span>
-              <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+              <ChevronRight className="h-3.5 w-3.5 text-stone-400" />
             </Link>
             <Link
               href={buildIncrementalityHref({
@@ -1015,10 +1030,10 @@ function NotificationsPanel() {
                 lens: "udp",
                 application: "campaigns",
               })}
-              className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-xs text-slate-700 transition hover:border-slate-300 hover:bg-slate-100"
+              className="flex items-center justify-between rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2 text-xs text-stone-700 transition hover:border-stone-300 hover:bg-stone-100"
             >
               <span>Campaign lift experiments</span>
-              <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+              <ChevronRight className="h-3.5 w-3.5 text-stone-400" />
             </Link>
           </div>
         </div>
@@ -1033,11 +1048,11 @@ function ExplainabilityPanel() {
   return (
     <>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-slate-50/80 shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b bg-stone-50/80 shrink-0">
         <div className="flex items-center gap-2">
-          <AiGovernanceLifecycle size={18} className="text-slate-700" />
+          <AiGovernanceLifecycle size={18} className="text-[#3d3c3c]" />
           <div>
-            <h2 className="text-sm font-semibold text-slate-800">Agent Explainability</h2>
+            <h2 className="text-sm font-semibold text-[#3d3c3c]">Agent Explainability</h2>
             <p className="text-[10px] text-muted-foreground">Live execution reasoning and decision trace</p>
           </div>
         </div>
@@ -1056,7 +1071,7 @@ function ExplainabilityPanel() {
               {/* Execution header */}
               <button
                 onClick={() => setExpandedExec(isExpanded ? null : exec.id)}
-                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-left"
+                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-stone-50 transition-colors text-left"
               >
                 <div className={cn(
                   "h-7 w-7 rounded-md flex items-center justify-center shrink-0",
@@ -1070,7 +1085,7 @@ function ExplainabilityPanel() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-slate-800 truncate">{exec.title}</span>
+                    <span className="text-xs font-semibold text-[#3d3c3c] truncate">{exec.title}</span>
                     <span className={cn(
                       "text-[9px] font-semibold px-1.5 py-0.5 rounded-full",
                       exec.status === "running"
@@ -1081,7 +1096,7 @@ function ExplainabilityPanel() {
                     </span>
                   </div>
                   <div className="flex items-center gap-2 mt-1">
-                    <div className="flex-1 h-1 bg-slate-100 rounded-full overflow-hidden max-w-[120px]">
+                    <div className="flex-1 h-1 bg-stone-100 rounded-full overflow-hidden max-w-[120px]">
                       <div
                         className={cn(
                           "h-full rounded-full transition-all",
@@ -1095,7 +1110,7 @@ function ExplainabilityPanel() {
                   </div>
                 </div>
                 <ChevronRight className={cn(
-                  "h-3.5 w-3.5 text-slate-400 transition-transform shrink-0",
+                  "h-3.5 w-3.5 text-stone-400 transition-transform shrink-0",
                   isExpanded && "rotate-90"
                 )} />
               </button>
@@ -1105,17 +1120,17 @@ function ExplainabilityPanel() {
                 <div className="px-4 pb-4 space-y-4">
                   {/* Execution steps */}
                   <div className="space-y-1 ml-1">
-                    <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Execution Pipeline</p>
+                    <p className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider mb-2">Execution Pipeline</p>
                     {exec.steps.map((step, i) => (
                       <div key={i} className="flex items-center gap-2 text-xs py-1">
                         <div className="shrink-0">
                           {step.status === "done" && <CheckCircle2 className="h-3 w-3 text-emerald-500" />}
                           {step.status === "running" && <Loader2 className="h-3 w-3 text-amber-500 animate-spin" />}
-                          {step.status === "pending" && <div className="h-3 w-3 rounded-full border border-slate-300" />}
+                          {step.status === "pending" && <div className="h-3 w-3 rounded-full border border-stone-300" />}
                         </div>
                         <span className={cn(
                           "flex-1",
-                          step.status === "pending" ? "text-slate-400" : "text-slate-700"
+                          step.status === "pending" ? "text-stone-400" : "text-stone-700"
                         )}>
                           {step.label}
                         </span>
@@ -1125,13 +1140,13 @@ function ExplainabilityPanel() {
                   </div>
 
                   {/* Model info */}
-                  <div className="flex items-center gap-3 px-3 py-2 bg-slate-50 rounded-lg">
+                  <div className="flex items-center gap-3 px-3 py-2 bg-stone-50 rounded-lg">
                     <div className="relative h-10 w-10 shrink-0">
                       <svg viewBox="0 0 36 36" className="h-10 w-10 -rotate-90">
                         <circle cx="18" cy="18" r="14" fill="none" stroke="#e2e8f0" strokeWidth="3" />
                         <circle
                           cx="18" cy="18" r="14" fill="none"
-                          stroke={exec.confidence >= 90 ? "#059669" : "#0f172a"}
+                          stroke={exec.confidence >= 90 ? "#00af41" : "#3d3c3c"}
                           strokeWidth="3"
                           strokeDasharray={`${exec.confidence} 100`}
                           strokeLinecap="round"
@@ -1142,24 +1157,24 @@ function ExplainabilityPanel() {
                       </span>
                     </div>
                     <div>
-                      <p className="text-[10px] font-semibold text-slate-700">Model Confidence</p>
+                      <p className="text-[10px] font-semibold text-[#3d3c3c]">Model Confidence</p>
                       <p className="text-[10px] text-muted-foreground">{exec.model}</p>
                     </div>
                   </div>
 
                   {/* Reasoning factors */}
                   <div className="space-y-2 ml-1">
-                    <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Decision Factors</p>
+                    <p className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Decision Factors</p>
                     {exec.reasoning.map((r, i) => (
-                      <div key={i} className="rounded-lg border border-slate-100 p-2.5 bg-white">
+                      <div key={i} className="rounded-lg border border-stone-100 p-2.5 bg-white">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-[11px] font-semibold text-slate-700">{r.factor}</span>
-                          <span className="text-[10px] font-semibold text-slate-500">{r.weight}% weight</span>
+                          <span className="text-[11px] font-semibold text-[#3d3c3c]">{r.factor}</span>
+                          <span className="text-[10px] font-semibold text-stone-500">{r.weight}% weight</span>
                         </div>
-                        <div className="h-1 bg-slate-100 rounded-full overflow-hidden mb-1.5">
-                          <div className="h-full bg-slate-700 rounded-full" style={{ width: `${r.weight}%` }} />
+                        <div className="h-1 bg-stone-100 rounded-full overflow-hidden mb-1.5">
+                          <div className="h-full bg-[#29707a] rounded-full" style={{ width: `${r.weight}%` }} />
                         </div>
-                        <p className="text-[10px] text-slate-500 leading-snug">{r.insight}</p>
+                        <p className="text-[10px] text-stone-500 leading-snug">{r.insight}</p>
                       </div>
                     ))}
                   </div>
@@ -1171,9 +1186,9 @@ function ExplainabilityPanel() {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center gap-2 px-4 py-3 border-t bg-slate-50/80 shrink-0">
+      <div className="flex items-center gap-2 px-4 py-3 border-t bg-stone-50/80 shrink-0">
         <Activity className="h-3 w-3 text-amber-500" />
-        <span className="text-[10px] text-slate-600 font-medium">
+        <span className="text-[10px] text-stone-600 font-medium">
           2 active agent processes | Last updated: just now
         </span>
       </div>
@@ -1200,8 +1215,8 @@ function UtilityPanel({
             className={cn(
               "rounded-full px-3 py-1.5 text-xs font-medium transition",
               activeTab === "notifications"
-                ? "bg-rose-50 text-rose-700"
-                : "text-slate-500 hover:bg-slate-100 hover:text-slate-800",
+                ? "bg-red-50 text-[#cc1800]"
+                : "text-stone-500 hover:bg-stone-100 hover:text-stone-800",
             )}
           >
             Notifications
@@ -1212,8 +1227,8 @@ function UtilityPanel({
             className={cn(
               "rounded-full px-3 py-1.5 text-xs font-medium transition",
               activeTab === "explainability"
-                ? "bg-slate-900 text-white"
-                : "text-slate-500 hover:bg-slate-100 hover:text-slate-800",
+                ? "bg-[#3d3c3c] text-white"
+                : "text-stone-500 hover:bg-stone-100 hover:text-stone-800",
             )}
           >
             Explainability

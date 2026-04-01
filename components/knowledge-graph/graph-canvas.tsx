@@ -58,7 +58,7 @@ function FlowCanvas({
   onSelectNode: (nodeId: string | null) => void;
 }) {
   return (
-    <div className="h-[620px] w-full overflow-hidden rounded-[28px] border border-slate-200 bg-[radial-gradient(circle_at_top,#ffffff_0%,#fcfcfd_60%,#fafafa_100%)]">
+    <div className="h-[620px] w-full overflow-hidden rounded-[28px] border border-stone-200 bg-[radial-gradient(circle_at_top,#ffffff_0%,#fcfcfd_60%,#fafafa_100%)]">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -80,7 +80,7 @@ function FlowCanvas({
         <ViewportController nodes={nodes} focusedNodeId={focusedNodeId} />
         <Controls
           showInteractive={false}
-          className="!bottom-4 !left-4 !top-auto !rounded-xl !border !border-slate-200 !bg-white !shadow-none"
+          className="!bottom-4 !left-4 !top-auto !rounded-xl !border !border-stone-200 !bg-white !shadow-none"
         />
       </ReactFlow>
     </div>
@@ -99,7 +99,7 @@ export function KnowledgeGraphCanvas({
   onSelectNode: (nodeId: string | null) => void;
 }) {
   return (
-    <div className="rounded-[32px] border border-slate-200 bg-white/95 p-3 shadow-sm">
+    <div className="rounded-[32px] border border-stone-200 bg-white/95 p-3 shadow-sm">
       <ReactFlowProvider>
         <FlowCanvas
           nodes={nodes}

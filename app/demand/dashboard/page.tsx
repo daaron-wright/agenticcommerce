@@ -95,9 +95,9 @@ const nbaStatusConfig: Record<
   NBAReviewStatus,
   { color: string; icon: React.ElementType; label: string }
 > = {
-  pending: { color: "bg-slate-100 text-slate-700 border-slate-200", icon: Clock, label: "Pending Review" },
-  approved: { color: "bg-slate-50 text-slate-900 border-slate-300", icon: CheckCircle, label: "Approved" },
-  rejected: { color: "bg-slate-50 text-slate-500 border-slate-200", icon: XCircle, label: "Rejected" },
+  pending: { color: "bg-stone-100 text-stone-700 border-stone-200", icon: Clock, label: "Pending Review" },
+  approved: { color: "bg-stone-50 text-stone-900 border-stone-300", icon: CheckCircle, label: "Approved" },
+  rejected: { color: "bg-stone-50 text-stone-500 border-stone-200", icon: XCircle, label: "Rejected" },
 };
 
 const nbaByContext: Record<NBAContext, { title: string; actions: DashboardNBAAction[] }> = {
@@ -170,10 +170,10 @@ const dataAdminScenarios: Scenario[] = [
     expectedOutcome: "+5pp Accuracy",
     budgetChange: "No Change",
     risk: "Low",
-    riskColor: "bg-slate-50 text-slate-600 border border-slate-200",
+    riskColor: "bg-stone-50 text-stone-600 border border-stone-200",
     icon: Activity,
-    accentColor: "bg-slate-50/50 border-slate-200",
-    iconColor: "text-slate-700",
+    accentColor: "bg-stone-50/50 border-stone-200",
+    iconColor: "text-stone-700",
     nbaContext: "planning",
     chatPrompt: "How can I improve our forecast model accuracy? What data sources should I incorporate?",
   },
@@ -183,10 +183,10 @@ const dataAdminScenarios: Scenario[] = [
     expectedOutcome: "-25% Waste",
     budgetChange: "No Change",
     risk: "Low",
-    riskColor: "bg-slate-50 text-slate-600 border border-slate-200",
+    riskColor: "bg-stone-50 text-stone-600 border border-stone-200",
     icon: TrendingDown,
-    accentColor: "bg-slate-50/50 border-slate-200",
-    iconColor: "text-slate-700",
+    accentColor: "bg-stone-50/50 border-stone-200",
+    iconColor: "text-stone-700",
     nbaContext: "waste",
     chatPrompt: "Analyze our perishable waste by category and recommend specific forecast adjustments to reduce spoilage.",
   },
@@ -196,10 +196,10 @@ const dataAdminScenarios: Scenario[] = [
     expectedOutcome: "+3pp Accuracy",
     budgetChange: "No Change",
     risk: "Medium",
-    riskColor: "bg-slate-100 text-slate-700",
+    riskColor: "bg-stone-100 text-stone-700",
     icon: Zap,
-    accentColor: "bg-slate-50/50 border-slate-200",
-    iconColor: "text-slate-800",
+    accentColor: "bg-stone-50/50 border-stone-200",
+    iconColor: "text-stone-800",
     nbaContext: "planning",
     chatPrompt: "What demand sensing signals are available and how can I configure real-time alerts for forecast adjustments?",
   },
@@ -212,10 +212,10 @@ const marketingScenarios: Scenario[] = [
     expectedOutcome: "-25% Waste",
     budgetChange: "No Change",
     risk: "Low",
-    riskColor: "bg-slate-50 text-slate-600 border border-slate-200",
+    riskColor: "bg-stone-50 text-stone-600 border border-stone-200",
     icon: TrendingDown,
-    accentColor: "bg-slate-50/50 border-slate-200",
-    iconColor: "text-slate-700",
+    accentColor: "bg-stone-50/50 border-stone-200",
+    iconColor: "text-stone-700",
     nbaContext: "waste",
     chatPrompt: "Analyze perishable waste trends and recommend promotional strategies to reduce spoilage.",
   },
@@ -225,10 +225,10 @@ const marketingScenarios: Scenario[] = [
     expectedOutcome: "97.5% Fill Rate",
     budgetChange: "+8% Safety Stock",
     risk: "Medium",
-    riskColor: "bg-slate-100 text-slate-700",
+    riskColor: "bg-stone-100 text-stone-700",
     icon: ShieldCheck,
-    accentColor: "bg-slate-50/50 border-slate-200",
-    iconColor: "text-slate-800",
+    accentColor: "bg-stone-50/50 border-stone-200",
+    iconColor: "text-stone-800",
     nbaContext: "stockout",
     chatPrompt: "What are the current stock-out risks and how can we pre-position inventory to maintain 97.5% fill rate?",
   },
@@ -238,10 +238,10 @@ const marketingScenarios: Scenario[] = [
     expectedOutcome: "+18% Promo Revenue",
     budgetChange: "+12% Inventory",
     risk: "Medium",
-    riskColor: "bg-slate-200 text-slate-800",
+    riskColor: "bg-stone-200 text-stone-800",
     icon: Tag,
-    accentColor: "bg-slate-50/50 border-slate-200",
-    iconColor: "text-slate-600",
+    accentColor: "bg-stone-50/50 border-stone-200",
+    iconColor: "text-stone-600",
     nbaContext: "promo",
     chatPrompt: "Analyze our recent promotional lifts vs forecasts and recommend how to optimize upcoming promotion inventory.",
   },
@@ -272,17 +272,17 @@ function NBAPanel({
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center">
       <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px]" onClick={onClose} />
-      <div className="relative w-full max-w-2xl mx-4 mb-4 sm:mb-0 bg-background border border-slate-200 rounded-xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
-        <div className="h-0.5 bg-slate-700" />
+      <div className="relative w-full max-w-2xl mx-4 mb-4 sm:mb-0 bg-background border border-stone-200 rounded-xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+        <div className="h-0.5 bg-stone-700" />
         <div className="flex items-center justify-between px-5 py-4 border-b">
           <div className="flex items-center gap-3">
-            <div className="bg-slate-800 text-white rounded-lg p-2">
+            <div className="bg-stone-800 text-white rounded-lg p-2">
               <Zap className="h-4 w-4" />
             </div>
             <div>
               <h2 className="text-sm font-semibold flex items-center gap-2">
                 Next Best Actions
-                <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-white font-medium">
+                <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-stone-800 text-white font-medium">
                   <Sparkles className="h-2.5 w-2.5" /> Agent Recommended
                 </span>
               </h2>
@@ -291,7 +291,7 @@ function NBAPanel({
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="rounded-md p-1.5 hover:bg-slate-100 transition-colors">
+          <button onClick={onClose} className="rounded-md p-1.5 hover:bg-stone-100 transition-colors">
             <X className="h-4 w-4 text-muted-foreground" />
           </button>
         </div>
@@ -308,14 +308,14 @@ function NBAPanel({
                 key={action.id}
                 className={cn(
                   "rounded-lg p-4 space-y-3 transition-colors",
-                  status === "pending" && "border border-slate-200 hover:border-slate-300",
-                  status === "approved" && "border border-slate-300 bg-slate-50/70",
-                  status === "rejected" && "border border-slate-200 bg-slate-50/40 opacity-85",
+                  status === "pending" && "border border-stone-200 hover:border-stone-300",
+                  status === "approved" && "border border-stone-300 bg-stone-50/70",
+                  status === "rejected" && "border border-stone-200 bg-stone-50/40 opacity-85",
                 )}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <div className="bg-slate-100 text-slate-700 rounded-lg p-1.5 flex-shrink-0">
+                    <div className="bg-stone-100 text-stone-700 rounded-lg p-1.5 flex-shrink-0">
                       <Zap className="h-3.5 w-3.5" />
                     </div>
                     <h3 className="text-sm font-medium">{action.title}</h3>
@@ -327,23 +327,23 @@ function NBAPanel({
                 <div className="bg-muted/50 rounded-lg p-3 text-xs">
                   <p className="font-medium mb-1 text-muted-foreground uppercase tracking-wide text-[10px]">Recommended Action</p>
                   <p className="flex items-center gap-1.5">
-                    <ArrowRight className="h-3 w-3 text-slate-500 flex-shrink-0" />
+                    <ArrowRight className="h-3 w-3 text-stone-500 flex-shrink-0" />
                     {action.action}
                   </p>
                 </div>
                 <div className="flex gap-4 text-xs">
                   <div>
                     <p className="text-muted-foreground text-[10px] uppercase tracking-wide mb-0.5">Expected Impact</p>
-                    <p className="font-semibold text-slate-800">{action.lift}</p>
+                    <p className="font-semibold text-stone-800">{action.lift}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground text-[10px] uppercase tracking-wide mb-0.5">Agent Confidence</p>
-                    <p className="font-semibold text-slate-700">{action.confidence}%</p>
+                    <p className="font-semibold text-stone-700">{action.confidence}%</p>
                   </div>
                 </div>
-                <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs">
-                  <p className="text-[10px] font-semibold text-slate-700 uppercase tracking-wide mb-1">Agent Reasoning</p>
-                  <p className="text-slate-600">{action.reason}</p>
+                <div className="bg-stone-50 border border-stone-200 rounded-lg p-3 text-xs">
+                  <p className="text-[10px] font-semibold text-stone-700 uppercase tracking-wide mb-1">Agent Reasoning</p>
+                  <p className="text-stone-600">{action.reason}</p>
                 </div>
                 <div className="flex gap-2 pt-1">
                   <Button
@@ -352,8 +352,8 @@ function NBAPanel({
                     className={cn(
                       "text-xs gap-1.5",
                       isApproved
-                        ? "bg-slate-800 hover:bg-slate-900 text-white"
-                        : "border-slate-200 text-slate-700 hover:bg-slate-100",
+                        ? "bg-stone-800 hover:bg-stone-900 text-white"
+                        : "border-stone-200 text-stone-700 hover:bg-stone-100",
                     )}
                     onClick={() => onReview(action, "approved")}
                   >
@@ -363,8 +363,8 @@ function NBAPanel({
                     size="sm"
                     variant="outline"
                     className={cn(
-                      "text-xs gap-1.5 border-slate-200 hover:bg-slate-100",
-                      isRejected ? "text-slate-900 border-slate-300 bg-slate-100" : "text-slate-600",
+                      "text-xs gap-1.5 border-stone-200 hover:bg-stone-100",
+                      isRejected ? "text-stone-900 border-stone-300 bg-stone-100" : "text-stone-600",
                     )}
                     onClick={() => onReview(action, "rejected")}
                   >
@@ -375,7 +375,7 @@ function NBAPanel({
             );
           })}
         </div>
-        <div className="px-5 py-3 border-t bg-slate-50/50 flex items-center justify-between">
+        <div className="px-5 py-3 border-t bg-stone-50/50 flex items-center justify-between">
           <p className="text-[10px] text-muted-foreground">Powered by agentic demand planning pipeline</p>
           <Link href="/nba" prefetch={false}>
             <Button size="sm" variant="outline" className="text-xs gap-1.5 h-7">
@@ -394,7 +394,7 @@ function ChartCard({ title, children }: { title: string; children: React.ReactNo
   return (
     <Card className={visualizationCardClass}>
       <CardHeader className="pb-2 pt-4 px-4">
-        <CardTitle className="text-xs font-semibold text-slate-700">{title}</CardTitle>
+        <CardTitle className="text-xs font-semibold text-stone-700">{title}</CardTitle>
       </CardHeader>
       <CardContent className="px-4 pb-4">
         {children}
@@ -571,10 +571,10 @@ export default function DashboardPage() {
   // ── Shared KPI stats (used by data_admin and marketing_admin) ──────────
 
   const sharedStats = [
-    { label: "Forecast Accuracy", value: "76%", icon: Activity, colorClass: "text-slate-700", bgClass: "bg-slate-100", nbaContext: "planning" as NBAContext, chatPrompt: "What is driving our current 76% forecast accuracy and how can we improve it?" },
-    { label: "Waste Rate", value: "8.2%", icon: TrendingDown, colorClass: "text-slate-700", bgClass: "bg-slate-100", nbaContext: "waste" as NBAContext, chatPrompt: "Break down our 8.2% waste rate by category and recommend reduction strategies." },
-    { label: "Fill Rate", value: "91%", icon: ShieldCheck, colorClass: "text-slate-700", bgClass: "bg-slate-100", nbaContext: "stockout" as NBAContext, chatPrompt: "What regions have the lowest fill rates and what actions can we take to reach 97.5%?" },
-    { label: "Pending Actions", value: String(reviewCounts.pending), icon: FileText, colorClass: "text-slate-700", bgClass: "bg-slate-100", nbaContext: "general" as NBAContext, chatPrompt: "Show me all pending demand planning actions and their expected impact." },
+    { label: "Forecast Accuracy", value: "76%", icon: Activity, colorClass: "text-stone-700", bgClass: "bg-stone-100", nbaContext: "planning" as NBAContext, chatPrompt: "What is driving our current 76% forecast accuracy and how can we improve it?" },
+    { label: "Waste Rate", value: "8.2%", icon: TrendingDown, colorClass: "text-stone-700", bgClass: "bg-stone-100", nbaContext: "waste" as NBAContext, chatPrompt: "Break down our 8.2% waste rate by category and recommend reduction strategies." },
+    { label: "Fill Rate", value: "91%", icon: ShieldCheck, colorClass: "text-stone-700", bgClass: "bg-stone-100", nbaContext: "stockout" as NBAContext, chatPrompt: "What regions have the lowest fill rates and what actions can we take to reach 97.5%?" },
+    { label: "Pending Actions", value: String(reviewCounts.pending), icon: FileText, colorClass: "text-stone-700", bgClass: "bg-stone-100", nbaContext: "general" as NBAContext, chatPrompt: "Show me all pending demand planning actions and their expected impact." },
   ];
 
   const getDashboardContent = () => {
@@ -614,10 +614,10 @@ export default function DashboardPage() {
           title: "Service Agent Dashboard",
           description: "Active cases and customer service overview",
           stats: [
-            { label: "My Open Cases", value: "15", icon: FileText, colorClass: "text-slate-700", bgClass: "bg-slate-100" },
-            { label: "Resolved Today", value: "8", icon: Activity, colorClass: "text-slate-700", bgClass: "bg-slate-100" },
-            { label: "High Priority", value: "3", icon: Headphones, colorClass: "text-slate-700", bgClass: "bg-slate-100" },
-            { label: "Avg. Resolution Time", value: "2.4h", icon: Database, colorClass: "text-slate-700", bgClass: "bg-slate-100" },
+            { label: "My Open Cases", value: "15", icon: FileText, colorClass: "text-stone-700", bgClass: "bg-stone-100" },
+            { label: "Resolved Today", value: "8", icon: Activity, colorClass: "text-stone-700", bgClass: "bg-stone-100" },
+            { label: "High Priority", value: "3", icon: Headphones, colorClass: "text-stone-700", bgClass: "bg-stone-100" },
+            { label: "Avg. Resolution Time", value: "2.4h", icon: Database, colorClass: "text-stone-700", bgClass: "bg-stone-100" },
           ],
           recentActivity: [
             { text: "Case #4521 resolved: Billing inquiry", time: "10m ago" },
@@ -668,7 +668,7 @@ export default function DashboardPage() {
           return (
             <Card
               key={stat.label}
-              className={cn("border shadow-none transition-colors", clickable && "cursor-pointer hover:border-slate-400")}
+              className={cn("border shadow-none transition-colors", clickable && "cursor-pointer hover:border-stone-400")}
               onClick={() => clickable && openNBA((stat as any).nbaContext)}
             >
               <CardContent className="pt-5 pb-4">
@@ -679,14 +679,14 @@ export default function DashboardPage() {
                 <p className="text-xs text-muted-foreground mt-1 leading-snug">{stat.label}</p>
                 <div className="flex items-center gap-2 mt-2">
                   {clickable && (
-                    <span className="text-[10px] text-slate-500 flex items-center gap-1">
+                    <span className="text-[10px] text-stone-500 flex items-center gap-1">
                       <Sparkles className="h-2.5 w-2.5" /> Recommendations
                     </span>
                   )}
                   {hasChatPrompt && (
                     <button
                       onClick={(e) => { e.stopPropagation(); askInChat((stat as any).chatPrompt); }}
-                      className="text-[10px] text-slate-500 hover:text-slate-800 flex items-center gap-1 transition-colors"
+                      className="text-[10px] text-stone-500 hover:text-stone-800 flex items-center gap-1 transition-colors"
                     >
                       <MessageSquare className="h-2.5 w-2.5" /> Ask about this
                     </button>
@@ -738,7 +738,7 @@ export default function DashboardPage() {
                     key={index}
                     {...(isWasteScenario ? { "data-tour": "scenario-waste" } : {})}
                     className={cn(
-                      "flex flex-col border shadow-none transition-colors hover:border-slate-400",
+                      "flex flex-col border shadow-none transition-colors hover:border-stone-400",
                       scenario.accentColor
                     )}
                   >
@@ -758,7 +758,7 @@ export default function DashboardPage() {
                       <div className="rounded-md bg-white/60 border border-white p-2.5 space-y-1.5 text-xs">
                         <div className="flex justify-between items-center">
                           <span className="text-muted-foreground">Outcome</span>
-                          <span className="font-semibold text-slate-900">{scenario.expectedOutcome}</span>
+                          <span className="font-semibold text-stone-900">{scenario.expectedOutcome}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-muted-foreground">Budget</span>
@@ -774,7 +774,7 @@ export default function DashboardPage() {
                               description: "Agent workflow initiated. Check the sidebar for DAG visualization.",
                             });
                           }}
-                          className="text-[10px] text-slate-500 hover:text-slate-800 flex items-center gap-1 transition-colors"
+                          className="text-[10px] text-stone-500 hover:text-stone-800 flex items-center gap-1 transition-colors"
                         >
                           <Sparkles className="h-2.5 w-2.5" /> Execute Action
                         </button>

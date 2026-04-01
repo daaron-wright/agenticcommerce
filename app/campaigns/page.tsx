@@ -18,10 +18,10 @@ const campaigns = [
 ];
 
 const statusColors: Record<string, string> = {
-  "Active": "bg-slate-100 text-slate-800",
-  "Scheduled": "bg-slate-50 text-slate-600",
-  "Paused": "bg-slate-50 text-slate-500",
-  "Ended": "bg-slate-200 text-slate-700",
+  "Active": "bg-stone-100 text-stone-700",
+  "Scheduled": "bg-stone-50 text-stone-600",
+  "Paused": "bg-stone-50 text-stone-500",
+  "Ended": "bg-stone-200 text-stone-700",
 };
 
 export default function CampaignsPage() {
@@ -91,7 +91,7 @@ export default function CampaignsPage() {
                       <td className="py-2.5 px-2">
                         <div className="flex items-center gap-1.5">
                           <span className="font-medium">{c.name}</span>
-                          {c.agentManaged && <Zap className="h-3 w-3 text-slate-700 flex-shrink-0" title="Agent managed" />}
+                          {c.agentManaged && <Zap className="h-3 w-3 text-stone-700 flex-shrink-0" title="Agent managed" />}
                         </div>
                       </td>
                       <td className="py-2.5 px-2">
@@ -110,7 +110,7 @@ export default function CampaignsPage() {
                       <td className="text-right py-2.5 px-2">{c.conversions > 0 ? c.conversions.toLocaleString("en-GB") : "—"}</td>
                       <td className="text-right py-2.5 px-2 font-semibold">
                         {c.roas > 0 ? (
-                          <span className={c.roas >= 5 ? "text-slate-800" : c.roas >= 3 ? "text-slate-600" : "text-slate-400"}>
+                          <span className={c.roas >= 5 ? "text-stone-700" : c.roas >= 3 ? "text-stone-600" : "text-stone-400"}>
                             {c.roas}x
                           </span>
                         ) : "—"}

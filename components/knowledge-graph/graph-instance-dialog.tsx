@@ -195,9 +195,9 @@ export function GraphInstanceDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[88vh] overflow-y-auto border border-slate-200 sm:max-w-2xl">
+      <DialogContent className="max-h-[88vh] overflow-y-auto border border-stone-200 sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold text-slate-900">
+          <DialogTitle className="text-lg font-semibold text-stone-800">
             Create knowledge graph workspace
           </DialogTitle>
         </DialogHeader>
@@ -302,25 +302,25 @@ export function GraphInstanceDialog({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+          <div className="rounded-2xl border border-stone-200 bg-stone-50/70 px-4 py-3">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
               Workspace preview
             </p>
-            <div className="mt-2 space-y-1 text-sm text-slate-600">
+            <div className="mt-2 space-y-1 text-sm text-stone-600">
               <p>
-                <span className="font-semibold text-slate-900">Domain:</span>{" "}
+                <span className="font-semibold text-stone-800">Domain:</span>{" "}
                 {KNOWLEDGE_GRAPH_DOMAIN_LABELS[domain]}
               </p>
               <p>
-                <span className="font-semibold text-slate-900">Preset:</span>{" "}
+                <span className="font-semibold text-stone-800">Preset:</span>{" "}
                 {KNOWLEDGE_GRAPH_PRESETS.find((preset) => preset.id === presetId)?.label}
               </p>
               <p>
-                <span className="font-semibold text-slate-900">Center node:</span>{" "}
+                <span className="font-semibold text-stone-800">Center node:</span>{" "}
                 {centerNode?.label ?? "No explicit center node"}
               </p>
               <p>
-                <span className="font-semibold text-slate-900">Will open in:</span>{" "}
+                <span className="font-semibold text-stone-800">Will open in:</span>{" "}
                 `/dashboard/graph?instance=...`
               </p>
             </div>
@@ -331,7 +331,7 @@ export function GraphInstanceDialog({
               Cancel
             </Button>
             <Button
-              className="bg-slate-900 hover:bg-slate-950"
+              className="bg-stone-800 hover:bg-stone-950"
               disabled={!title.trim() || !user}
               onClick={handleCreate}
             >

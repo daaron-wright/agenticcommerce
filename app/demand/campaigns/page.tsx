@@ -18,9 +18,9 @@ const planningActions = [
 ];
 
 const statusColors: Record<string, string> = {
-  "Active": "bg-green-50 text-green-700",
-  "Scheduled": "bg-blue-50 text-blue-700",
-  "Paused": "bg-slate-50 text-slate-500",
+  "Active": "bg-emerald-50 text-emerald-700",
+  "Scheduled": "bg-stone-100 text-stone-700",
+  "Paused": "bg-stone-50 text-stone-500",
 };
 
 export default function CampaignsPage() {
@@ -84,7 +84,7 @@ export default function CampaignsPage() {
                     <td className="py-2.5 px-2">
                       <div className="flex items-center gap-1.5">
                         <span className="font-medium">{a.name}</span>
-                        {a.agentManaged && <Zap className="h-3 w-3 text-purple-500 flex-shrink-0" title="Agent managed" />}
+                        {a.agentManaged && <Zap className="h-3 w-3 text-stone-500 flex-shrink-0" title="Agent managed" />}
                       </div>
                     </td>
                     <td className="py-2.5 px-2">
@@ -96,7 +96,7 @@ export default function CampaignsPage() {
                       <span className={cn("font-medium", a.wasteImpact !== "—" ? "text-green-600" : "text-muted-foreground")}>{a.wasteImpact}</span>
                     </td>
                     <td className="text-right py-2.5 px-2">
-                      <span className={cn("font-medium", a.fillRateImpact !== "—" ? "text-blue-600" : "text-muted-foreground")}>{a.fillRateImpact}</span>
+                      <span className={cn("font-medium", a.fillRateImpact !== "—" ? "text-[#29707a]" : "text-muted-foreground")}>{a.fillRateImpact}</span>
                     </td>
                     <td className="text-right py-2.5 px-2">
                       <div className="flex gap-1 justify-end flex-wrap">

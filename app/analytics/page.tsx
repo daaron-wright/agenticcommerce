@@ -48,7 +48,7 @@ export default function AnalyticsPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Performance Analytics</h1>
+          <h1 className="text-2xl font-semibold text-[#3d3c3c]">Performance Analytics</h1>
           <p className="text-muted-foreground text-sm mt-1">Cross-channel marketing performance overview</p>
         </div>
         <Link href="/mmm" prefetch={false}>
@@ -65,7 +65,7 @@ export default function AnalyticsPage() {
             <CardContent className="pt-4 pb-4">
               <p className="text-xs text-muted-foreground mb-1">{kpi.label}</p>
               <p className="text-2xl font-bold">{kpi.value}</p>
-              <span className={`text-xs font-medium flex items-center gap-0.5 mt-1 text-slate-500`}>
+              <span className={`text-xs font-medium flex items-center gap-0.5 mt-1 text-stone-500`}>
                 {kpi.dir === "up" ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
                 {kpi.change} vs last period
               </span>

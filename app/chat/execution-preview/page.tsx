@@ -20,7 +20,7 @@ export default function ChatExecutionPreviewPage({
 
   if (!actionId) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-50 text-sm text-slate-500">
+      <div className="flex h-screen items-center justify-center bg-stone-50 text-sm text-stone-500">
         No execution preview is available.
       </div>
     );

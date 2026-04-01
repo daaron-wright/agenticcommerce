@@ -24,7 +24,7 @@ function EventTypeBadge({ type }: { type: string }) {
   const colors: Record<string, string> = {
     "Assessment Complete": "bg-blue-50 text-blue-700",
     "Financial Model Run": "bg-purple-50 text-purple-700",
-    "Risk Score Computed": "bg-slate-100 text-slate-700",
+    "Risk Score Computed": "bg-stone-100 text-stone-700",
     "Control Gap Detected": "bg-red-50 text-red-700",
     "Threat Indicator": "bg-amber-50 text-amber-700",
     "Vulnerability Detected": "bg-red-50 text-red-700",
@@ -36,7 +36,7 @@ function EventTypeBadge({ type }: { type: string }) {
     "Custom Assessment": "bg-sky-50 text-sky-700",
   };
   return (
-    <Badge variant="outline" className={cn("text-[10px] border-0 whitespace-nowrap", colors[type] || "bg-slate-50 text-slate-600")}>
+    <Badge variant="outline" className={cn("text-[10px] border-0 whitespace-nowrap", colors[type] || "bg-stone-50 text-stone-600")}>
       {type}
     </Badge>
   );
@@ -120,7 +120,7 @@ export default function AssessmentHistoryPage() {
 
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-slate-600" />
+          <Clock className="h-4 w-4 text-stone-600" />
           <h2 className="text-base font-semibold">Event Stream</h2>
           <span className="text-xs text-muted-foreground">({auditEvents.length} events)</span>
         </div>
@@ -129,7 +129,7 @@ export default function AssessmentHistoryPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b bg-slate-50/50">
+                <tr className="border-b bg-stone-50/50">
                   <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Timestamp</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Event Type</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Business Service</th>
@@ -145,7 +145,7 @@ export default function AssessmentHistoryPage() {
                     key={event.id}
                     className={cn(
                       "border-b last:border-0 transition-colors",
-                      isChat ? "bg-indigo-50/30 hover:bg-indigo-50/50" : "hover:bg-slate-50"
+                      isChat ? "bg-indigo-50/30 hover:bg-indigo-50/50" : "hover:bg-stone-50"
                     )}
                   >
                     <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
@@ -153,7 +153,7 @@ export default function AssessmentHistoryPage() {
                         {isChat ? (
                           <MessageSquare className="h-3.5 w-3.5 text-indigo-500" />
                         ) : (
-                          <ShieldCheck className="h-3.5 w-3.5 text-slate-400" />
+                          <ShieldCheck className="h-3.5 w-3.5 text-stone-400" />
                         )}
                         {event.timestamp}
                       </div>
@@ -167,18 +167,18 @@ export default function AssessmentHistoryPage() {
                           {event.serviceName}
                         </Link>
                       ) : (
-                        <span className="text-sm text-slate-600">{event.serviceName}</span>
+                        <span className="text-sm text-stone-600">{event.serviceName}</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-xs text-slate-700">{event.actor}</span>
+                      <span className="text-xs text-stone-700">{event.actor}</span>
                       {isChat && (
                         <Badge variant="secondary" className="ml-2 text-[9px] px-1.5 py-0 bg-indigo-100 text-indigo-700 hover:bg-indigo-100">
                           Chat Session
                         </Badge>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-xs text-slate-600 max-w-[300px] truncate" title={event.details}>{event.details}</td>
+                    <td className="px-4 py-3 text-xs text-stone-600 max-w-[300px] truncate" title={event.details}>{event.details}</td>
                   </tr>
                 )})}
               </tbody>
@@ -186,7 +186,7 @@ export default function AssessmentHistoryPage() {
           </div>
         </Card>
 
-        <p className="text-[9px] text-slate-400 italic text-right">{BENCHMARK_CITATIONS.fair}</p>
+        <p className="text-[9px] text-stone-400 italic text-right">{BENCHMARK_CITATIONS.fair}</p>
       </div>
     </div>
   );

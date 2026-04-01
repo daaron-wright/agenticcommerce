@@ -215,10 +215,10 @@ const PROMPT_ICON_MAP: Record<string, React.ElementType> = {
 };
 
 const DOMAIN_TAG_STYLES: Record<SuggestedPromptDomain, { label: string; className: string }> = {
-  platform: { label: "Platform", className: "bg-slate-800 text-white" },
-  demand:   { label: "Demand",   className: "bg-teal-50 text-teal-700 border border-teal-200" },
-  udp:      { label: "UDP",      className: "bg-slate-100 text-slate-600" },
-  campaign: { label: "Campaign", className: "bg-violet-50 text-violet-700 border border-violet-200" },
+  platform: { label: "Platform", className: "bg-stone-700 text-white" },
+  demand:   { label: "Demand",   className: "bg-stone-100 text-stone-600 border border-stone-200" },
+  udp:      { label: "UDP",      className: "bg-stone-100 text-stone-600 border border-stone-200" },
+  campaign: { label: "Campaign", className: "bg-stone-100 text-stone-600 border border-stone-200" },
 };
 
 function getGraphDomainFromPromptDomain(
@@ -995,24 +995,22 @@ export function ChatInterface({
     : filteredPromptCards.slice(0, 6);
 
   return (
-    <div className="relative flex flex-col h-[calc(100vh-4rem)] -m-6 bg-background">
+    <div className="relative flex flex-col h-[calc(100vh-5.5rem)] -m-6 bg-background">
       {/* Full-panel background */}
       <SubwayMapBackground />
-      {/* Status bar */}
-      <div className="flex items-center gap-2 px-4 py-2 border-b bg-slate-50/60 text-xs text-muted-foreground shrink-0">
-        <MdOutlineFiberManualRecord
-          className={cn(
-            "h-3 w-3",
-            isIdle ? "text-emerald-500" : "text-amber-500"
-          )}
-        />
-        <span>
-          {phase === "idle" && "Connected — Ready"}
-          {phase === "thinking" && "Agent thinking..."}
-          {phase === "tool_call" && "Processing..."}
-          {phase === "streaming" && "Generating response..."}
-          {phase === "complete" && "Complete"}
-        </span>
+      {/* Agent activity + controls bar */}
+      <div className="flex items-center gap-2 px-4 py-2 border-b bg-stone-50/60 text-xs text-muted-foreground shrink-0">
+        {!isIdle && (
+          <>
+            <MdOutlineFiberManualRecord className="h-3 w-3 text-amber-500" />
+            <span>
+              {phase === "thinking" && "Agent thinking..."}
+              {phase === "tool_call" && "Processing..."}
+              {phase === "streaming" && "Generating response..."}
+              {phase === "complete" && "Complete"}
+            </span>
+          </>
+        )}
 
         {(phase === "tool_call" || phase === "streaming") &&
           (completedSteps.length > 0 || currentStep) && (
@@ -1020,13 +1018,13 @@ export function ChatInterface({
               {completedSteps.map((step, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-200 text-[10px] font-medium text-slate-600 whitespace-nowrap"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-200 text-[10px] font-medium text-stone-600 whitespace-nowrap"
                 >
                   <span className="text-emerald-500">✓</span> {step}
                 </span>
               ))}
               {currentStep && phase === "tool_call" && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-800 text-[10px] font-medium text-white whitespace-nowrap">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-700 text-[10px] font-medium text-white whitespace-nowrap">
                   <MdOutlineRefresh className="h-2.5 w-2.5 animate-spin" />
                   {currentStep}
                 </span>
@@ -1069,13 +1067,13 @@ export function ChatInterface({
             <div className="flex flex-col items-center">
               {/* Sticky header: heading + input + filters */}
               <div className="sticky top-0 z-10 w-full flex flex-col items-center gap-4 bg-background/95 backdrop-blur-sm pt-10 pb-5">
-                <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+                <h2 className="text-2xl font-semibold tracking-tight text-stone-800">
                   {WELCOME_HEADING}
                 </h2>
 
                 <div className="w-full max-w-xl">
-                  <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm focus-within:ring-2 focus-within:ring-slate-300 focus-within:border-slate-300 transition-all">
-                    <span className="text-slate-400 text-sm">+</span>
+                  <div className="flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2.5 shadow-sm focus-within:ring-2 focus-within:ring-stone-300 focus-within:border-stone-300 transition-all">
+                    <span className="text-stone-400 text-sm">+</span>
                     <input
                       ref={inputRef}
                       type="text"
@@ -1091,8 +1089,8 @@ export function ChatInterface({
                       className={cn(
                         "h-8 w-8 rounded-full flex items-center justify-center transition-colors shrink-0",
                         input.trim()
-                          ? "bg-slate-800 text-white hover:bg-slate-900"
-                          : "bg-slate-200 text-slate-400"
+                          ? "bg-stone-700 text-white hover:bg-stone-800"
+                          : "bg-stone-200 text-stone-400"
                       )}
                     >
                       <MdOutlineSend className="h-3.5 w-3.5" />
@@ -1121,8 +1119,8 @@ export function ChatInterface({
                         className={cn(
                           "rounded-full border px-3 py-1 text-[11px] font-medium transition",
                           promptDomainFilter === opt.id
-                            ? "border-slate-800 bg-slate-800 text-white"
-                            : "border-slate-200 bg-white/80 text-slate-500 hover:border-slate-400 hover:text-slate-800",
+                            ? "border-stone-700 bg-stone-700 text-white"
+                            : "border-stone-200 bg-white/80 text-stone-500 hover:border-stone-400 hover:text-stone-700",
                         )}
                       >
                         {opt.label}
@@ -1189,12 +1187,12 @@ export function ChatInterface({
           {(phase === "thinking" || phase === "tool_call") && (
             <div className="flex gap-3">
               <div className="flex-shrink-0 mt-1">
-                <div className="h-8 w-8 rounded-lg bg-slate-800 text-white flex items-center justify-center">
+                <div className="h-8 w-8 rounded-lg bg-stone-700 text-white flex items-center justify-center">
                   <MdOutlineRefresh className="h-4 w-4 animate-spin" />
                 </div>
               </div>
               <div className="space-y-2">
-                <div className="rounded-2xl rounded-bl-md bg-slate-100 border border-slate-200 px-4 py-3 text-sm text-muted-foreground">
+                <div className="rounded-2xl rounded-bl-md bg-stone-100 border border-stone-200 px-4 py-3 text-sm text-muted-foreground">
                   <span className="flex items-center gap-2">
                     <MdOutlineRefresh className="h-3.5 w-3.5 animate-spin" />
                     {phase === "thinking"
@@ -1216,7 +1214,7 @@ export function ChatInterface({
               <button
                 key={prompt}
                 onClick={() => handleSend(prompt)}
-                className="text-[11px] px-3 py-1.5 rounded-full border border-slate-200 hover:border-slate-400 hover:bg-slate-50 transition-colors text-slate-600"
+                className="text-[11px] px-3 py-1.5 rounded-full border border-stone-200 hover:border-stone-400 hover:bg-stone-50 transition-colors text-stone-600"
               >
                 {prompt}
               </button>
@@ -1240,13 +1238,13 @@ export function ChatInterface({
                   : "Waiting for response..."
               }
               disabled={!isIdle}
-              className="flex-1 rounded-lg border border-slate-200 bg-background px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 rounded-lg border border-stone-200 bg-background px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-stone-300 disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <Button
               size="icon"
               onClick={() => handleSend()}
               disabled={!isIdle || !input.trim()}
-              className="h-10 w-10 rounded-lg bg-slate-800 hover:bg-slate-900 text-white shrink-0"
+              className="h-10 w-10 rounded-lg bg-stone-700 hover:bg-stone-800 text-white shrink-0"
             >
               <MdOutlineSend className="h-4 w-4" />
             </Button>
@@ -1302,11 +1300,11 @@ function PromptCard({
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-start gap-2.5 p-3.5 rounded-xl border border-slate-200 bg-white hover:border-slate-400 hover:shadow-sm transition-all text-left group"
+      className="flex flex-col items-start gap-2.5 p-3.5 rounded-xl border border-stone-200 bg-white hover:border-stone-400 hover:shadow-sm transition-all text-left group"
     >
       <div className="flex w-full items-center justify-between gap-2">
-        <div className="p-1.5 rounded-lg bg-slate-100 group-hover:bg-slate-200 transition-colors">
-          <Icon className="h-4 w-4 text-slate-700" />
+        <div className="p-1.5 rounded-lg bg-stone-100 group-hover:bg-stone-200 transition-colors">
+          <Icon className="h-4 w-4 text-stone-700" />
         </div>
         {domainTag && (
           <span className={cn("rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide", domainTag.className)}>
@@ -1314,7 +1312,7 @@ function PromptCard({
           </span>
         )}
       </div>
-      <p className="text-xs leading-snug text-slate-700">{labelParts}</p>
+      <p className="text-xs leading-snug text-stone-700">{labelParts}</p>
     </button>
   );
 }
@@ -1334,7 +1332,7 @@ function renderBold(text: string, boldWords: string[]) {
       (w) => w.toLowerCase() === part.toLowerCase()
     );
     return isBold ? (
-      <strong key={i} className="font-semibold text-slate-900">
+      <strong key={i} className="font-semibold text-stone-800">
         {part}
       </strong>
     ) : (
@@ -1370,39 +1368,39 @@ function NBAActionCards({
           {actions.map((action) => (
             <div
               key={action.id}
-              className="p-3.5 rounded-lg border border-slate-200 bg-white hover:border-slate-300 transition-all"
+              className="p-3.5 rounded-lg border border-stone-200 bg-white hover:border-stone-300 transition-all"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-semibold text-slate-800">
+                    <span className="text-xs font-semibold text-stone-700">
                       {action.title}
                     </span>
-                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-stone-100 text-stone-600">
                       {action.confidence}% confidence
                     </span>
                   </div>
                   <p className="text-[10px] text-muted-foreground mb-1.5">
-                    <span className="font-medium text-slate-600">Segment:</span>{" "}
+                    <span className="font-medium text-stone-600">Segment:</span>{" "}
                     {action.segment}
                   </p>
                   <p className="text-[10px] text-muted-foreground mb-1.5">
-                    <span className="font-medium text-slate-600">Action:</span>{" "}
+                    <span className="font-medium text-stone-600">Action:</span>{" "}
                     {action.action} &middot;{" "}
                     <span className="font-semibold text-emerald-700">
                       {action.expectedLift}
                     </span>
                   </p>
-                  <p className="text-[10px] text-slate-500 leading-snug">
+                  <p className="text-[10px] text-stone-500 leading-snug">
                     {action.agentReason}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-100">
+              <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-stone-100">
                 {canExecute ? (
                   <button
                     onClick={() => onExecute(action)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-slate-800 text-white text-[11px] font-medium hover:bg-slate-900 transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-stone-700 text-white text-[11px] font-medium hover:bg-stone-800 transition-colors"
                   >
                     <MdOutlinePlayArrow className="h-3 w-3" />
                     Execute
@@ -1418,7 +1416,7 @@ function NBAActionCards({
                 )}
                 <button
                   onClick={() => onDismiss(action.id)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-200 text-slate-500 text-[11px] font-medium hover:bg-slate-50 hover:border-slate-300 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-stone-200 text-stone-500 text-[11px] font-medium hover:bg-stone-50 hover:border-stone-300 transition-colors"
                 >
                   <MdOutlineClose className="h-3 w-3" />
                   Dismiss
@@ -1444,9 +1442,9 @@ function ScenarioPicker({
   const scenarios: ScenarioId[] = ["profit", "acquisition", "retention"];
 
   const riskColors: Record<string, string> = {
-    Medium: "bg-slate-100 text-slate-700",
-    High: "bg-slate-200 text-slate-800",
-    Low: "bg-slate-50 text-slate-600 border border-slate-200",
+    Medium: "bg-stone-100 text-stone-700",
+    High: "bg-stone-200 text-stone-700",
+    Low: "bg-stone-50 text-stone-600 border border-stone-200",
   };
 
   return (
@@ -1463,11 +1461,11 @@ function ScenarioPicker({
               <button
                 key={id}
                 onClick={() => onSelect(id)}
-                className="text-left p-3 rounded-lg border border-slate-200 hover:border-slate-400 hover:bg-slate-50 transition-all group"
+                className="text-left p-3 rounded-lg border border-stone-200 hover:border-stone-400 hover:bg-stone-50 transition-all group"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <div className="p-1.5 rounded-md bg-slate-100 group-hover:bg-slate-200 transition-colors">
-                    <Icon className="h-3.5 w-3.5 text-slate-700" />
+                  <div className="p-1.5 rounded-md bg-stone-100 group-hover:bg-stone-200 transition-colors">
+                    <Icon className="h-3.5 w-3.5 text-stone-700" />
                   </div>
                   <span
                     className={cn(
@@ -1478,22 +1476,22 @@ function ScenarioPicker({
                     {meta.risk} risk
                   </span>
                 </div>
-                <p className="text-xs font-semibold text-slate-800 mb-1">
+                <p className="text-xs font-semibold text-stone-700 mb-1">
                   {meta.label}
                 </p>
                 <p className="text-[10px] text-muted-foreground leading-snug mb-2">
                   {meta.description}
                 </p>
                 <div className="flex gap-3 text-[10px]">
-                  <span className="text-slate-500">
+                  <span className="text-stone-500">
                     Outcome:{" "}
-                    <span className="font-semibold text-slate-800">
+                    <span className="font-semibold text-stone-700">
                       {meta.outcome}
                     </span>
                   </span>
-                  <span className="text-slate-500">
+                  <span className="text-stone-500">
                     Budget:{" "}
-                    <span className="font-semibold text-slate-800">
+                    <span className="font-semibold text-stone-700">
                       {meta.budget}
                     </span>
                   </span>

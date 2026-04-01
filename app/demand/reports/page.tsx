@@ -164,7 +164,7 @@ export default function ReportsPage() {
         </Select>
 
         <div className="flex items-center gap-2 ml-auto">
-          <div className="flex items-center gap-1 bg-blue-600 text-white text-xs rounded px-3 py-1.5 font-medium">
+          <div className="flex items-center gap-1 bg-stone-700 text-white text-xs rounded px-3 py-1.5 font-medium">
             {dateRangeLabels[dateRange]}
           </div>
           <Select value={dateRange} onValueChange={setDateRange}>

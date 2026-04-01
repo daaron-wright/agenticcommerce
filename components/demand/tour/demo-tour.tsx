@@ -184,19 +184,19 @@ export function DemoTourProvider({ children }: { children: React.ReactNode }) {
           >
             <div
               className={cn(
-                "w-[360px] bg-white border border-slate-200 rounded-xl shadow-lg",
+                "w-[360px] bg-white border border-stone-200 rounded-xl shadow-lg",
                 "animate-in slide-in-from-bottom-4 fade-in duration-300",
                 transitioning && "opacity-50",
               )}
             >
               {/* Header */}
               <div className="flex items-center justify-between px-5 pt-4 pb-0">
-                <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">
+                <p className="text-[10px] text-stone-400 font-medium uppercase tracking-widest">
                   Step {step + 1} of {TOUR_STEPS.length}
                 </p>
                 <button
                   onClick={close}
-                  className="text-slate-400 hover:text-slate-700 transition-colors -mr-1"
+                  className="text-stone-400 hover:text-stone-700 transition-colors -mr-1"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -205,12 +205,12 @@ export function DemoTourProvider({ children }: { children: React.ReactNode }) {
               {/* Content */}
               <div className="px-5 pt-2 pb-4">
                 <div className="flex items-start gap-2 mb-1.5">
-                  <h3 className="text-sm font-semibold text-slate-900">
+                  <h3 className="text-sm font-semibold text-stone-800">
                     {current.title}
                   </h3>
-                  <ArrowUpRight className="h-3.5 w-3.5 text-slate-400 mt-0.5 flex-shrink-0" />
+                  <ArrowUpRight className="h-3.5 w-3.5 text-stone-400 mt-0.5 flex-shrink-0" />
                 </div>
-                <p className="text-xs text-slate-600 leading-relaxed">
+                <p className="text-xs text-stone-600 leading-relaxed">
                   {current.description}
                 </p>
               </div>
@@ -225,10 +225,10 @@ export function DemoTourProvider({ children }: { children: React.ReactNode }) {
                       className={cn(
                         "h-1.5 rounded-full transition-all",
                         i === step
-                          ? "w-4 bg-slate-800"
+                          ? "w-4 bg-stone-700"
                           : i < step
-                            ? "w-1.5 bg-slate-400"
-                            : "w-1.5 bg-slate-200",
+                            ? "w-1.5 bg-stone-400"
+                            : "w-1.5 bg-stone-200",
                       )}
                     />
                   ))}
@@ -240,7 +240,7 @@ export function DemoTourProvider({ children }: { children: React.ReactNode }) {
                     <button
                       onClick={() => navigate(-1)}
                       disabled={transitioning}
-                      className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 px-2 py-1 rounded-md hover:bg-slate-100 transition-colors disabled:opacity-50"
+                      className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-700 px-2 py-1 rounded-md hover:bg-stone-100 transition-colors disabled:opacity-50"
                     >
                       <ChevronLeft className="h-3 w-3" /> Back
                     </button>
@@ -249,14 +249,14 @@ export function DemoTourProvider({ children }: { children: React.ReactNode }) {
                     <button
                       onClick={() => navigate(1)}
                       disabled={transitioning}
-                      className="flex items-center gap-1 text-xs font-medium text-white bg-slate-800 hover:bg-slate-900 px-3 py-1.5 rounded-md transition-colors disabled:opacity-50"
+                      className="flex items-center gap-1 text-xs font-medium text-white bg-stone-700 hover:bg-stone-800 px-3 py-1.5 rounded-md transition-colors disabled:opacity-50"
                     >
                       Next <ChevronRight className="h-3 w-3" />
                     </button>
                   ) : (
                     <button
                       onClick={close}
-                      className="text-xs font-medium text-white bg-slate-800 hover:bg-slate-900 px-3 py-1.5 rounded-md transition-colors"
+                      className="text-xs font-medium text-white bg-stone-700 hover:bg-stone-800 px-3 py-1.5 rounded-md transition-colors"
                     >
                       Finish
                     </button>
@@ -266,10 +266,10 @@ export function DemoTourProvider({ children }: { children: React.ReactNode }) {
 
               {/* Skip link */}
               {step < TOUR_STEPS.length - 1 && (
-                <div className="border-t border-slate-100 px-5 py-2.5">
+                <div className="border-t border-stone-100 px-5 py-2.5">
                   <button
                     onClick={close}
-                    className="text-[10px] text-slate-400 hover:text-slate-600 transition-colors"
+                    className="text-[10px] text-stone-400 hover:text-stone-600 transition-colors"
                   >
                     Skip tour
                   </button>
