@@ -275,39 +275,157 @@ function Sparkline({
   );
 }
 
-function MetricStrip() {
-  return (
-    <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
-      {CONTROL_TOWER_HERO_METRICS.map((metric) => {
-        const status = STATUS_META[metric.status];
+const METRIC_SHORT_LABELS: Record<string, string> = {
+  "platform-health": "Profile",
+  "active-alerts": "Alerts",
+  "pending-actions": "Approvals",
+  "udp-readiness": "Reach",
+  "forecast-accuracy": "Demand",
+  "activation-readiness": "Campaign",
+};
 
-        return (
-          <div
-            key={metric.id}
-            className="rounded-2xl border border-stone-200 bg-white px-4 py-3 shadow-[0_1px_0_rgba(15,23,42,0.02)]"
-          >
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
-                {metric.label}
-              </p>
-              <Badge variant="outline" className={cn("text-[9px]", status.badge)}>
-                {status.label}
-              </Badge>
+const METRIC_ACTIONS: Record<string, { label: string; href: string }[]> = {
+  "platform-health": [
+    { label: "View merge exceptions", href: "#" },
+    { label: "Enrichment pipeline", href: "#" },
+  ],
+  "active-alerts": [
+    { label: "Triage alerts", href: "#" },
+    { label: "Alert history", href: "#" },
+  ],
+  "pending-actions": [
+    { label: "Review approvals", href: "#" },
+    { label: "Escalation queue", href: "#" },
+  ],
+  "udp-readiness": [
+    { label: "Consent audit", href: "#" },
+    { label: "Identity resolution", href: "#" },
+  ],
+  "forecast-accuracy": [
+    { label: "Regional breakdown", href: "#" },
+    { label: "Signal sources", href: "#" },
+  ],
+  "activation-readiness": [
+    { label: "Active campaigns", href: "#" },
+    { label: "Audience health", href: "#" },
+  ],
+};
+
+function MetricNavigator() {
+  const [selectedIndex, setSelectedIndex] = useState(() => {
+    const criticalIdx = CONTROL_TOWER_HERO_METRICS.findIndex(
+      (m) => m.status === "critical"
+    );
+    return criticalIdx >= 0 ? criticalIdx : 0;
+  });
+
+  const metric = CONTROL_TOWER_HERO_METRICS[selectedIndex];
+  const status = STATUS_META[metric.status];
+  const sparkColor = SPARKLINE_COLORS[metric.status];
+  const actions = METRIC_ACTIONS[metric.id] ?? [];
+
+  return (
+    <div className="space-y-0">
+      {/* Pill tab bar */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-3">
+        {CONTROL_TOWER_HERO_METRICS.map((m, i) => {
+          const s = STATUS_META[m.status];
+          const isActive = i === selectedIndex;
+          return (
+            <button
+              key={m.id}
+              onClick={() => setSelectedIndex(i)}
+              className={cn(
+                "flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition-colors",
+                isActive
+                  ? "border-stone-700 bg-stone-700 text-white"
+                  : "border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:text-stone-700"
+              )}
+            >
+              <span className={cn("h-2 w-2 rounded-full", s.dot)} />
+              {METRIC_SHORT_LABELS[m.id] ?? m.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Selected metric panel */}
+      <div className="rounded-2xl border border-stone-200 bg-white shadow-[0_1px_0_rgba(15,23,42,0.02)]">
+        <div className="flex flex-col md:flex-row">
+          {/* Left sidebar */}
+          <div className="flex flex-col gap-4 border-b border-stone-100 px-5 py-5 md:w-48 md:border-b-0 md:border-r">
+            <Badge
+              variant="outline"
+              className={cn("w-fit text-[11px]", status.badge)}
+            >
+              {status.label}
+            </Badge>
+            <div className="space-y-2">
+              {actions.map((a) => (
+                <a
+                  key={a.label}
+                  href={a.href}
+                  className="block text-[12px] font-medium text-stone-500 transition-colors hover:text-[#3d3c3c]"
+                >
+                  {a.label} →
+                </a>
+              ))}
             </div>
-            <p className="mt-2 text-[28px] font-semibold leading-none tracking-tight text-[#3d3c3c]">
+          </div>
+
+          {/* Right content */}
+          <div className="flex flex-1 flex-col justify-center px-6 py-5">
+            <p className="text-[48px] font-semibold leading-none tracking-tight text-[#3d3c3c]">
               {metric.value}
             </p>
-            <div className="mt-2">
-              <Sparkline
-                data={metric.sparkline}
-                color={SPARKLINE_COLORS[metric.status]}
-                id={metric.id}
-              />
+            <p className="mt-2 text-sm font-medium text-[#3d3c3c]">
+              {metric.label}
+            </p>
+            <div className="mt-3 max-w-md">
+              <ResponsiveContainer width="100%" height={80}>
+                <AreaChart
+                  data={metric.sparkline.map((value, index) => ({
+                    index,
+                    value,
+                  }))}
+                  margin={{ top: 4, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient
+                      id={`nav-spark-${metric.id}`}
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop
+                        offset="0%"
+                        stopColor={sparkColor}
+                        stopOpacity={0.2}
+                      />
+                      <stop
+                        offset="100%"
+                        stopColor={sparkColor}
+                        stopOpacity={0}
+                      />
+                    </linearGradient>
+                  </defs>
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke={sparkColor}
+                    strokeWidth={2}
+                    fill={`url(#nav-spark-${metric.id})`}
+                    dot={false}
+                    isAnimationActive={false}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
-            <p className="mt-1 text-[11px] text-stone-500">{metric.detail}</p>
+            <p className="mt-2 text-[12px] text-stone-500">{metric.detail}</p>
           </div>
-        );
-      })}
+        </div>
+      </div>
     </div>
   );
 }
@@ -1714,7 +1832,7 @@ function ControlTowerOverview() {
           </span>
         </div>
 
-        <MetricStrip />
+        <MetricNavigator />
 
         <div className="space-y-5">
           <div className="grid gap-4 xl:grid-cols-2">
