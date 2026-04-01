@@ -246,10 +246,8 @@ export default function PendingReviewPage() {
               <div className="flex items-center gap-2 mt-4">
                 <Button
                   size="sm"
-                  className="text-white"
-                  style={{ backgroundColor: '#4CDD84' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(76,221,132,0.75)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#4CDD84'}
+                  variant="outline"
+                  className="border-[#4CDD84]/40 text-[#4CDD84] hover:bg-[#4CDD84]/10 hover:text-[#3bc774]"
                   disabled={item.status !== "pending"}
                   onClick={() => handleApprove(item)}
                 >
