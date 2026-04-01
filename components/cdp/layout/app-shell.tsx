@@ -41,6 +41,7 @@ import {
 import { buildKnowledgeGraphHref } from "@/lib/knowledge-graph-data";
 import { useArtifacts, type ArtifactCategory } from "@/lib/artifact-store";
 import { cn } from "@/lib/utils";
+import { BannerControlsContext, useBannerControls } from "@/lib/banner-controls-context";
 import { DAGVisualization } from "@/components/dag";
 import { getUserJourneyState } from "@/lib/journey-state";
 import { useWorkflowEvents } from "@/lib/workflow-event-context";
@@ -210,6 +211,7 @@ function resolveDataSource(pathname: string) {
 
 function ConnectionStatusBar({ pathname }: { pathname: string }) {
   const source = resolveDataSource(pathname);
+  const { bannerControls } = useBannerControls();
   return (
     <div className="flex items-center gap-2 border-b bg-stone-50/60 px-6 py-1.5 text-xs text-muted-foreground shrink-0">
       <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -218,6 +220,11 @@ function ConnectionStatusBar({ pathname }: { pathname: string }) {
       <span className="text-stone-500">{source.label}</span>
       <span className="text-stone-300">·</span>
       <span className="text-stone-400">{source.module}</span>
+      {bannerControls && (
+        <div className="ml-auto flex items-center gap-2 shrink-0">
+          {bannerControls}
+        </div>
+      )}
     </div>
   );
 }
@@ -231,6 +238,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
   const [utilityPanelOpen, setUtilityPanelOpen] = useState(false);
   const [activeUtilityTab, setActiveUtilityTab] = useState<"notifications" | "explainability">("explainability");
+  const [bannerControls, setBannerControls] = useState<React.ReactNode>(null);
   const { getUnseenCount, clearArtifacts } = useArtifacts();
   const { setWorkflowEventHandler, setResetDAGHandler, clearWorkflowSession } = useWorkflowEvents();
 
@@ -444,6 +452,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
   };
 
   return (
+    <BannerControlsContext.Provider value={{ bannerControls, setBannerControls }}>
     <PageBreadcrumbProvider>
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Sidebar */}
@@ -784,6 +793,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
       </div>
     </div>
     </PageBreadcrumbProvider>
+    </BannerControlsContext.Provider>
   );
 }
 

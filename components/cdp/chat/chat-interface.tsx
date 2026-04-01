@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import {
   MdOutlineSend, MdOutlineRefresh, MdOutlineFiberManualRecord, MdOutlineTrendingUp, MdOutlineGpsFixed,
   MdOutlineShowChart, MdOutlineVerifiedUser, MdOutlineBarChart, MdOutlinePieChart, MdOutlineKeyboardArrowDown,
@@ -60,6 +60,7 @@ import {
   type ReportCardType,
 } from "./chat-data";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useBannerControls } from "@/lib/banner-controls-context";
 
 
 let messageCounter = 0;
@@ -994,6 +995,44 @@ export function ChatInterface({
     ? filteredPromptCards
     : filteredPromptCards.slice(0, 6);
 
+  // Push recommendation profile + clear chat into the connection banner
+  const { setBannerControls } = useBannerControls();
+  const bannerNode = useMemo(
+    () => (
+      <>
+        <span className="text-[10px] text-muted-foreground">Recommendation profile</span>
+        <Select value={activePersona} onValueChange={(value) => handlePersonaChange(value as ChatPersona)}>
+          <SelectTrigger className="h-6 w-[170px] text-[11px]">
+            <SelectValue placeholder="Select profile" />
+          </SelectTrigger>
+          <SelectContent>
+            {CHAT_PERSONA_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleClearChat}
+          disabled={messages.length === 0}
+          className="h-6 text-[10px] text-muted-foreground hover:text-foreground disabled:opacity-40"
+        >
+          <MdOutlineRefresh className="h-3 w-3 mr-1" />
+          Clear chat
+        </Button>
+      </>
+    ),
+    [activePersona, handlePersonaChange, handleClearChat, messages.length],
+  );
+
+  useEffect(() => {
+    setBannerControls(bannerNode);
+    return () => setBannerControls(null);
+  }, [bannerNode, setBannerControls]);
+
   return (
     <div className="relative flex flex-col h-[calc(100vh-5.5rem)] -m-6 bg-background">
       {/* Full-panel background */}
@@ -1032,31 +1071,6 @@ export function ChatInterface({
             </div>
           )}
 
-        <div className="ml-auto flex items-center gap-2 shrink-0">
-          <span className="text-[10px] text-muted-foreground">Recommendation profile</span>
-          <Select value={activePersona} onValueChange={(value) => handlePersonaChange(value as ChatPersona)}>
-            <SelectTrigger className="h-7 w-[170px] text-[11px]">
-              <SelectValue placeholder="Select profile" />
-            </SelectTrigger>
-            <SelectContent>
-              {CHAT_PERSONA_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleClearChat}
-            disabled={messages.length === 0}
-            className="h-7 text-[10px] text-muted-foreground hover:text-foreground disabled:opacity-40"
-          >
-            <MdOutlineRefresh className="h-3 w-3 mr-1" />
-            Clear chat
-          </Button>
-        </div>
       </div>
 
       {/* Messages area */}
