@@ -365,44 +365,51 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
 
   if (widget.kind === "scorecard_list" && widget.scoreRows) {
     return (
-      <div className="space-y-2">
-        {widget.scoreRows.map((row) => {
-          const status = STATUS_META[row.status];
-          return (
-            <div
-              key={`${widget.id}-${row.label}`}
-              className="rounded-xl border border-stone-100 bg-white px-3 py-3"
-            >
-              <div className="flex items-start justify-between gap-3">
+      <div className="rounded-xl border border-stone-100 bg-white p-3">
+        <div className="space-y-3">
+          {widget.scoreRows.map((row) => {
+            const status = STATUS_META[row.status];
+            const barColor =
+              row.status === "critical"
+                ? "bg-rose-500"
+                : row.status === "attention"
+                  ? "bg-amber-500"
+                  : "bg-emerald-500";
+            const barTextColor =
+              row.status === "critical"
+                ? "text-rose-700"
+                : row.status === "attention"
+                  ? "text-amber-700"
+                  : "text-emerald-700";
+            return (
+              <div
+                key={`${widget.id}-${row.label}`}
+                className="grid grid-cols-[1.25fr_1.75fr] items-center gap-3"
+              >
                 <div className="min-w-0">
                   <p className="truncate text-xs font-semibold text-[#3d3c3c]">
                     {row.label}
                   </p>
                   <p className="mt-0.5 text-[10px] text-stone-500">{row.meta}</p>
                 </div>
-                <div className="shrink-0 text-right">
-                  <p className="text-sm font-semibold text-[#3d3c3c]">{row.score}</p>
-                  <Badge variant="outline" className={cn("mt-1 text-[9px]", status.badge)}>
-                    {row.statusLabel ?? status.label}
-                  </Badge>
+                <div className="relative h-7 overflow-hidden rounded-full bg-stone-100">
+                  <div
+                    className={cn("absolute inset-y-0 left-0 rounded-full", barColor)}
+                    style={{ width: `${row.score}%` }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-between px-2.5">
+                    <span className={cn("text-[10px] font-bold", row.score > 15 ? "text-white" : barTextColor)}>
+                      {row.score}
+                    </span>
+                    <Badge variant="outline" className={cn("h-4 text-[8px] leading-none border-0 bg-white/80 backdrop-blur-sm", status.badge)}>
+                      {row.statusLabel ?? status.label}
+                    </Badge>
+                  </div>
                 </div>
               </div>
-              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-stone-200">
-                <div
-                  className={cn(
-                    "h-full rounded-full",
-                    row.status === "critical"
-                      ? "bg-rose-500"
-                      : row.status === "attention"
-                        ? "bg-amber-500"
-                        : "bg-emerald-500",
-                  )}
-                  style={{ width: `${row.score}%` }}
-                />
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     );
   }
