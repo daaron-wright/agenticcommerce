@@ -199,7 +199,7 @@ export default function PendingReviewPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-2xl font-semibold tracking-tight">Pending Review</h2>
+          <h2 className="text-2xl font-semibold tracking-tight">Action Queue</h2>
           <p className="text-sm text-muted-foreground mt-1">
             AI-generated actions submitted by team members awaiting your approval before execution.
           </p>

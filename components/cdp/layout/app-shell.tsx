@@ -107,8 +107,8 @@ const HREF_TO_GROUP: Record<string, string> = {
   "/udp/incrementality": "commercial",
   "/customers": "data",
   "/analytics": "data",
-  "/analytics/pending-review": "data",
-  "/analytics/confirmed-actions": "data",
+  "/analytics/pending-review": "platform",
+  "/analytics/confirmed-actions": "platform",
   "/campaigns": "commercial",
   "/audiences": "commercial",
   "/mmm": "commercial",
@@ -388,11 +388,11 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
       groups[groupId]!.push({ label: item.label, href: item.href });
     }
 
-    // Inject permission-gated items into "data" group if not already present
+    // Inject permission-gated items into "platform" group (Control Tower)
     if (hasPermissionForUser(user, "action_approve_review")) {
-      if (!groups.data) groups.data = [];
-      if (!groups.data.some((i) => i.href === "/analytics/pending-review")) {
-        groups.data.push({ label: "Action Queue", href: "/analytics/pending-review" });
+      if (!groups.platform) groups.platform = [];
+      if (!groups.platform.some((i) => i.href === "/analytics/pending-review")) {
+        groups.platform.push({ label: "Action Queue", href: "/analytics/pending-review" });
       }
     }
 
@@ -638,7 +638,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                 </Button>
                 <h1 className="text-xl font-semibold">
                   {pathname === "/analytics/pending-review"
-                    ? "Pending Review"
+                    ? "Action Queue"
                     : pathname === "/analytics/confirmed-actions"
                       ? "Confirmed Actions"
                       : dashboardContext.title !== "Dashboard"

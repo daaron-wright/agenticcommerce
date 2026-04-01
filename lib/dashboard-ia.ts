@@ -171,13 +171,13 @@ const LEGACY_ROUTE_MAP: Array<{
     match: (pathname) => pathname === "/analytics/pending-review",
     module: "udp",
     view: "insights",
-    breadcrumbs: [{ label: "Analytics", href: "/analytics" }, { label: "Pending Review" }],
+    breadcrumbs: [{ label: "Control Tower", href: "/dashboard" }, { label: "Action Queue" }],
   },
   {
     match: (pathname) => pathname === "/analytics/confirmed-actions",
     module: "udp",
     view: "insights",
-    breadcrumbs: [{ label: "Analytics", href: "/analytics" }, { label: "Confirmed Actions" }],
+    breadcrumbs: [{ label: "Control Tower", href: "/dashboard" }, { label: "Confirmed Actions" }],
   },
   {
     match: (pathname) => pathname === "/mmm",
