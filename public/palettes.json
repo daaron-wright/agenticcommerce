@@ -1,23 +1,23 @@
 {
   "default": {
     "clientId": "default",
-    "clientName": "Default",
+    "clientName": "Kyndryl",
     "chartTokens": {
-      "primary": "#66b6dd",
-      "secondary": "#83e4b7",
-      "axisText": "#667085",
-      "labelText": "#475467",
-      "titleText": "#101828",
-      "category1": "#66b6dd",
-      "category2": "#83e4b7",
-      "category3": "#fe7f34",
-      "category4": "#f2a8d5",
-      "category5": "#bd8fe1",
-      "category6": "#4da3ff",
-      "category7": "#4dc98c",
-      "category8": "#febb5c",
-      "category9": "#f26fb0",
-      "category10": "#d5b2f3"
+      "primary": "#29707a",
+      "secondary": "#8ecfd9",
+      "axisText": "#6d6d6d",
+      "labelText": "#3d3c3c",
+      "titleText": "#161616",
+      "category1": "#29707a",
+      "category2": "#8ecfd9",
+      "category3": "#ff462d",
+      "category4": "#3797a4",
+      "category5": "#1b904b",
+      "category6": "#3fadbd",
+      "category7": "#00af41",
+      "category8": "#f59e0b",
+      "category9": "#ff6b57",
+      "category10": "#ddf0f3"
     }
   },
   "tvg": {

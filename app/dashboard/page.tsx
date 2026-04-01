@@ -90,23 +90,23 @@ const DOMAIN_META: Record<
   udp: {
     label: "UDP Application",
     icon: Database,
-    accent: "text-slate-700",
-    soft: "bg-slate-100",
-    border: "border-slate-200",
+    accent: "text-[#3d3c3c]",
+    soft: "bg-stone-100",
+    border: "border-stone-200",
   },
   demand: {
     label: "Demand Signal",
     icon: BarChart3,
-    accent: "text-teal-700",
-    soft: "bg-teal-50",
-    border: "border-teal-200",
+    accent: "text-[#29707a]",
+    soft: "bg-[#e8f8fa]",
+    border: "border-[#8ecfd9]",
   },
   campaign: {
     label: "Commercial",
     icon: Megaphone,
-    accent: "text-violet-700",
-    soft: "bg-violet-50",
-    border: "border-violet-200",
+    accent: "text-[#29707a]",
+    soft: "bg-[#ddf0f3]",
+    border: "border-[#8ecfd9]",
   },
 };
 
@@ -125,8 +125,8 @@ const STATUS_META: Record<
     label: "Attention",
   },
   critical: {
-    badge: "border-rose-200 bg-rose-50 text-rose-700",
-    dot: "bg-rose-500",
+    badge: "border-red-200 bg-red-50 text-[#cc1800]",
+    dot: "bg-[#ff462d]",
     label: "Critical",
   },
 };
@@ -136,7 +136,7 @@ const SEVERITY_META: Record<
   { badge: string; label: string; icon: React.ElementType }
 > = {
   critical: {
-    badge: "border-rose-200 bg-rose-50 text-rose-700",
+    badge: "border-red-200 bg-red-50 text-[#cc1800]",
     label: "Critical",
     icon: AlertCircle,
   },
@@ -146,12 +146,12 @@ const SEVERITY_META: Record<
     icon: AlertTriangle,
   },
   medium: {
-    badge: "border-slate-200 bg-slate-100 text-slate-700",
+    badge: "border-stone-200 bg-stone-100 text-stone-700",
     label: "Medium",
     icon: AlertTriangle,
   },
   info: {
-    badge: "border-slate-200 bg-slate-50 text-slate-600",
+    badge: "border-stone-200 bg-stone-50 text-stone-600",
     label: "Info",
     icon: AlertTriangle,
   },
@@ -163,7 +163,7 @@ const ACTION_STATE_META: Record<
 > = {
   pending: {
     label: "Pending",
-    className: "border-slate-200 bg-slate-100 text-slate-700",
+    className: "border-stone-200 bg-stone-100 text-stone-700",
   },
   approved: {
     label: "Approved",
@@ -175,14 +175,14 @@ const ACTION_STATE_META: Record<
   },
   dismissed: {
     label: "Dismissed",
-    className: "border-slate-200 bg-slate-50 text-slate-500",
+    className: "border-stone-200 bg-stone-50 text-stone-500",
   },
 };
 
 const SPARKLINE_COLORS: Record<ControlTowerStatus, string> = {
-  healthy: "#10b981",
+  healthy: "#00af41",
   attention: "#f59e0b",
-  critical: "#f43f5e",
+  critical: "#ff462d",
 };
 
 const PANEL_LAYOUT = {
@@ -281,17 +281,17 @@ function MetricStrip() {
         return (
           <div
             key={metric.id}
-            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-[0_1px_0_rgba(15,23,42,0.02)]"
+            className="rounded-2xl border border-stone-200 bg-white px-4 py-3 shadow-[0_1px_0_rgba(15,23,42,0.02)]"
           >
             <div className="flex items-center justify-between gap-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
                 {metric.label}
               </p>
               <Badge variant="outline" className={cn("text-[9px]", status.badge)}>
                 {status.label}
               </Badge>
             </div>
-            <p className="mt-2 text-[28px] font-semibold leading-none tracking-tight text-slate-900">
+            <p className="mt-2 text-[28px] font-semibold leading-none tracking-tight text-[#3d3c3c]">
               {metric.value}
             </p>
             <div className="mt-2">
@@ -301,7 +301,7 @@ function MetricStrip() {
                 id={metric.id}
               />
             </div>
-            <p className="mt-1 text-[11px] text-slate-500">{metric.detail}</p>
+            <p className="mt-1 text-[11px] text-stone-500">{metric.detail}</p>
           </div>
         );
       })}
@@ -315,8 +315,8 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
     const tableRows = widget.tableRows;
 
     return (
-      <div className="overflow-hidden rounded-xl border border-slate-100 bg-white">
-        <div className="grid grid-cols-[2.1fr_0.9fr_1fr_0.75fr_0.8fr] border-b border-slate-100 bg-slate-50/80 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+      <div className="overflow-hidden rounded-xl border border-stone-100 bg-white">
+        <div className="grid grid-cols-[2.1fr_0.9fr_1fr_0.75fr_0.8fr] border-b border-stone-100 bg-stone-50/80 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-stone-500">
           {tableColumns.map((column) => (
             <div
               key={column.key}
@@ -326,13 +326,13 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
             </div>
           ))}
         </div>
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-stone-100">
           {tableRows.map((row) => {
             const status = row.status ? STATUS_META[row.status] : null;
             return (
               <div
                 key={row.id}
-                className="grid grid-cols-[2.1fr_0.9fr_1fr_0.75fr_0.8fr] items-center gap-3 px-3 py-2.5 text-[11px] text-slate-600"
+                className="grid grid-cols-[2.1fr_0.9fr_1fr_0.75fr_0.8fr] items-center gap-3 px-3 py-2.5 text-[11px] text-stone-600"
               >
                 {tableColumns.map((column) => (
                   <div
@@ -340,7 +340,7 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
                     className={cn(
                       "truncate",
                       column.align === "right" && "text-right",
-                      column.key === "item" && "font-semibold text-slate-800",
+                      column.key === "item" && "font-semibold text-[#3d3c3c]",
                     )}
                   >
                     {column.key === "status" && status ? (
@@ -368,23 +368,23 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
           return (
             <div
               key={`${widget.id}-${row.label}`}
-              className="rounded-xl border border-slate-100 bg-white px-3 py-3"
+              className="rounded-xl border border-stone-100 bg-white px-3 py-3"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="truncate text-xs font-semibold text-slate-800">
+                  <p className="truncate text-xs font-semibold text-[#3d3c3c]">
                     {row.label}
                   </p>
-                  <p className="mt-0.5 text-[10px] text-slate-500">{row.meta}</p>
+                  <p className="mt-0.5 text-[10px] text-stone-500">{row.meta}</p>
                 </div>
                 <div className="shrink-0 text-right">
-                  <p className="text-sm font-semibold text-slate-900">{row.score}</p>
+                  <p className="text-sm font-semibold text-[#3d3c3c]">{row.score}</p>
                   <Badge variant="outline" className={cn("mt-1 text-[9px]", status.badge)}>
                     {row.statusLabel ?? status.label}
                   </Badge>
                 </div>
               </div>
-              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-200">
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-stone-200">
                 <div
                   className={cn(
                     "h-full rounded-full",
@@ -406,7 +406,7 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
 
   if (widget.kind === "capacity_bars" && widget.capacityRows) {
     return (
-      <div className="space-y-3 rounded-xl border border-slate-100 bg-white px-4 py-3">
+      <div className="space-y-3 rounded-xl border border-stone-100 bg-white px-4 py-3">
         {widget.capacityRows.map((row) => {
           const usedColor =
             row.status === "critical"
@@ -419,19 +419,19 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
             <div key={`${widget.id}-${row.label}`} className="space-y-1.5">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs font-semibold text-slate-800">{row.label}</p>
-                  <p className="text-[10px] text-slate-500">{row.meta}</p>
+                  <p className="text-xs font-semibold text-[#3d3c3c]">{row.label}</p>
+                  <p className="text-[10px] text-stone-500">{row.meta}</p>
                 </div>
-                <p className="text-[11px] font-semibold text-slate-700">{row.usedPercent}% utilised</p>
+                <p className="text-[11px] font-semibold text-stone-700">{row.usedPercent}% utilised</p>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-slate-200">
+              <div className="h-2 overflow-hidden rounded-full bg-stone-200">
                 <div
                   className={cn("h-full rounded-full", usedColor)}
                   style={{ width: `${row.usedPercent}%` }}
                 />
               </div>
               {row.totalLabel ? (
-                <p className="text-[10px] text-slate-400">{row.totalLabel}</p>
+                <p className="text-[10px] text-stone-400">{row.totalLabel}</p>
               ) : null}
             </div>
           );
@@ -442,7 +442,7 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
 
   if (widget.kind === "dual_line_trend" && widget.trendPoints) {
     return (
-      <div className="h-44 rounded-xl border border-slate-100 bg-slate-50/60 p-3">
+      <div className="h-44 rounded-xl border border-stone-100 bg-stone-50/60 p-3">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={widget.trendPoints}
@@ -486,7 +486,7 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
 
   if (widget.kind === "single_line_trend" && widget.trendPoints) {
     return (
-      <div className="h-40 rounded-xl border border-slate-100 bg-slate-50/60 p-3">
+      <div className="h-40 rounded-xl border border-stone-100 bg-stone-50/60 p-3">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={widget.trendPoints} margin={{ top: 6, right: 10, left: -20, bottom: 0 }}>
             <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" vertical={false} />
@@ -502,12 +502,12 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
 
   if (widget.kind === "timeline_gantt" && widget.timelineRows) {
     return (
-      <div className="rounded-xl border border-slate-100 bg-white p-3">
+      <div className="rounded-xl border border-stone-100 bg-white p-3">
         <div className="relative">
-          <div className="mb-2 flex justify-end pr-10 text-[10px] font-medium text-slate-400">
+          <div className="mb-2 flex justify-end pr-10 text-[10px] font-medium text-stone-400">
             <span>Today</span>
           </div>
-          <div className="absolute right-[22%] top-4 bottom-2 w-px bg-slate-300" />
+          <div className="absolute right-[22%] top-4 bottom-2 w-px bg-stone-300" />
           <div className="space-y-3">
             {widget.timelineRows.map((row) => {
               const tone =
@@ -520,16 +520,16 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
               return (
                 <div key={`${widget.id}-${row.label}`} className="grid grid-cols-[1.25fr_1.75fr] items-center gap-3">
                   <div className="min-w-0">
-                    <p className="truncate text-xs font-semibold text-slate-800">{row.label}</p>
-                    <p className="truncate text-[10px] text-slate-500">{row.meta}</p>
+                    <p className="truncate text-xs font-semibold text-[#3d3c3c]">{row.label}</p>
+                    <p className="truncate text-[10px] text-stone-500">{row.meta}</p>
                   </div>
-                  <div className="relative h-7 rounded-full bg-slate-100">
+                  <div className="relative h-7 rounded-full bg-stone-100">
                     <div
                       className={cn("absolute top-1/2 h-3 -translate-y-1/2 rounded-full", tone)}
                       style={{ left: `${row.offset}%`, width: `${row.span}%` }}
                     />
                     {row.rightLabel ? (
-                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-medium text-slate-500">
+                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-medium text-stone-500">
                         {row.rightLabel}
                       </span>
                     ) : null}
@@ -548,7 +548,7 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
     widget.breakdownSegments
   ) {
     return (
-      <div className="rounded-xl border border-slate-100 bg-white p-3">
+      <div className="rounded-xl border border-stone-100 bg-white p-3">
         <div className="hidden gap-4 md:grid md:grid-cols-[180px_1fr] md:items-center">
           <div className="h-40">
             <ResponsiveContainer width="100%" height="100%">
@@ -578,11 +578,11 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
                     className="h-2.5 w-2.5 rounded-full"
                     style={{ backgroundColor: segment.color }}
                   />
-                  <span className="text-xs text-slate-700">{segment.label}</span>
+                  <span className="text-xs text-stone-700">{segment.label}</span>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs font-semibold text-slate-800">{segment.meta ?? `${segment.value}%`}</p>
-                  <p className="text-[10px] text-slate-400">{segment.value}% mix</p>
+                  <p className="text-xs font-semibold text-[#3d3c3c]">{segment.meta ?? `${segment.value}%`}</p>
+                  <p className="text-[10px] text-stone-400">{segment.value}% mix</p>
                 </div>
               </div>
             ))}
@@ -592,10 +592,10 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
           {widget.breakdownSegments.map((segment) => (
             <div key={`${widget.id}-fallback-${segment.label}`} className="space-y-1">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-xs font-semibold text-slate-800">{segment.label}</p>
-                <p className="text-[11px] text-slate-500">{segment.meta ?? `${segment.value}%`}</p>
+                <p className="text-xs font-semibold text-[#3d3c3c]">{segment.label}</p>
+                <p className="text-[11px] text-stone-500">{segment.meta ?? `${segment.value}%`}</p>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-slate-200">
+              <div className="h-2 overflow-hidden rounded-full bg-stone-200">
                 <div
                   className="h-full rounded-full"
                   style={{ width: `${segment.value}%`, backgroundColor: segment.color }}
@@ -620,20 +620,20 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
         return (
           <div
             key={`${widget.id}-${row.label}`}
-            className="rounded-xl border border-slate-100 bg-white px-3 py-2.5"
+            className="rounded-xl border border-stone-100 bg-white px-3 py-2.5"
           >
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <p className="truncate text-xs font-semibold text-slate-800">
+                <p className="truncate text-xs font-semibold text-[#3d3c3c]">
                   {row.label}
                 </p>
                 {row.meta ? (
-                  <p className="mt-0.5 text-[10px] text-slate-500">{row.meta}</p>
+                  <p className="mt-0.5 text-[10px] text-stone-500">{row.meta}</p>
                 ) : null}
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 {row.value ? (
-                  <span className="text-[11px] font-semibold text-slate-800">
+                  <span className="text-[11px] font-semibold text-[#3d3c3c]">
                     {row.value}
                   </span>
                 ) : null}
@@ -645,7 +645,7 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
               </div>
             </div>
             {typeof row.progress === "number" ? (
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-200">
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-stone-200">
                 <div
                   className={cn(
                     "h-full rounded-full",
@@ -681,48 +681,48 @@ function OperationsPanel({
   const Icon = meta.icon;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+    <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-start justify-between gap-3 px-4 py-3 text-left transition hover:bg-slate-50/70"
+        className="flex w-full items-start justify-between gap-3 px-4 py-3 text-left transition hover:bg-stone-50/70"
       >
         <div className="flex min-w-0 items-start gap-3">
           <div className={cn("rounded-xl p-2", meta.soft)}>
             <Icon className={cn("h-4 w-4", meta.accent)} />
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-slate-900">{widget.title}</p>
-            <p className="mt-0.5 text-[11px] text-slate-500">{widget.subtitle}</p>
+            <p className="text-sm font-semibold text-[#3d3c3c]">{widget.title}</p>
+            <p className="mt-0.5 text-[11px] text-stone-500">{widget.subtitle}</p>
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-3">
-          <span className="hidden text-[11px] font-medium text-slate-500 md:inline">
+          <span className="hidden text-[11px] font-medium text-stone-500 md:inline">
             {widget.routeLabel}
           </span>
           {expanded ? (
-            <ChevronUp className="h-4 w-4 text-slate-500" />
+            <ChevronUp className="h-4 w-4 text-stone-500" />
           ) : (
-            <ChevronDown className="h-4 w-4 text-slate-500" />
+            <ChevronDown className="h-4 w-4 text-stone-500" />
           )}
         </div>
       </button>
 
       {expanded ? (
-        <div className="border-t border-slate-200 bg-slate-50/50 px-4 py-4">
+        <div className="border-t border-stone-200 bg-stone-50/50 px-4 py-4">
           {widget.summary ? (
-            <div className="mb-3 rounded-xl border border-slate-100 bg-white px-3 py-2 text-[11px] text-slate-600">
+            <div className="mb-3 rounded-xl border border-stone-100 bg-white px-3 py-2 text-[11px] text-stone-600">
               {widget.summary}
             </div>
           ) : null}
           <WidgetRows widget={widget} />
           <div className="mt-3 flex items-center justify-between gap-3">
-            <span className="text-[10px] uppercase tracking-[0.16em] text-slate-400">
+            <span className="text-[10px] uppercase tracking-[0.16em] text-stone-400">
               Curated business view
             </span>
             <Link
               href={widget.routeHref}
-              className="text-[11px] font-medium text-slate-600 hover:text-slate-900"
+              className="text-[11px] font-medium text-stone-600 hover:text-[#3d3c3c]"
             >
               {widget.routeLabel}
             </Link>
@@ -756,14 +756,14 @@ function ActionBoard({
   const pendingCount = actions.filter((action) => action.state === "pending").length;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-      <div className="border-b border-slate-200 px-4 py-4">
+    <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
+      <div className="border-b border-stone-200 px-4 py-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
               Open Actions & Approvals
             </p>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-stone-500">
               Review and approve the business decisions shaping customer reach, campaign performance, and demand coverage.
             </p>
           </div>
@@ -785,12 +785,12 @@ function ActionBoard({
             <div
               key={action.id}
               className={cn(
-                "rounded-2xl border border-slate-200 bg-slate-50/40 px-4 py-3",
+                "rounded-2xl border border-stone-200 bg-stone-50/40 px-4 py-3",
                 action.domain === "demand"
                   ? "border-l-4 border-l-teal-400"
                   : action.domain === "campaign"
                       ? "border-l-4 border-l-violet-400"
-                      : "border-l-4 border-l-slate-400",
+                      : "border-l-4 border-l-stone-400",
               )}
             >
               <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
@@ -810,13 +810,13 @@ function ActionBoard({
                     <Badge variant="outline" className={cn("text-[9px]", stateMeta.className)}>
                       {stateMeta.label}
                     </Badge>
-                    <span className="text-[10px] text-slate-400">{action.dueLabel}</span>
+                    <span className="text-[10px] text-stone-400">{action.dueLabel}</span>
                   </div>
-                  <p className="mt-1 text-sm font-semibold text-slate-900">{action.title}</p>
-                  <p className="mt-1 text-[11px] leading-snug text-slate-600">
+                  <p className="mt-1 text-sm font-semibold text-[#3d3c3c]">{action.title}</p>
+                  <p className="mt-1 text-[11px] leading-snug text-stone-600">
                     {action.summary}
                   </p>
-                  <p className="mt-2 text-[11px] font-medium text-slate-700">
+                  <p className="mt-2 text-[11px] font-medium text-stone-700">
                     {action.impact}
                   </p>
                 </div>
@@ -856,7 +856,7 @@ function ActionBoard({
                   ) : null}
                   <Link
                     href={action.routeHref}
-                    className="inline-flex h-8 items-center rounded-full border border-slate-200 px-3 text-[11px] font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+                    className="inline-flex h-8 items-center rounded-full border border-stone-200 px-3 text-[11px] font-medium text-stone-600 transition hover:border-stone-300 hover:text-[#3d3c3c]"
                   >
                     {action.routeLabel}
                   </Link>
@@ -871,7 +871,7 @@ function ActionBoard({
                   <button
                     type="button"
                     onClick={() => onCreateGraph(buildActionGraphPrefill(action))}
-                    className="inline-flex h-8 items-center rounded-full border border-slate-200 px-3 text-[11px] font-medium text-slate-500 transition hover:border-slate-300 hover:text-slate-900"
+                    className="inline-flex h-8 items-center rounded-full border border-stone-200 px-3 text-[11px] font-medium text-stone-500 transition hover:border-stone-300 hover:text-[#3d3c3c]"
                   >
                     Save graph
                   </button>
@@ -911,7 +911,7 @@ function DecisionItemCard({
   onApplyCondition: () => void;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+    <div className="rounded-2xl border border-stone-200 bg-white px-4 py-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           {item.supportingLabel ? (
@@ -919,8 +919,8 @@ function DecisionItemCard({
               {item.supportingLabel}
             </p>
           ) : null}
-          <p className="mt-1 text-sm font-semibold text-slate-900">{item.title}</p>
-          <p className="mt-0.5 text-[11px] text-slate-500">{item.subtitle}</p>
+          <p className="mt-1 text-sm font-semibold text-[#3d3c3c]">{item.title}</p>
+          <p className="mt-0.5 text-[11px] text-stone-500">{item.subtitle}</p>
         </div>
         <div className="flex items-center gap-2">
           {decision.state === "approved" ? (
@@ -941,14 +941,14 @@ function DecisionItemCard({
         </div>
       </div>
 
-      <div className="mt-3 grid gap-2 text-[11px] text-slate-600 sm:grid-cols-4">
-        {item.stock ? <p><span className="font-medium text-slate-500">Stock:</span> {item.stock}</p> : null}
-        {item.actionAmount ? <p><span className="font-medium text-slate-500">Action:</span> {item.actionAmount}</p> : null}
-        {item.unitCost ? <p><span className="font-medium text-slate-500">Unit cost:</span> {item.unitCost}</p> : null}
-        {item.totalCost ? <p><span className="font-medium text-slate-500">Total:</span> {item.totalCost}</p> : null}
+      <div className="mt-3 grid gap-2 text-[11px] text-stone-600 sm:grid-cols-4">
+        {item.stock ? <p><span className="font-medium text-stone-500">Stock:</span> {item.stock}</p> : null}
+        {item.actionAmount ? <p><span className="font-medium text-stone-500">Action:</span> {item.actionAmount}</p> : null}
+        {item.unitCost ? <p><span className="font-medium text-stone-500">Unit cost:</span> {item.unitCost}</p> : null}
+        {item.totalCost ? <p><span className="font-medium text-stone-500">Total:</span> {item.totalCost}</p> : null}
       </div>
 
-      <p className="mt-3 text-sm text-slate-600">{item.detail}</p>
+      <p className="mt-3 text-sm text-stone-600">{item.detail}</p>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <Button
@@ -970,7 +970,7 @@ function DecisionItemCard({
         <Button
           size="sm"
           variant="ghost"
-          className="h-8 rounded-full px-3 text-[11px] text-slate-600 hover:text-slate-900"
+          className="h-8 rounded-full px-3 text-[11px] text-stone-600 hover:text-[#3d3c3c]"
           onClick={onReject}
         >
           Reject
@@ -978,8 +978,8 @@ function DecisionItemCard({
       </div>
 
       {expanded ? (
-        <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50/80 p-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+        <div className="mt-4 rounded-2xl border border-stone-200 bg-stone-50/80 p-3">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
             Suggested conditions
           </p>
           <div className="mt-2 space-y-2">
@@ -992,7 +992,7 @@ function DecisionItemCard({
                   "block w-full rounded-xl border px-3 py-2 text-left text-[11px] transition",
                   suggestedSelection === condition
                     ? "border-teal-300 bg-teal-50 text-teal-800"
-                    : "border-slate-200 bg-white text-slate-600 hover:border-slate-300",
+                    : "border-stone-200 bg-white text-stone-600 hover:border-stone-300",
                 )}
               >
                 {condition}
@@ -1003,7 +1003,7 @@ function DecisionItemCard({
             value={customCondition}
             onChange={(event) => onCustomChange(event.target.value)}
             placeholder="Or type a custom condition..."
-            className="mt-3 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none ring-0 placeholder:text-slate-400 focus:border-teal-300"
+            className="mt-3 h-10 w-full rounded-xl border border-stone-200 bg-white px-3 text-sm text-stone-700 outline-none ring-0 placeholder:text-stone-400 focus:border-teal-300"
           />
           <div className="mt-3 flex flex-wrap gap-2">
             <Button
@@ -1037,7 +1037,7 @@ function AgentFlowCards({ cards }: { cards: ControlTowerAgentFlowCard[] }) {
     blue: "border-sky-200 bg-sky-50/70",
     violet: "border-violet-200 bg-violet-50/70",
     emerald: "border-emerald-200 bg-emerald-50/70",
-    slate: "border-slate-200 bg-slate-50/70",
+    stone: "border-stone-200 bg-stone-50/70",
   } as const;
 
   return (
@@ -1049,17 +1049,17 @@ function AgentFlowCards({ cards }: { cards: ControlTowerAgentFlowCard[] }) {
         >
           <div className="flex items-start justify-between gap-2">
             <div>
-              <p className="text-xs font-semibold text-slate-900">{card.title}</p>
-              <p className="mt-0.5 text-[10px] text-slate-500">{card.subtitle}</p>
+              <p className="text-xs font-semibold text-[#3d3c3c]">{card.title}</p>
+              <p className="mt-0.5 text-[10px] text-stone-500">{card.subtitle}</p>
             </div>
             <Badge variant="outline" className="text-[9px]">
               {card.priority}
             </Badge>
           </div>
-          <p className="mt-2 text-[11px] leading-snug text-slate-600">{card.summary}</p>
-          <div className="mt-3 grid gap-2 text-[10px] text-slate-500">
-            <p><span className="font-medium text-slate-600">Output:</span> {card.output}</p>
-            <p><span className="font-medium text-slate-600">Processing:</span> {card.processingTime}</p>
+          <p className="mt-2 text-[11px] leading-snug text-stone-600">{card.summary}</p>
+          <div className="mt-3 grid gap-2 text-[10px] text-stone-500">
+            <p><span className="font-medium text-stone-600">Output:</span> {card.output}</p>
+            <p><span className="font-medium text-stone-600">Processing:</span> {card.processingTime}</p>
           </div>
         </div>
       ))}
@@ -1155,8 +1155,8 @@ function AlertDecisionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto border border-slate-200 p-0 sm:max-w-4xl">
-        <DialogHeader className="border-b border-slate-200 bg-teal-700 px-6 py-4 text-white">
+      <DialogContent className="max-h-[90vh] overflow-y-auto border border-stone-200 p-0 sm:max-w-4xl">
+        <DialogHeader className="border-b border-stone-200 bg-teal-700 px-6 py-4 text-white">
           <div className="flex items-start justify-between gap-3">
             <div>
               <DialogTitle className="text-lg font-semibold text-white">
@@ -1177,9 +1177,9 @@ function AlertDecisionDialog({
         <div className="space-y-4 px-6 py-5">
           {mode === "review" ? (
             <>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+              <div className="rounded-2xl border border-stone-200 bg-stone-50/70 p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
                     Overview
                   </p>
                   <Badge
@@ -1191,8 +1191,8 @@ function AlertDecisionDialog({
                 </div>
                 <ul className="mt-3 space-y-2">
                   {alert.drilldown.summary.map((line) => (
-                    <li key={line} className="flex gap-2 text-sm text-slate-700">
-                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                    <li key={line} className="flex gap-2 text-sm text-stone-700">
+                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-stone-400" />
                       <span>{line}</span>
                     </li>
                   ))}
@@ -1200,10 +1200,10 @@ function AlertDecisionDialog({
               </div>
 
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
                   Items requiring attention
                 </p>
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-stone-500">
                   Approve, set conditions, or reject each item below.
                 </p>
               </div>
@@ -1249,8 +1249,8 @@ function AlertDecisionDialog({
                 ))}
               </div>
 
-              <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 md:flex-row md:items-center md:justify-between">
-                <div className="text-sm text-slate-500">
+              <div className="flex flex-col gap-3 border-t border-stone-200 pt-4 md:flex-row md:items-center md:justify-between">
+                <div className="text-sm text-stone-500">
                   {actedCount} of {alert.drilldown.items.length} items actioned
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -1261,7 +1261,7 @@ function AlertDecisionDialog({
                         graphScopeId: alert.graphScopeId,
                         graphCenterNodeId: alert.graphCenterNodeId,
                       })}
-                      className="inline-flex h-9 items-center rounded-full border border-slate-200 px-3 text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+                      className="inline-flex h-9 items-center rounded-full border border-stone-200 px-3 text-sm font-medium text-stone-600 transition hover:border-stone-300 hover:text-[#3d3c3c]"
                     >
                       Explore graph
                     </Link>
@@ -1269,7 +1269,7 @@ function AlertDecisionDialog({
                   <button
                     type="button"
                     onClick={() => onCreateGraph(buildAlertGraphPrefill(alert))}
-                    className="inline-flex h-9 items-center rounded-full border border-slate-200 px-3 text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+                    className="inline-flex h-9 items-center rounded-full border border-stone-200 px-3 text-sm font-medium text-stone-600 transition hover:border-stone-300 hover:text-[#3d3c3c]"
                   >
                     Save graph
                   </button>
@@ -1290,13 +1290,13 @@ function AlertDecisionDialog({
             </>
           ) : (
             <>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+              <div className="rounded-2xl border border-stone-200 bg-stone-50/70 p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <p className="text-lg font-semibold text-slate-900">
+                    <p className="text-lg font-semibold text-[#3d3c3c]">
                       {alert.drilldown.decisionSummary?.headline ?? "Decisions submitted"}
                     </p>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-stone-500">
                       Logged at{" "}
                       {alert.drilldown.decisionSummary?.loggedAt ?? alert.timestamp} · Ref:{" "}
                       {alert.drilldown.decisionSummary?.reference ?? alert.id.toUpperCase()}
@@ -1307,7 +1307,7 @@ function AlertDecisionDialog({
                   </Badge>
                 </div>
 
-                <div className="mt-4 flex gap-3 border-b border-slate-200">
+                <div className="mt-4 flex gap-3 border-b border-stone-200">
                   {[
                     { id: "summary" as const, label: "Decision Summary" },
                     { id: "audit" as const, label: "Audit Trail & Agent Flow" },
@@ -1319,8 +1319,8 @@ function AlertDecisionDialog({
                       className={cn(
                         "border-b-2 pb-2 text-sm font-medium transition",
                         submittedTab === tab.id
-                          ? "border-slate-900 text-slate-900"
-                          : "border-transparent text-slate-500 hover:text-slate-800",
+                          ? "border-[#3d3c3c] text-[#3d3c3c]"
+                          : "border-transparent text-stone-500 hover:text-[#3d3c3c]",
                       )}
                     >
                       {tab.label}
@@ -1352,36 +1352,36 @@ function AlertDecisionDialog({
                       return (
                         <div
                           key={item.id}
-                          className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
+                          className="rounded-2xl border border-stone-200 bg-white px-4 py-3"
                         >
                           <div className="flex flex-wrap items-start justify-between gap-2">
                             <div>
-                              <p className="text-sm font-semibold text-slate-900">
+                              <p className="text-sm font-semibold text-[#3d3c3c]">
                                 {item.title}
                               </p>
-                              <p className="mt-1 text-[11px] text-slate-500">
+                              <p className="mt-1 text-[11px] text-stone-500">
                                 {resolvedOutcome}
                               </p>
                             </div>
                             {item.metric ? (
-                              <span className="text-[11px] font-medium text-slate-600">
+                              <span className="text-[11px] font-medium text-stone-600">
                                 {item.metric}
                               </span>
                             ) : null}
                           </div>
-                          <p className="mt-2 text-sm text-slate-600">{resolvedDetail}</p>
+                          <p className="mt-2 text-sm text-stone-600">{resolvedDetail}</p>
                         </div>
                       );
                     })}
 
                     {alert.drilldown.nextSteps?.length ? (
-                      <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                      <div className="rounded-2xl border border-stone-200 bg-white px-4 py-4">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
                           What happens next
                         </p>
                         <ul className="mt-3 space-y-2">
                           {alert.drilldown.nextSteps.map((step) => (
-                            <li key={step} className="flex gap-2 text-sm text-slate-600">
+                            <li key={step} className="flex gap-2 text-sm text-stone-600">
                               <span className="mt-2 h-1.5 w-1.5 rounded-full bg-teal-500" />
                               <span>{step}</span>
                             </li>
@@ -1392,29 +1392,29 @@ function AlertDecisionDialog({
                   </div>
                 ) : (
                   <div className="space-y-4 pt-4">
-                    <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
+                    <div className="space-y-3 rounded-2xl border border-stone-200 bg-white p-4">
                       {alert.drilldown.auditTrail.map((event) => (
                         <div key={`${event.time}-${event.actor}`} className="flex gap-3">
-                          <div className="mt-1.5 h-2.5 w-2.5 rounded-full bg-slate-400" />
+                          <div className="mt-1.5 h-2.5 w-2.5 rounded-full bg-stone-400" />
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
-                              <span className="text-[10px] text-slate-400">{event.time}</span>
+                              <span className="text-[10px] text-stone-400">{event.time}</span>
                               {event.badge ? (
                                 <Badge variant="outline" className="text-[9px]">
                                   {event.badge}
                                 </Badge>
                               ) : null}
                             </div>
-                            <p className="mt-1 text-sm text-slate-700">{event.detail}</p>
+                            <p className="mt-1 text-sm text-stone-700">{event.detail}</p>
                           </div>
                         </div>
                       ))}
                     </div>
 
                     {alert.drilldown.agentFlow?.length ? (
-                      <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
+                      <div className="space-y-3 rounded-2xl border border-stone-200 bg-white p-4">
                         <div className="flex items-center justify-between gap-2">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
                             Agent flow
                           </p>
                           <Badge variant="outline" className="text-[9px]">
@@ -1430,7 +1430,7 @@ function AlertDecisionDialog({
 
               <div className="flex justify-end">
                 <Button
-                  className="rounded-full bg-slate-900 hover:bg-slate-950"
+                  className="rounded-full bg-[#3d3c3c] hover:bg-stone-950"
                   onClick={() => onOpenChange(false)}
                 >
                   Close
@@ -1499,16 +1499,16 @@ function ControlTowerOverview() {
   return (
     <>
       <div className="mx-auto max-w-[1560px] space-y-5 pb-44">
-        <div className="rounded-2xl border border-slate-200 bg-white px-5 py-5">
+        <div className="rounded-2xl border border-stone-200 bg-white px-5 py-5">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-stone-500">
                 Business Dashboard
               </p>
-              <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">
+              <h1 className="mt-1 text-3xl font-semibold tracking-tight text-[#3d3c3c]">
                 UDP Control Tower
               </h1>
-              <p className="mt-2 max-w-3xl text-sm text-slate-500">
+              <p className="mt-2 max-w-3xl text-sm text-stone-500">
                 A single business-facing dashboard for customer data readiness, campaign activation, demand-informed decisions, and the approvals that connect them.
               </p>
             </div>
@@ -1683,17 +1683,17 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-[1500px] space-y-6 pb-28">
-      <Card className="border border-slate-200 bg-white/90 shadow-none">
+      <Card className="border border-stone-200 bg-white/90 shadow-none">
         <CardContent className="p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-stone-500">
                 Unified Dashboard
               </p>
-              <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">
+              <h1 className="mt-1 text-3xl font-semibold tracking-tight text-[#3d3c3c]">
                 {moduleConfig.label}
               </h1>
-              <p className="mt-2 max-w-3xl text-sm text-slate-500">
+              <p className="mt-2 max-w-3xl text-sm text-stone-500">
                 {moduleConfig.description}
               </p>
             </div>
@@ -1702,7 +1702,7 @@ export default function DashboardPage() {
               <Button asChild variant="outline" className="rounded-full">
                 <Link href={buildDashboardHref()}>Control tower</Link>
               </Button>
-              <Button asChild className="rounded-full bg-slate-900 hover:bg-slate-950">
+              <Button asChild className="rounded-full bg-[#3d3c3c] hover:bg-stone-950">
                 <Link
                   href={buildKnowledgeGraphHref({
                     graphPreset: "full-graph",
@@ -1723,8 +1723,8 @@ export default function DashboardPage() {
                 className={cn(
                   "rounded-full border px-4 py-2 text-sm font-medium transition",
                   activeView === view.id
-                    ? "border-slate-900 bg-slate-900 text-white"
-                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-800",
+                    ? "border-[#3d3c3c] bg-[#3d3c3c] text-white"
+                    : "border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:text-[#3d3c3c]",
                 )}
               >
                 {view.label}

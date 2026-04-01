@@ -1,23 +1,23 @@
 {
   "default": {
     "themeId": "default",
-    "themeName": "Default Theme",
+    "themeName": "Kyndryl Theme",
     "variables": {
-      "--chart-primary": "#66b6dd",
-      "--chart-secondary": "#83e4b7",
-      "--chart-axis-text": "#667085",
-      "--chart-label-text": "#475467",
-      "--chart-title-text": "#101828",
-      "--chart-category-1": "#66b6dd",
-      "--chart-category-2": "#83e4b7",
-      "--chart-category-3": "#fe7f34",
-      "--chart-category-4": "#f2a8d5",
-      "--chart-category-5": "#bd8fe1",
-      "--chart-category-6": "#4da3ff",
-      "--chart-category-7": "#4dc98c",
-      "--chart-category-8": "#febb5c",
-      "--chart-category-9": "#f26fb0",
-      "--chart-category-10": "#d5b2f3"
+      "--chart-primary": "#29707a",
+      "--chart-secondary": "#8ecfd9",
+      "--chart-axis-text": "#6d6d6d",
+      "--chart-label-text": "#3d3c3c",
+      "--chart-title-text": "#161616",
+      "--chart-category-1": "#29707a",
+      "--chart-category-2": "#8ecfd9",
+      "--chart-category-3": "#ff462d",
+      "--chart-category-4": "#3797a4",
+      "--chart-category-5": "#1b904b",
+      "--chart-category-6": "#3fadbd",
+      "--chart-category-7": "#00af41",
+      "--chart-category-8": "#f59e0b",
+      "--chart-category-9": "#ff6b57",
+      "--chart-category-10": "#ddf0f3"
     }
   },
   "client-acme": {

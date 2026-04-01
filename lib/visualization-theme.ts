@@ -1,24 +1,24 @@
 import type { CSSProperties } from "react";
 
 export const visualizationPalette = {
-  ink: "#1f2937",
-  slate: "#475569",
-  steel: "#64748b",
-  mist: "#94a3b8",
-  cloud: "#cbd5e1",
-  grid: "#e2e8f0",
-  axis: "#64748b",
-  cursor: "#cbd5e1",
-  teal: "#3f7f89",
-  mint: "#92c6c0",
-  coral: "#f28c82",
+  ink: "#3d3c3c",
+  slate: "#6d6d6d",
+  steel: "#898888",
+  mist: "#a8a5a6",
+  cloud: "#dcdad8",
+  grid: "#f0eeec",
+  axis: "#6d6d6d",
+  cursor: "#dcdad8",
+  teal: "#29707a",
+  mint: "#8ecfd9",
+  coral: "#ff6b57",
   sand: "#d6b37a",
-  sky: "#8a9bcf",
-  success: "#10b981",
+  sky: "#3797a4",
+  success: "#00af41",
   warning: "#f59e0b",
-  danger: "#f43f5e",
-  fillStrong: "rgba(63, 127, 137, 0.14)",
-  fillMuted: "rgba(148, 163, 184, 0.16)",
+  danger: "#ff462d",
+  fillStrong: "rgba(41, 112, 122, 0.14)",
+  fillMuted: "rgba(61, 60, 60, 0.08)",
 } as const;
 
 export const visualizationTick = {
@@ -52,7 +52,7 @@ export const visualizationTooltipStyle: CSSProperties = {
 };
 
 export const visualizationCardClass =
-  "rounded-2xl border-slate-200 bg-white shadow-none";
+  "rounded-2xl border-stone-200 bg-white shadow-none";
 
 export const visualizationChartFrameClass =
-  "rounded-xl border border-slate-100 bg-slate-50/60 p-3";
+  "rounded-xl border border-stone-100 bg-stone-50/60 p-3";
