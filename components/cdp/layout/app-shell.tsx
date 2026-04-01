@@ -593,7 +593,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
             <>
               {/* Control Tower identity */}
               <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" className="bg-[#29707a] text-white hover:bg-[#29707a]/25 hover:text-[#29707a]" onClick={() => setSidebarOpen(!sidebarOpen)}>
+                <Button variant="ghost" size="icon" className="hover:bg-[#29707a]/25" onClick={() => setSidebarOpen(!sidebarOpen)}>
                   <Menu className="h-5 w-5" />
                 </Button>
                 <div className="flex items-center gap-3">
@@ -619,7 +619,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="bg-[#29707a] text-white hover:bg-[#29707a]/25 hover:text-[#29707a]"
+                  className="hover:bg-[#29707a]/25"
                   onClick={() => setSidebarOpen(!sidebarOpen)}
                 >
                   <Menu className="h-5 w-5" />
