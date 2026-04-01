@@ -226,6 +226,8 @@ export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
     { label: "Audiences", href: "/audiences", description: "Segment & Target" },
     { label: "Customer Insights", href: "/customers", description: "Customer Data" },
     { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
+    { label: "Create Graph", href: "/dashboard/graphs", description: "Create a knowledge graph" },
+    { label: "Explore Live Graph", href: "/dashboard/graph?preset=full-graph&center=graph-control-tower", description: "Explore the live knowledge graph" },
     { label: "Demand Reports", href: "/demand/reports", description: "Demand Reporting" },
     { label: "Demand Analytics", href: "/demand/analytics", description: "Demand Performance" },
     { label: "Demand Drivers", href: "/demand/mmm", description: "Demand Analysis" },
@@ -242,8 +244,10 @@ export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
     { label: "Reports", href: "/reports", description: "Performance Reports" },
     { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
     { label: "UDP Incrementality", href: "/udp/incrementality", description: "Shared Experiment Workspace" },
+    { label: "Create Graph", href: "/dashboard/graphs", description: "Create a knowledge graph" },
+    { label: "Explore Live Graph", href: "/dashboard/graph?preset=full-graph&center=graph-control-tower", description: "Explore the live knowledge graph" },
   ],
-  
+
   marketing_admin: [
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
     { label: "UDP Dashboard", href: "/udp/dashboard", description: "Customer Data Platform" },
@@ -255,8 +259,10 @@ export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
     { label: "Audiences", href: "/audiences", description: "Segment & Target" },
     { label: "Customer Insights", href: "/customers", description: "Customer Data" },
     { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
+    { label: "Create Graph", href: "/dashboard/graphs", description: "Create a knowledge graph" },
+    { label: "Explore Live Graph", href: "/dashboard/graph?preset=full-graph&center=graph-control-tower", description: "Explore the live knowledge graph" },
   ],
-  
+
   service_agent: [
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
     { label: "UDP Dashboard", href: "/udp/dashboard", description: "Customer Data Platform" },
@@ -285,6 +291,8 @@ export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
     { label: "Demand Campaigns", href: "/demand/campaigns", description: "Demand Activation" },
     { label: "Demand Audiences", href: "/demand/audiences", description: "Demand Segments" },
     { label: "Demand Customers", href: "/demand/customers", description: "Demand Customer View" },
+    { label: "Create Graph", href: "/dashboard/graphs", description: "Create a knowledge graph" },
+    { label: "Explore Live Graph", href: "/dashboard/graph?preset=full-graph&center=graph-control-tower", description: "Explore the live knowledge graph" },
   ],
 
   platform_admin: [
@@ -307,6 +315,8 @@ export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
     { label: "Demand Campaigns", href: "/demand/campaigns", description: "Demand Activation" },
     { label: "Demand Audiences", href: "/demand/audiences", description: "Demand Segments" },
     { label: "Demand Customers", href: "/demand/customers", description: "Demand Customer View" },
+    { label: "Create Graph", href: "/dashboard/graphs", description: "Create a knowledge graph" },
+    { label: "Explore Live Graph", href: "/dashboard/graph?preset=full-graph&center=graph-control-tower", description: "Explore the live knowledge graph" },
   ],
 };
 

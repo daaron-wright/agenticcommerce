@@ -61,8 +61,6 @@ import {
   Clock,
   Database,
   Megaphone,
-  Network,
-  Sparkles,
   TrendingDown,
   TrendingUp,
   X,
@@ -1867,30 +1865,6 @@ function ControlTowerOverview() {
                 <Badge className="ml-1.5 rounded-full bg-white/20 px-1.5 text-[10px] text-white">
                   {pendingActions.length}
                 </Badge>
-              </Button>
-              <Button asChild variant="outline" className="rounded-full">
-                <Link href={buildIncrementalityHref({ entry: "udp", create: true })}>
-                  <Sparkles className="mr-1 h-4 w-4" />
-                  Launch experiment
-                </Link>
-              </Button>
-              <Button
-                variant="outline"
-                className="rounded-full"
-                onClick={() => handleCreateGraph()}
-              >
-                <Network className="mr-1 h-4 w-4" />
-                Create graph
-              </Button>
-              <Button asChild variant="outline" className="rounded-full">
-                <Link
-                  href={buildKnowledgeGraphHref({
-                    graphPreset: "full-graph",
-                    graphCenterNodeId: "graph-control-tower",
-                  })}
-                >
-                  Explore live graph
-                </Link>
               </Button>
             </div>
           </div>

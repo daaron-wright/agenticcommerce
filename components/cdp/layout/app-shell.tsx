@@ -98,8 +98,8 @@ const ICON_MAP: Record<string, React.ElementType> = {
 
 const HREF_TO_GROUP: Record<string, string> = {
   "/dashboard": "platform",
-  "/dashboard/graph": "platform",
-  "/dashboard/graphs": "platform",
+  "/dashboard/graph": "data",
+  "/dashboard/graphs": "data",
   "/control-tower": "platform",
   "/chat": "platform",
   "/udp/dashboard": "data",
@@ -389,6 +389,18 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
       if (!groups.data.some((i) => i.href === "/analytics/confirmed-actions")) {
         groups.data.push({ label: "Confirmed Actions", href: "/analytics/confirmed-actions" });
       }
+    }
+
+    // Inject graph & experiment items into "data" group
+    if (!groups.data) groups.data = [];
+    if (!groups.data.some((i) => i.href.startsWith("/udp/incrementality"))) {
+      groups.data.push({ label: "Launch Experiment", href: "/udp/incrementality?create=true" });
+    }
+    if (!groups.data.some((i) => i.href === "/dashboard/graphs")) {
+      groups.data.push({ label: "Create Graph", href: "/dashboard/graphs" });
+    }
+    if (!groups.data.some((i) => i.href.startsWith("/dashboard/graph?"))) {
+      groups.data.push({ label: "Explore Live Graph", href: "/dashboard/graph?preset=full-graph&center=graph-control-tower" });
     }
 
     return groups;
