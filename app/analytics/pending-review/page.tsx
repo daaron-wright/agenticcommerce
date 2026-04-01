@@ -130,7 +130,7 @@ export default function PendingReviewPage() {
           </p>
         </div>
         <Badge variant="outline" className="gap-1.5 text-xs font-medium">
-          <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+          <ShieldCheck className="h-3.5 w-3.5" style={{ color: '#4CDD84' }} />
           Review permissions active
         </Badge>
       </div>
@@ -153,7 +153,7 @@ export default function PendingReviewPage() {
           </CardHeader>
           <CardContent className="px-4 pb-4">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+              <CheckCircle2 className="h-4 w-4" style={{ color: '#4CDD84' }} />
               <span className="text-2xl font-bold">{stats.approved}</span>
             </div>
           </CardContent>
@@ -218,7 +218,7 @@ export default function PendingReviewPage() {
                   {item.status === "pending" ? (
                     <Badge variant="outline" className="text-amber-700 border-amber-200 bg-amber-50">Pending</Badge>
                   ) : item.status === "approved" ? (
-                    <Badge variant="outline" className="text-emerald-700 border-emerald-200 bg-emerald-50">Approved</Badge>
+                    <Badge variant="outline" className="border-[#4CDD84]/25" style={{ color: '#4CDD84', backgroundColor: 'rgba(76,221,132,0.25)' }}>Approved</Badge>
                   ) : (
                     <Badge variant="outline" className="text-stone-700 border-stone-200 bg-stone-50">Dismissed</Badge>
                   )}
@@ -238,7 +238,7 @@ export default function PendingReviewPage() {
               </div>
               <p className="text-[11px] text-muted-foreground mt-2">Requested at {new Date(item.requestedAt).toLocaleTimeString()}</p>
               {item.status === "approved" && (
-                <p className="text-[11px] text-emerald-700 mt-2 font-medium">
+                <p className="text-[11px] mt-2 font-medium" style={{ color: '#4CDD84' }}>
                   Approved — moving to Confirmed Actions in 5 seconds.
                 </p>
               )}
@@ -246,7 +246,10 @@ export default function PendingReviewPage() {
               <div className="flex items-center gap-2 mt-4">
                 <Button
                   size="sm"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                  className="text-white"
+                  style={{ backgroundColor: '#4CDD84' }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(76,221,132,0.75)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#4CDD84'}
                   disabled={item.status !== "pending"}
                   onClick={() => handleApprove(item)}
                 >
