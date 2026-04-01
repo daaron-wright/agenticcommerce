@@ -732,7 +732,7 @@ function OperationsPanel({
             </span>
             <Link
               href={widget.routeHref}
-              className="text-[11px] font-medium text-stone-600 hover:text-[#3d3c3c]"
+              className="text-[11px] font-medium text-stone-600 hover:text-stone-700"
             >
               {widget.routeLabel}
             </Link>
@@ -866,7 +866,7 @@ function ActionBoard({
                   ) : null}
                   <Link
                     href={action.routeHref}
-                    className="inline-flex h-8 items-center rounded-full border border-stone-200 px-3 text-[11px] font-medium text-stone-600 transition hover:border-stone-300 hover:text-[#3d3c3c]"
+                    className="inline-flex h-8 items-center rounded-full border border-stone-200 px-3 text-[11px] font-medium text-stone-600 transition hover:border-stone-300 hover:text-stone-700"
                   >
                     {action.routeLabel}
                   </Link>
@@ -881,7 +881,7 @@ function ActionBoard({
                   <button
                     type="button"
                     onClick={() => onCreateGraph(buildActionGraphPrefill(action))}
-                    className="inline-flex h-8 items-center rounded-full border border-stone-200 px-3 text-[11px] font-medium text-stone-500 transition hover:border-stone-300 hover:text-[#3d3c3c]"
+                    className="inline-flex h-8 items-center rounded-full border border-stone-200 px-3 text-[11px] font-medium text-stone-500 transition hover:border-stone-300 hover:text-stone-700"
                   >
                     Save graph
                   </button>
@@ -980,7 +980,7 @@ function DecisionItemCard({
         <Button
           size="sm"
           variant="ghost"
-          className="h-8 rounded-full px-3 text-[11px] text-stone-600 hover:text-[#3d3c3c]"
+          className="h-8 rounded-full px-3 text-[11px] text-stone-600 hover:text-stone-700"
           onClick={onReject}
         >
           Reject
@@ -1271,7 +1271,7 @@ function AlertDecisionDialog({
                         graphScopeId: alert.graphScopeId,
                         graphCenterNodeId: alert.graphCenterNodeId,
                       })}
-                      className="inline-flex h-9 items-center rounded-full border border-stone-200 px-3 text-sm font-medium text-stone-600 transition hover:border-stone-300 hover:text-[#3d3c3c]"
+                      className="inline-flex h-9 items-center rounded-full border border-stone-200 px-3 text-sm font-medium text-stone-600 transition hover:border-stone-300 hover:text-stone-700"
                     >
                       Explore graph
                     </Link>
@@ -1279,7 +1279,7 @@ function AlertDecisionDialog({
                   <button
                     type="button"
                     onClick={() => onCreateGraph(buildAlertGraphPrefill(alert))}
-                    className="inline-flex h-9 items-center rounded-full border border-stone-200 px-3 text-sm font-medium text-stone-600 transition hover:border-stone-300 hover:text-[#3d3c3c]"
+                    className="inline-flex h-9 items-center rounded-full border border-stone-200 px-3 text-sm font-medium text-stone-600 transition hover:border-stone-300 hover:text-stone-700"
                   >
                     Save graph
                   </button>
@@ -1329,8 +1329,8 @@ function AlertDecisionDialog({
                       className={cn(
                         "border-b-2 pb-2 text-sm font-medium transition",
                         submittedTab === tab.id
-                          ? "border-[#3d3c3c] text-[#3d3c3c]"
-                          : "border-transparent text-stone-500 hover:text-[#3d3c3c]",
+                          ? "border-stone-700 text-[#3d3c3c]"
+                          : "border-transparent text-stone-500 hover:text-stone-700",
                       )}
                     >
                       {tab.label}
@@ -1440,7 +1440,7 @@ function AlertDecisionDialog({
 
               <div className="flex justify-end">
                 <Button
-                  className="rounded-full bg-[#3d3c3c] hover:bg-stone-950"
+                  className="rounded-full bg-stone-700 hover:bg-stone-950"
                   onClick={() => onOpenChange(false)}
                 >
                   Close
@@ -1556,7 +1556,7 @@ function ControlTowerOverview() {
 
             <div className="flex flex-wrap items-center gap-2">
               <Button
-                className="rounded-full bg-[#3d3c3c] text-white hover:bg-[#2a2a2a]"
+                className="rounded-full bg-stone-700 text-white hover:bg-stone-800"
                 onClick={() => {
                   document.getElementById("action-board")?.scrollIntoView({ behavior: "smooth", block: "start" });
                 }}
@@ -1611,7 +1611,7 @@ function ControlTowerOverview() {
                 </div>
                 <Button
                   size="sm"
-                  className="shrink-0 rounded-full bg-[#3d3c3c] text-[11px] text-white hover:bg-[#2a2a2a]"
+                  className="shrink-0 rounded-full bg-stone-700 text-[11px] text-white hover:bg-stone-800"
                   onClick={() => {
                     document.getElementById("action-board")?.scrollIntoView({ behavior: "smooth", block: "start" });
                   }}
@@ -1636,7 +1636,7 @@ function ControlTowerOverview() {
                 </div>
                 <Button
                   size="sm"
-                  className="shrink-0 rounded-full bg-[#3d3c3c] text-[11px] text-white hover:bg-[#2a2a2a]"
+                  className="shrink-0 rounded-full bg-stone-700 text-[11px] text-white hover:bg-stone-800"
                   onClick={() => {
                     document.getElementById("action-board")?.scrollIntoView({ behavior: "smooth", block: "start" });
                   }}
@@ -1851,7 +1851,7 @@ export default function DashboardPage() {
               <Button asChild variant="outline" className="rounded-full">
                 <Link href={buildDashboardHref()}>Control tower</Link>
               </Button>
-              <Button asChild className="rounded-full bg-[#3d3c3c] hover:bg-stone-950">
+              <Button asChild className="rounded-full bg-stone-700 hover:bg-stone-950">
                 <Link
                   href={buildKnowledgeGraphHref({
                     graphPreset: "full-graph",
@@ -1872,8 +1872,8 @@ export default function DashboardPage() {
                 className={cn(
                   "rounded-full border px-4 py-2 text-sm font-medium transition",
                   activeView === view.id
-                    ? "border-[#3d3c3c] bg-[#3d3c3c] text-white"
-                    : "border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:text-[#3d3c3c]",
+                    ? "border-stone-700 bg-stone-700 text-white"
+                    : "border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:text-stone-700",
                 )}
               >
                 {view.label}
