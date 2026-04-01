@@ -239,7 +239,7 @@ export default function PendingReviewPage() {
           </CardHeader>
           <CardContent className="px-4 pb-4">
             <div className="flex items-center gap-2">
-              <XCircle className="h-4 w-4 text-slate-500" />
+              <XCircle className="h-4 w-4 text-stone-500" />
               <span className="text-2xl font-bold">{stats.rejected}</span>
             </div>
           </CardContent>
@@ -260,18 +260,18 @@ export default function PendingReviewPage() {
                 ) : item.status === "approved" ? (
                   <Badge variant="outline" className="text-emerald-700 border-emerald-200 bg-emerald-50">Approved</Badge>
                 ) : (
-                  <Badge variant="outline" className="text-slate-700 border-slate-200 bg-slate-50">Dismissed</Badge>
+                  <Badge variant="outline" className="text-stone-700 border-stone-200 bg-stone-50">Dismissed</Badge>
                 )}
               </div>
             </CardHeader>
             <CardContent className="pt-0">
               <div className="grid grid-cols-2 gap-3 text-xs text-muted-foreground">
-                <div><span className="font-medium text-slate-700">Segment:</span> {item.segment}</div>
-                <div><span className="font-medium text-slate-700">Confidence:</span> {item.confidence}%</div>
-                <div><span className="font-medium text-slate-700">Expected Lift:</span> {item.expectedLift}</div>
-                <div><span className="font-medium text-slate-700">Requested By:</span> {item.requestedBy}</div>
+                <div><span className="font-medium text-stone-700">Segment:</span> {item.segment}</div>
+                <div><span className="font-medium text-stone-700">Confidence:</span> {item.confidence}%</div>
+                <div><span className="font-medium text-stone-700">Expected Lift:</span> {item.expectedLift}</div>
+                <div><span className="font-medium text-stone-700">Requested By:</span> {item.requestedBy}</div>
               </div>
-              <p className="text-xs text-slate-600 mt-3">{item.agentReason}</p>
+              <p className="text-xs text-stone-600 mt-3">{item.agentReason}</p>
               <p className="text-[11px] text-muted-foreground mt-2">Requested at {new Date(item.requestedAt).toLocaleTimeString()}</p>
               {item.status === "approved" && (
                 <p className="text-[11px] text-emerald-700 mt-2 font-medium">
@@ -305,11 +305,11 @@ export default function PendingReviewPage() {
       {items.length === 0 && (
         <Card>
           <CardContent className="py-16 flex flex-col items-center justify-center gap-3 text-center">
-            <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center">
-              <ClipboardList className="h-6 w-6 text-slate-400" />
+            <div className="h-12 w-12 rounded-full bg-stone-100 flex items-center justify-center">
+              <ClipboardList className="h-6 w-6 text-stone-400" />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-700">No pending actions</p>
+              <p className="text-sm font-medium text-stone-700">No pending actions</p>
               <p className="text-xs text-muted-foreground mt-1 max-w-xs">
                 When team members without execution permissions send AI-recommended actions for review,
                 they will appear here for your approval.

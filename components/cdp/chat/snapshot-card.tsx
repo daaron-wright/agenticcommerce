@@ -125,7 +125,7 @@ function DashboardSnapshot() {
   return (
     <div className="grid grid-cols-4 gap-2">
       {dashboardKPIs.map((kpi) => (
-        <div key={kpi.label} className="text-center p-2 bg-slate-50 rounded-md">
+        <div key={kpi.label} className="text-center p-2 bg-stone-50 rounded-md">
           <p className="text-[10px] text-muted-foreground">{kpi.label}</p>
           <p className="text-sm font-bold mt-0.5">{kpi.value}</p>
           <p className="text-[10px] text-emerald-600 font-medium">{kpi.change}</p>
@@ -176,7 +176,7 @@ function CampaignsSnapshot() {
       {campaignList.map((c) => (
         <div
           key={c.name}
-          className="flex items-center justify-between text-xs px-2 py-1.5 bg-slate-50 rounded"
+          className="flex items-center justify-between text-xs px-2 py-1.5 bg-stone-50 rounded"
         >
           <div className="flex items-center gap-2">
             <Badge
@@ -207,9 +207,9 @@ function AudiencesSnapshot() {
               <span className="font-medium">{seg.name}</span>
               <span className="text-muted-foreground">{seg.size}</span>
             </div>
-            <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-stone-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-slate-700 rounded-full"
+                className="h-full bg-stone-700 rounded-full"
                 style={{ width: `${seg.pct}%` }}
               />
             </div>
@@ -226,7 +226,7 @@ function CustomersSnapshot() {
       {customerSegments.map((seg) => (
         <div
           key={seg.name}
-          className="flex items-center justify-between text-xs px-2 py-1.5 bg-slate-50 rounded"
+          className="flex items-center justify-between text-xs px-2 py-1.5 bg-stone-50 rounded"
         >
           <span className="font-medium">{seg.name}</span>
           <div className="flex gap-3 text-muted-foreground">
@@ -308,8 +308,8 @@ export function SnapshotCard({ type }: { type: SnapshotType }) {
       className={cn(
         "border shadow-none overflow-hidden transition-all duration-200",
         isHighlighted
-          ? "border-slate-400 shadow-md ring-1 ring-slate-300/50"
-          : "border-slate-200",
+          ? "border-stone-400 shadow-md ring-1 ring-stone-300/50"
+          : "border-stone-200",
         hasLinkedBolds && "cursor-pointer"
       )}
       onMouseEnter={onEnter}
@@ -320,20 +320,20 @@ export function SnapshotCard({ type }: { type: SnapshotType }) {
         <div
           className={cn(
             "flex items-center justify-between px-3 py-2 border-b transition-colors duration-200",
-            isHighlighted ? "bg-slate-100" : "bg-slate-50/50"
+            isHighlighted ? "bg-stone-100" : "bg-stone-50/50"
           )}
         >
           <div className="flex items-center gap-2">
             <Icon
               className={cn(
                 "h-3.5 w-3.5 transition-colors duration-200",
-                isHighlighted ? "text-slate-900" : "text-slate-600"
+                isHighlighted ? "text-stone-900" : "text-stone-600"
               )}
             />
             <span
               className={cn(
                 "text-xs font-semibold transition-colors duration-200",
-                isHighlighted ? "text-slate-900" : "text-slate-700"
+                isHighlighted ? "text-stone-900" : "text-stone-700"
               )}
             >
               {config.title}
@@ -342,7 +342,7 @@ export function SnapshotCard({ type }: { type: SnapshotType }) {
           <Link
             href={config.href}
             prefetch={false}
-            className="text-[10px] font-medium text-slate-500 hover:text-slate-800 flex items-center gap-1 transition-colors"
+            className="text-[10px] font-medium text-stone-500 hover:text-stone-800 flex items-center gap-1 transition-colors"
           >
             Open full view <ArrowRight className="h-3 w-3" />
           </Link>
@@ -368,7 +368,7 @@ const executionSteps = [
 
 function ExecutionConfirmationCard() {
   return (
-    <Card className="border border-slate-200 shadow-none overflow-hidden">
+    <Card className="border border-stone-200 shadow-none overflow-hidden">
       <CardContent className="p-0">
         {/* Header with green accent */}
         <div className="flex items-center justify-between px-3 py-2 border-b bg-emerald-50/60">
@@ -385,15 +385,15 @@ function ExecutionConfirmationCard() {
           {executionSteps.map((step, i) => (
             <div key={i} className="flex items-center gap-2 text-xs">
               <CheckCircle2 className="h-3 w-3 text-emerald-500 shrink-0" />
-              <span className="flex-1 text-slate-700">{step.label}</span>
+              <span className="flex-1 text-stone-700">{step.label}</span>
               <span className="text-[10px] text-muted-foreground font-mono">{step.time}</span>
             </div>
           ))}
         </div>
         {/* Monitoring footer */}
-        <div className="flex items-center gap-2 px-3 py-2 border-t bg-slate-50/50">
+        <div className="flex items-center gap-2 px-3 py-2 border-t bg-stone-50/50">
           <Activity className="h-3 w-3 text-amber-500" />
-          <span className="text-[10px] text-slate-600 font-medium">
+          <span className="text-[10px] text-stone-600 font-medium">
             Agent is now monitoring performance — will alert on anomalies
           </span>
         </div>

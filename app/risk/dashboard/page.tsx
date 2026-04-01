@@ -65,7 +65,7 @@ function StatusBadge({ status }: { status: string }) {
     case "under_review":
       return <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-[10px]">Under Review</Badge>;
     default:
-      return <span className="text-xs text-slate-600">Assessed</span>;
+      return <span className="text-xs text-stone-600">Assessed</span>;
   }
 }
 
@@ -81,13 +81,13 @@ function SignalPanel({ onClose }: { onClose: () => void }) {
             Security gaps detected across critical business services
           </p>
         </div>
-        <button onClick={onClose} className="p-1 rounded hover:bg-slate-100">
-          <X className="h-4 w-4 text-slate-400" />
+        <button onClick={onClose} className="p-1 rounded hover:bg-stone-100">
+          <X className="h-4 w-4 text-stone-400" />
         </button>
       </div>
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {recentSignals.map((signal) => (
-          <div key={signal.id} className="border rounded-lg p-3 space-y-2 hover:border-slate-300 transition-colors">
+          <div key={signal.id} className="border rounded-lg p-3 space-y-2 hover:border-stone-300 transition-colors">
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2">
                 <Badge
@@ -105,9 +105,9 @@ function SignalPanel({ onClose }: { onClose: () => void }) {
               </div>
               <span className="text-[10px] text-muted-foreground shrink-0">{signal.date}</span>
             </div>
-            <p className="text-[11px] text-slate-600">{signal.description}</p>
+            <p className="text-[11px] text-stone-600">{signal.description}</p>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-[10px] text-slate-400">
+              <div className="flex items-center gap-2 text-[10px] text-stone-400">
                 <span>{signal.sourceAgent}</span>
               </div>
               <Link
@@ -141,7 +141,7 @@ function ChatInsightsPanel() {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <MessageSquare className="h-4 w-4 text-slate-600" />
+        <MessageSquare className="h-4 w-4 text-stone-600" />
         <h2 className="text-base font-semibold">Chat Insights</h2>
         <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">
           {dashboardArtifacts.length} insight{dashboardArtifacts.length !== 1 ? "s" : ""}
@@ -149,10 +149,10 @@ function ChatInsightsPanel() {
       </div>
       <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {dashboardArtifacts.map((artifact) => (
-          <Card key={artifact.id} className="border shadow-none hover:border-slate-300 transition-colors">
+          <Card key={artifact.id} className="border shadow-none hover:border-stone-300 transition-colors">
             <CardContent className="pt-4 pb-3">
               <div className="flex items-start justify-between gap-2 mb-2">
-                <p className="text-xs font-semibold text-slate-800 leading-snug">{artifact.title}</p>
+                <p className="text-xs font-semibold text-stone-800 leading-snug">{artifact.title}</p>
                 {artifact.metric && (
                   <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 shrink-0 bg-blue-50 text-blue-700 border-blue-200">
                     {artifact.metric}
@@ -160,7 +160,7 @@ function ChatInsightsPanel() {
                 )}
               </div>
               <p className="text-[11px] text-muted-foreground leading-snug mb-2">{artifact.summary}</p>
-              <div className="flex items-center gap-2 text-[10px] text-slate-400">
+              <div className="flex items-center gap-2 text-[10px] text-stone-400">
                 <MessageSquare className="h-3 w-3" />
                 <span className="truncate">From: {artifact.chatPrompt}</span>
               </div>
@@ -306,7 +306,7 @@ export default function DashboardPage() {
               <div className="overflow-x-auto h-[260px] overflow-y-auto">
                 <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b bg-slate-50/50">
+                  <tr className="border-b bg-stone-50/50">
                     <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Business Service</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Category</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Risk Score</th>
@@ -320,7 +320,7 @@ export default function DashboardPage() {
                   {SERVICES.map((svc) => {
                     const sparkColor = svc.riskBand === "Med" ? "#dc2626" : svc.riskBand === "Low" ? "#d97706" : "#059669";
                     return (
-                      <tr key={svc.id} className="border-b last:border-0 hover:bg-slate-50 transition-colors">
+                      <tr key={svc.id} className="border-b last:border-0 hover:bg-stone-50 transition-colors">
                         <td className="px-4 py-3">
                           <Link href={`/vendor/${svc.id}`} className="font-medium text-sm hover:underline">
                             {svc.name}
@@ -443,7 +443,7 @@ export default function DashboardPage() {
                   <span className="font-semibold">{veryLowCount} service{veryLowCount !== 1 ? "s" : ""}</span>
                 </div>
               </div>
-              <p className="text-[9px] text-slate-400 mt-4 italic">{BENCHMARK_CITATIONS.fair}</p>
+              <p className="text-[9px] text-stone-400 mt-4 italic">{BENCHMARK_CITATIONS.fair}</p>
             </CardContent>
           </Card>
         </div>

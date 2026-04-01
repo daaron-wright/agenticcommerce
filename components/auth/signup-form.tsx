@@ -59,13 +59,13 @@ const ROLE_CONFIG = {
     label: "Platform Operator",
     description: "Cross-domain demo access aligned to the main operator experience",
     icon: Monitor,
-    color: "from-slate-500 to-slate-800",
+    color: "from-stone-500 to-stone-700",
   },
   platform_admin: {
     label: "Platform Administrator",
     description: "Cross-platform orchestration across all modules",
     icon: Monitor,
-    color: "from-slate-600 to-slate-900",
+    color: "from-stone-600 to-stone-800",
   },
 };
 

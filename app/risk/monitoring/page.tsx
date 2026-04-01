@@ -93,8 +93,8 @@ export default function ThreatIntelligencePage() {
               className={cn(
                 "pb-2 text-sm font-medium transition-colors border-b-2",
                 activeTab === tab.id
-                  ? "border-slate-900 text-slate-900"
-                  : "border-transparent text-muted-foreground hover:text-slate-700"
+                  ? "border-stone-800 text-stone-800"
+                  : "border-transparent text-muted-foreground hover:text-stone-700"
               )}
             >
               {tab.label}
@@ -130,8 +130,8 @@ export default function ThreatIntelligencePage() {
                           {signal.severity}
                         </Badge>
                       </div>
-                      <p className="text-xs text-slate-600">{signal.description}</p>
-                      <div className="flex items-center gap-3 text-[10px] text-slate-400">
+                      <p className="text-xs text-stone-600">{signal.description}</p>
+                      <div className="flex items-center gap-3 text-[10px] text-stone-400">
                         <span>Source: {signal.sourceAgent}</span>
                         <span>|</span>
                         <span>{signal.timestamp}</span>
@@ -154,8 +154,8 @@ export default function ThreatIntelligencePage() {
               <CardContent className="py-4 px-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-slate-100 flex items-center justify-center">
-                      <AgentIcon icon={agent.icon} className="h-5 w-5 text-slate-600" />
+                    <div className="h-10 w-10 rounded-lg bg-stone-100 flex items-center justify-center">
+                      <AgentIcon icon={agent.icon} className="h-5 w-5 text-stone-600" />
                     </div>
                     <div>
                       <h3 className="text-sm font-semibold">{agent.name}</h3>
@@ -228,8 +228,8 @@ export default function ThreatIntelligencePage() {
                   Manage active security agents, sensitivity thresholds, and scan scopes.
                 </p>
               </div>
-              <button onClick={() => setShowConfigPanel(false)} className="p-1 rounded hover:bg-slate-100">
-                <X className="h-4 w-4 text-slate-400" />
+              <button onClick={() => setShowConfigPanel(false)} className="p-1 rounded hover:bg-stone-100">
+                <X className="h-4 w-4 text-stone-400" />
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -237,7 +237,7 @@ export default function ThreatIntelligencePage() {
                 <div key={agent.id} className="border rounded-lg p-3 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <AgentIcon icon={agent.icon} className="h-4 w-4 text-slate-600" />
+                      <AgentIcon icon={agent.icon} className="h-4 w-4 text-stone-600" />
                       <div>
                         <p className="text-sm font-semibold">{agent.name}</p>
                         <p className="text-[10px] text-muted-foreground">{agent.type}</p>

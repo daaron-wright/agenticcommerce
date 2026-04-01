@@ -1126,7 +1126,7 @@ function ExplainabilityPanel() {
                         <div className="shrink-0">
                           {step.status === "done" && <CheckCircle2 className="h-3 w-3 text-emerald-500" />}
                           {step.status === "running" && <Loader2 className="h-3 w-3 text-amber-500 animate-spin" />}
-                          {step.status === "pending" && <div className="h-3 w-3 rounded-full border border-slate-300" />}
+                          {step.status === "pending" && <div className="h-3 w-3 rounded-full border border-stone-300" />}
                         </div>
                         <span className={cn(
                           "flex-1",

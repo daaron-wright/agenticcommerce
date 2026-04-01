@@ -64,13 +64,13 @@ export function KnowledgeGraphToolbar({
   edgeCount: number;
 }) {
   return (
-    <div className="space-y-5 rounded-[30px] border border-slate-200 bg-white/95 p-5 shadow-sm">
+    <div className="space-y-5 rounded-[30px] border border-stone-200 bg-white/95 p-5 shadow-sm">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+          <h1 className="text-2xl font-semibold tracking-tight text-stone-800">
             Knowledge Graph
           </h1>
-          <p className="mt-1 max-w-4xl text-sm text-slate-500">
+          <p className="mt-1 max-w-4xl text-sm text-stone-500">
             Workbook-style object graph for customer readiness, commercial activation,
             demand signals, approvals, and audit paths across the control tower.
           </p>
@@ -88,8 +88,8 @@ export function KnowledgeGraphToolbar({
                   className={cn(
                     "rounded-full border px-3 py-1 text-[11px] font-medium transition",
                     isActive
-                      ? "border-slate-300 bg-slate-900 text-white"
-                      : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-700",
+                      ? "border-stone-300 bg-stone-800 text-white"
+                      : "border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:text-stone-700",
                   )}
                 >
                   {KNOWLEDGE_GRAPH_DOMAIN_LABELS[domain]}
@@ -98,10 +98,10 @@ export function KnowledgeGraphToolbar({
             })}
           </div>
           <div className="flex items-center gap-2">
-            <div className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] text-slate-600">
+            <div className="rounded-full border border-stone-200 bg-white px-3 py-1 text-[11px] text-stone-600">
               {nodeCount} nodes
             </div>
-            <div className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] text-slate-600">
+            <div className="rounded-full border border-stone-200 bg-white px-3 py-1 text-[11px] text-stone-600">
               {edgeCount} relations
             </div>
           </div>
@@ -110,12 +110,12 @@ export function KnowledgeGraphToolbar({
 
       <div className="w-full max-w-xl">
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -transtone-y-1/2 text-stone-400" />
           <Input
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
             placeholder="Search nodes in page..."
-            className="h-11 rounded-2xl border-slate-200 bg-white pl-10 shadow-none"
+            className="h-11 rounded-2xl border-stone-200 bg-white pl-10 shadow-none"
           />
         </div>
         {query.trim() ? (
@@ -125,10 +125,10 @@ export function KnowledgeGraphToolbar({
                 <button
                   key={result.id}
                   onClick={() => onSelectSearchResult(result.id)}
-                  className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-700 transition hover:border-slate-300 hover:bg-white"
+                  className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-xs text-stone-700 transition hover:border-stone-300 hover:bg-white"
                 >
                   {result.label}
-                  <span className="ml-2 text-slate-400">
+                  <span className="ml-2 text-stone-400">
                     {KNOWLEDGE_GRAPH_NODE_TYPE_LABELS[result.type]}
                   </span>
                 </button>
@@ -152,8 +152,8 @@ export function KnowledgeGraphToolbar({
               className={cn(
                 "h-9 rounded-full px-4 text-xs shadow-none",
                 activePreset === preset.id
-                  ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-900 hover:text-white"
-                  : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50",
+                  ? "border-stone-800 bg-stone-800 text-white hover:bg-stone-800 hover:text-white"
+                  : "border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50",
               )}
               onClick={() => onPresetChange(preset.id)}
             >
@@ -163,19 +163,19 @@ export function KnowledgeGraphToolbar({
         </div>
 
         {activeScopeTitle ? (
-          <div className="rounded-[24px] border border-slate-200 bg-white px-4 py-4">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+          <div className="rounded-[24px] border border-stone-200 bg-white px-4 py-4">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
               Story Rail
             </div>
-            <p className="mt-1 text-sm font-semibold text-slate-900">{activeScopeTitle}</p>
+            <p className="mt-1 text-sm font-semibold text-stone-800">{activeScopeTitle}</p>
             {activeScopeDescription ? (
-              <p className="mt-1 text-xs leading-relaxed text-slate-500">{activeScopeDescription}</p>
+              <p className="mt-1 text-xs leading-relaxed text-stone-500">{activeScopeDescription}</p>
             ) : null}
           </div>
         ) : null}
 
-        <div className="rounded-[24px] border border-slate-200 bg-white px-4 py-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+        <div className="rounded-[24px] border border-stone-200 bg-white px-4 py-3">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
             Entity filters
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -189,8 +189,8 @@ export function KnowledgeGraphToolbar({
                   className={cn(
                     "rounded-full border px-3 py-1 text-[11px] transition",
                     isActive
-                      ? "border-slate-900 bg-slate-900 text-white"
-                      : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-700",
+                      ? "border-stone-800 bg-stone-800 text-white"
+                      : "border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:text-stone-700",
                   )}
                 >
                   {KNOWLEDGE_GRAPH_NODE_TYPE_LABELS[type]}

@@ -46,7 +46,7 @@ const DOMAIN_STYLES: Record<
     accent: "#334155",
     border: "#cbd5e1",
     background: "#f8fafc",
-    badge: "border-slate-200 bg-slate-50 text-slate-700",
+    badge: "border-stone-200 bg-stone-50 text-stone-700",
   },
   demand: {
     accent: "#0f766e",
@@ -114,14 +114,14 @@ function createGraphNode(node: KnowledgeGraphNode, opacity: number): Node {
           />
           <div
             className={cn(
-              "rounded-md border border-slate-200 bg-white/96 px-2.5 py-1 shadow-[0_1px_2px_rgba(15,23,42,0.06)] transition",
+              "rounded-md border border-stone-200 bg-white/96 px-2.5 py-1 shadow-[0_1px_2px_rgba(15,23,42,0.06)] transition",
               showLabelCard ? "opacity-100" : "opacity-40",
             )}
           >
-            <div className="max-w-[250px] truncate text-[10px] font-semibold text-slate-700">
+            <div className="max-w-[250px] truncate text-[10px] font-semibold text-stone-700">
               {node.label}
             </div>
-            <div className="mt-0.5 flex items-center gap-2 text-[9px] text-slate-400">
+            <div className="mt-0.5 flex items-center gap-2 text-[9px] text-stone-400">
               <span>{typeLabel}</span>
               {leadingAttribute ? <span className="truncate">{leadingAttribute.value}</span> : null}
             </div>
@@ -495,19 +495,19 @@ export function KnowledgeGraphView({
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          <Button asChild variant="outline" className="h-9 rounded-full border-slate-200 px-4 text-xs shadow-none">
+          <Button asChild variant="outline" className="h-9 rounded-full border-stone-200 px-4 text-xs shadow-none">
             <Link href="/dashboard">
               <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
               Back to Control Tower
             </Link>
           </Button>
-          <Button asChild className="h-9 rounded-full bg-slate-900 px-4 text-xs hover:bg-slate-950">
+          <Button asChild className="h-9 rounded-full bg-stone-800 px-4 text-xs hover:bg-stone-950">
             <Link href={buildKnowledgeGraphHref({ graphPreset: "full-graph", graphCenterNodeId: "graph-control-tower" })}>
               <Network className="mr-1.5 h-3.5 w-3.5" />
               Reset to Full Graph
             </Link>
           </Button>
-          <Button asChild variant="outline" className="h-9 rounded-full border-slate-200 px-4 text-xs shadow-none">
+          <Button asChild variant="outline" className="h-9 rounded-full border-stone-200 px-4 text-xs shadow-none">
             <Link href="/dashboard/graphs">
               <Library className="mr-1.5 h-3.5 w-3.5" />
               Saved Graphs
@@ -532,29 +532,29 @@ export function KnowledgeGraphView({
 
       {initialInstanceId && isHydrated ? (
         activeInstance ? (
-          <div className="rounded-[26px] border border-slate-200 bg-white/95 px-5 py-4 shadow-sm">
+          <div className="rounded-[26px] border border-stone-200 bg-white/95 px-5 py-4 shadow-sm">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="outline" className={cn("text-[10px]", DOMAIN_STYLES[activeInstance.domain].badge)}>
                     {KNOWLEDGE_GRAPH_DOMAIN_LABELS[activeInstance.domain]}
                   </Badge>
-                  <Badge variant="outline" className="border-slate-200 bg-slate-50 text-[10px] text-slate-600">
+                  <Badge variant="outline" className="border-stone-200 bg-stone-50 text-[10px] text-stone-600">
                     {activeInstance.source === "chat" ? "Created from chat" : "Created from control tower"}
                   </Badge>
-                  <span className="text-[11px] text-slate-400">Updated {new Date(activeInstance.updatedAt).toLocaleString()}</span>
+                  <span className="text-[11px] text-stone-400">Updated {new Date(activeInstance.updatedAt).toLocaleString()}</span>
                 </div>
-                <h2 className="mt-3 text-lg font-semibold text-slate-900">{activeInstance.title}</h2>
-                <p className="mt-1 text-sm text-slate-500">
+                <h2 className="mt-3 text-lg font-semibold text-stone-800">{activeInstance.title}</h2>
+                <p className="mt-1 text-sm text-stone-500">
                   {activeInstance.description || "Saved workspace for graph-based investigation."}
                 </p>
-                <p className="mt-2 text-[11px] text-slate-400">
+                <p className="mt-2 text-[11px] text-stone-400">
                   Created by {activeInstance.createdBy}
                   {activeInstance.sourcePrompt ? ` · Prompt: ${activeInstance.sourcePrompt}` : ""}
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <Button asChild variant="outline" className="rounded-full border-slate-200 text-xs shadow-none">
+                <Button asChild variant="outline" className="rounded-full border-stone-200 text-xs shadow-none">
                   <Link href="/dashboard/graphs">Open library</Link>
                 </Button>
               </div>
@@ -577,11 +577,11 @@ export function KnowledgeGraphView({
         )
       ) : null}
 
-      <div className="rounded-[26px] border border-slate-200 bg-white/95 px-4 py-4 shadow-sm">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+      <div className="rounded-[26px] border border-stone-200 bg-white/95 px-4 py-4 shadow-sm">
+        <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
           Story Neighborhood Rail
         </div>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-stone-500">
           Click a node path to re-scope the graph to that relationship neighborhood.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
@@ -593,11 +593,11 @@ export function KnowledgeGraphView({
                 "rounded-full border px-3 py-1.5 text-left text-xs transition",
                 selectedNodeId === node.id
                   ? "border-rose-300 bg-rose-50 text-rose-700"
-                  : "border-slate-200 bg-white text-slate-600 hover:border-slate-300",
+                  : "border-stone-200 bg-white text-stone-600 hover:border-stone-300",
               )}
             >
               <span className="font-semibold">{node.label}</span>
-              <span className="ml-2 text-slate-400">{KNOWLEDGE_GRAPH_NODE_TYPE_LABELS[node.type]}</span>
+              <span className="ml-2 text-stone-400">{KNOWLEDGE_GRAPH_NODE_TYPE_LABELS[node.type]}</span>
             </button>
           ))}
         </div>
@@ -605,12 +605,12 @@ export function KnowledgeGraphView({
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         {metricCards.map((metric) => (
-          <Card key={metric.label} className="rounded-2xl border border-slate-200 bg-white/95 shadow-none">
+          <Card key={metric.label} className="rounded-2xl border border-stone-200 bg-white/95 shadow-none">
             <CardContent className="p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
                 {metric.label}
               </p>
-              <div className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
+              <div className="mt-2 text-2xl font-semibold tracking-tight text-stone-800">
                 {metric.value}
               </div>
             </CardContent>
@@ -627,17 +627,17 @@ export function KnowledgeGraphView({
             onSelectNode={setSelectedNodeId}
           />
         ) : (
-          <Card className="border border-slate-200 bg-white/95 shadow-none">
+          <Card className="border border-stone-200 bg-white/95 shadow-none">
             <CardContent className="flex min-h-[520px] items-center justify-center p-8 text-center">
               <div className="max-w-md space-y-3">
-                <Sparkles className="mx-auto h-8 w-8 text-slate-400" />
-                <p className="text-lg font-semibold text-slate-900">No nodes match the current filters</p>
-                <p className="text-sm text-slate-500">
+                <Sparkles className="mx-auto h-8 w-8 text-stone-400" />
+                <p className="text-lg font-semibold text-stone-800">No nodes match the current filters</p>
+                <p className="text-sm text-stone-500">
                   Clear some entity filters or reset to the full graph to widen the visible neighborhood.
                 </p>
                 <Button
                   type="button"
-                  className="rounded-full bg-slate-900 px-4 text-xs hover:bg-slate-950"
+                  className="rounded-full bg-stone-800 px-4 text-xs hover:bg-stone-950"
                   onClick={() => {
                     setActiveDomains(ALL_DOMAINS);
                     setActiveNodeTypes([]);

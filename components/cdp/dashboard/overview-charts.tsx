@@ -112,7 +112,7 @@ export function OverviewCharts({ dailyPerformance, funnel, regions }: OverviewCh
                   <span>{region.region}</span>
                   <span className="font-medium">{formatCompactCurrency(region.revenue)}</span>
                 </div>
-                <div className="h-2 rounded bg-slate-200 overflow-hidden">
+                <div className="h-2 rounded bg-stone-200 overflow-hidden">
                   <div
                     className="h-2"
                     style={{

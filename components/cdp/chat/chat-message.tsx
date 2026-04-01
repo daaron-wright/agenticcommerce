@@ -134,7 +134,7 @@ function InteractiveBold({ text, index }: { text: string; index: number }) {
         "font-semibold transition-all duration-200 rounded-sm",
         hasMapping && "cursor-pointer",
         isActive
-          ? "bg-slate-700/10 text-slate-900 ring-1 ring-slate-400/30 px-0.5 -mx-0.5"
+          ? "bg-stone-700/10 text-stone-800 ring-1 ring-stone-400/30 px-0.5 -mx-0.5"
           : ""
       )}
       onMouseEnter={() => hasMapping && setHoveredBoldIdx(index)}
@@ -198,7 +198,7 @@ export function ChatMessage({ message }: { message: Message }) {
         {/* Avatar - assistant only */}
         {!isUser && (
           <div className="flex-shrink-0 mt-1">
-            <div className="h-8 w-8 rounded-lg bg-slate-800 text-white flex items-center justify-center">
+            <div className="h-8 w-8 rounded-lg bg-stone-700 text-white flex items-center justify-center">
               <Ai size={16} />
             </div>
           </div>
@@ -215,8 +215,8 @@ export function ChatMessage({ message }: { message: Message }) {
             className={cn(
               "rounded-2xl px-4 py-3 text-sm leading-relaxed",
               isUser
-                ? "bg-slate-800 text-white rounded-br-md"
-                : "bg-slate-100 text-slate-900 rounded-bl-md border border-slate-200"
+                ? "bg-stone-700 text-white rounded-br-md"
+                : "bg-stone-100 text-stone-800 rounded-bl-md border border-stone-200"
             )}
           >
             <p className="whitespace-pre-wrap">
@@ -224,7 +224,7 @@ export function ChatMessage({ message }: { message: Message }) {
                 ? renderMarkdownInteractive(message.content)
                 : renderMarkdownPlain(message.content)}
               {isStreaming && (
-                <span className="inline-block w-[2px] h-4 bg-slate-500 ml-0.5 align-middle animate-pulse" />
+                <span className="inline-block w-[2px] h-4 bg-stone-500 ml-0.5 align-middle animate-pulse" />
               )}
             </p>
           </div>
@@ -242,19 +242,19 @@ export function ChatMessage({ message }: { message: Message }) {
           )}
 
           {!isUser && message.linkedExperimentHref ? (
-            <div className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+            <div className="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3 shadow-sm">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-500">
                     Experiment-Backed Launch
                   </p>
-                  <p className="mt-1 text-sm font-semibold text-slate-900">
+                  <p className="mt-1 text-sm font-semibold text-stone-800">
                     Draft A/B experiment created for this execution.
                   </p>
                 </div>
                 <Link
                   href={message.linkedExperimentHref}
-                  className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[11px] font-medium text-slate-700 transition hover:border-slate-300 hover:text-slate-900"
+                  className="inline-flex items-center rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-[11px] font-medium text-stone-700 transition hover:border-stone-300 hover:text-stone-800"
                 >
                   Open experiment
                 </Link>
@@ -272,7 +272,7 @@ export function ChatMessage({ message }: { message: Message }) {
                   </span>
                 ) : null}
                 {message.linkedScopeLabel ? (
-                  <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-medium text-slate-600">
+                  <span className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-[11px] font-medium text-stone-600">
                     Scope: {message.linkedScopeLabel}
                   </span>
                 ) : null}
@@ -294,7 +294,7 @@ export function ChatMessage({ message }: { message: Message }) {
                 <Link
                   key={`${message.id}-${action.href}-${action.label}`}
                   href={action.href}
-                  className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+                  className="inline-flex items-center rounded-full border border-stone-200 bg-white px-3 py-1.5 text-[11px] font-medium text-stone-600 transition hover:border-stone-300 hover:text-stone-800"
                 >
                   {action.label}
                 </Link>
@@ -310,7 +310,7 @@ export function ChatMessage({ message }: { message: Message }) {
             )}
           >
             {isUser && message.sourceTag ? (
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200">
                 {message.sourceTag}
               </span>
             ) : null}
@@ -326,7 +326,7 @@ export function ChatMessage({ message }: { message: Message }) {
         {/* Avatar - user only */}
         {isUser && (
           <div className="flex-shrink-0 mt-1">
-            <div className="h-8 w-8 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-lg bg-stone-200 text-stone-700 flex items-center justify-center">
               <User className="h-4 w-4" />
             </div>
           </div>

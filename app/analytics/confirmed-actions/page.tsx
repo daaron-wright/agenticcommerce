@@ -87,16 +87,16 @@ export default function ConfirmedActionsPage() {
             <CardContent className="pt-0">
               <div className="grid grid-cols-2 gap-3 text-xs text-muted-foreground mb-3">
                 <div>
-                  <span className="font-medium text-slate-700">Segment:</span> {action.segment}
+                  <span className="font-medium text-stone-700">Segment:</span> {action.segment}
                 </div>
                 <div>
-                  <span className="font-medium text-slate-700">Confidence:</span> {action.confidence}%
+                  <span className="font-medium text-stone-700">Confidence:</span> {action.confidence}%
                 </div>
                 <div>
-                  <span className="font-medium text-slate-700">Expected Lift:</span> {action.expectedLift}
+                  <span className="font-medium text-stone-700">Expected Lift:</span> {action.expectedLift}
                 </div>
                 <div>
-                  <span className="font-medium text-slate-700">Approved:</span>{" "}
+                  <span className="font-medium text-stone-700">Approved:</span>{" "}
                   {new Date(action.approvedAt).toLocaleString()}
                 </div>
               </div>

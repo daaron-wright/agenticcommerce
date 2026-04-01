@@ -617,7 +617,7 @@ function DAGFlow({
                     </Button>
                     {showLogDropdown && (
                       <div
-                        className="fixed inset-x-2 top-14 bottom-24 z-[120] flex min-h-0 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl sm:absolute sm:inset-auto sm:top-8 sm:right-0 sm:h-[min(80vh,520px)] sm:min-h-[420px] sm:w-[420px] sm:max-w-[85vw] sm:bottom-auto"
+                        className="fixed inset-x-2 top-14 bottom-24 z-[120] flex min-h-0 flex-col overflow-hidden rounded-lg border border-stone-200 bg-white shadow-xl sm:absolute sm:inset-auto sm:top-8 sm:right-0 sm:h-[min(80vh,520px)] sm:min-h-[420px] sm:w-[420px] sm:max-w-[85vw] sm:bottom-auto"
                       >
                         {/* Header */}
                         <div style={{ 
@@ -667,7 +667,7 @@ function DAGFlow({
                         {/* User Info Section */}
                         <div style={{ padding: '12px 16px', borderBottom: '1px solid #e5e7eb', background: '#fafafa' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                            <User className="h-3.5 w-3.5 text-slate-500" />
+                            <User className="h-3.5 w-3.5 text-stone-500" />
                             <span style={{ fontSize: 12, fontWeight: 600 }}>{userMetadata.displayName}</span>
                             <span style={{ 
                               fontSize: 10, 
@@ -777,22 +777,22 @@ function DAGFlow({
 
       </ReactFlow>
       </div>
-      <div className="sticky bottom-0 z-20 shrink-0 border-t border-slate-200 bg-white/95 px-3 py-2.5 backdrop-blur-sm">
-        <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600">Workflow Color Key</div>
+      <div className="sticky bottom-0 z-20 shrink-0 border-t border-stone-200 bg-white/95 px-3 py-2.5 backdrop-blur-sm">
+        <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-600">Workflow Color Key</div>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {DAG_COLOR_KEY.map((item) => (
             <div
               key={item.label}
-              className="rounded border border-slate-200 bg-white px-2 py-1.5"
+              className="rounded border border-stone-200 bg-white px-2 py-1.5"
             >
               <div className="inline-flex items-center gap-1.5">
                 <span
-                  className="h-3 w-3 shrink-0 rounded-full border border-slate-300"
+                  className="h-3 w-3 shrink-0 rounded-full border border-stone-300"
                   style={{ backgroundColor: item.color }}
                 />
-                <span className="text-[11px] font-semibold leading-none text-slate-700">{item.label}</span>
+                <span className="text-[11px] font-semibold leading-none text-stone-700">{item.label}</span>
               </div>
-              <div className="mt-1 text-[10px] leading-snug text-slate-500">{item.description}</div>
+              <div className="mt-1 text-[10px] leading-snug text-stone-500">{item.description}</div>
             </div>
           ))}
         </div>
