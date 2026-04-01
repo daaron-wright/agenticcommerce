@@ -1515,33 +1515,36 @@ function ControlTowerOverview() {
     <>
       <div className="mx-auto max-w-[1560px] space-y-5 pb-44">
         <div className="rounded-2xl border border-stone-200 bg-white px-5 py-5">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-stone-500">
-                Business Dashboard
-              </p>
-              <h1 className="mt-1 text-3xl font-semibold tracking-tight text-[#3d3c3c]">
-                UDP Control Tower
-              </h1>
-              <p className="mt-2 max-w-3xl text-sm text-stone-500">
-                A single business-facing dashboard for customer data readiness, campaign activation, demand-informed decisions, and the approvals that connect them.
-              </p>
-              <p className="mt-1.5 flex items-center gap-1.5 text-xs text-stone-400">
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#cc1800]/10 px-2 py-0.5 text-[11px] font-medium text-[#cc1800]">
-                  {CONTROL_TOWER_SUMMARY.criticalAlerts} critical
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
-                  {CONTROL_TOWER_SUMMARY.highAlerts} high priority
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600">
-                  {pendingActions.length} open approvals
-                </span>
-                <span className="text-stone-300">·</span>
-                <span className="inline-flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  {CONTROL_TOWER_SUMMARY.dataFreshness}
-                </span>
-              </p>
+          {/* Row 1 — Header */}
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-stone-500">
+              Business Dashboard
+            </p>
+            <h1 className="mt-1 text-3xl font-semibold tracking-tight text-[#3d3c3c]">
+              UDP Control Tower
+            </h1>
+            <p className="mt-2 max-w-3xl text-sm text-stone-500">
+              A single business-facing dashboard for customer data readiness, campaign activation, demand-informed decisions, and the approvals that connect them.
+            </p>
+          </div>
+
+          {/* Row 2 — Status + Actions bar */}
+          <div className="mt-4 flex flex-col gap-3 border-t border-stone-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-wrap items-center gap-1.5 text-xs text-stone-400">
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#cc1800]/10 px-2 py-0.5 text-[11px] font-medium text-[#cc1800]">
+                {CONTROL_TOWER_SUMMARY.criticalAlerts} critical
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+                {CONTROL_TOWER_SUMMARY.highAlerts} high priority
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600">
+                {pendingActions.length} open approvals
+              </span>
+              <span className="text-stone-300">·</span>
+              <span className="inline-flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                {CONTROL_TOWER_SUMMARY.dataFreshness}
+              </span>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
