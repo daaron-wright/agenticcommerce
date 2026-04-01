@@ -101,14 +101,14 @@ const DOMAIN_META: Record<
     label: "Demand Signal",
     icon: BarChart3,
     accent: "text-[#29707a]",
-    soft: "bg-[#e8f8fa]",
+    soft: "bg-[#29707a]/[0.25]",
     border: "border-[#8ecfd9]",
   },
   campaign: {
     label: "Commercial",
     icon: Megaphone,
     accent: "text-[#29707a]",
-    soft: "bg-[#ddf0f3]",
+    soft: "bg-[#29707a]/[0.25]",
     border: "border-[#8ecfd9]",
   },
 };

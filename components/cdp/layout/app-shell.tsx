@@ -948,7 +948,7 @@ function NotificationsPanel() {
               <Button
                 asChild
                 variant="outline"
-                className="w-full rounded-full border-[#8ecfd9] bg-[#e8f8fa] text-[#29707a] hover:bg-[#ddf0f3] hover:text-[#163d43]"
+                className="w-full rounded-full border-[#8ecfd9] bg-[#29707a]/[0.25] text-[#29707a] hover:bg-[#29707a]/[0.15] hover:text-[#163d43]"
               >
                 <Link href={activeAlert.experimentHref}>Open experiment</Link>
               </Button>
