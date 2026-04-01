@@ -51,12 +51,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import {
   AlertCircle,
   AlertTriangle,
   ArrowRight,
@@ -512,9 +506,9 @@ function JourneySignalSheet({
   onOpenChange: (open: boolean) => void;
 }) {
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-[480px] sm:max-w-[480px] overflow-y-auto">
-        <SheetHeader className="pb-4">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-[480px] max-h-[85vh] overflow-y-auto p-6">
+        <DialogHeader className="pb-2">
           <div className="flex items-center gap-2 mb-2">
             <Badge
               variant="outline"
@@ -524,13 +518,13 @@ function JourneySignalSheet({
             </Badge>
             <span className="text-[11px] text-stone-400">{signal.channel}</span>
           </div>
-          <SheetTitle className="text-[16px] font-semibold text-[#3d3c3c]">
+          <DialogTitle className="text-[16px] font-semibold text-[#3d3c3c]">
             {signal.title}
-          </SheetTitle>
+          </DialogTitle>
           <p className="text-[12px] text-stone-500">
             {signal.customerName} · {signal.customerRole}
           </p>
-        </SheetHeader>
+        </DialogHeader>
 
         <div className="space-y-6 pt-2">
           {/* Impact */}
@@ -593,8 +587,8 @@ function JourneySignalSheet({
             </div>
           </div>
         </div>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 }
 
