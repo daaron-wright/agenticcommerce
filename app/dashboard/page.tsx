@@ -802,14 +802,11 @@ function ActionBoard({
               className={cn(
                 "rounded-2xl border border-stone-200 bg-stone-50/40 px-4 py-3 transition-all duration-500 border-l-4",
                 isHighlighted
-                  ? cn(
-                      "ring-2 ring-stone-700 ring-offset-2 bg-stone-100",
-                      action.severity === "critical"
-                        ? "border-l-[#ff462d]"
-                        : action.severity === "high"
-                            ? "border-l-[#f59e0b]"
-                            : "border-l-stone-400",
-                    )
+                  ? action.severity === "critical"
+                      ? "border-l-[#ff462d]"
+                      : action.severity === "high"
+                          ? "border-l-[#f59e0b]"
+                          : "border-l-stone-400"
                   : "border-l-stone-200",
               )}
             >
