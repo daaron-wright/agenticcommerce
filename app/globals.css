@@ -72,6 +72,11 @@
     @apply bg-background text-foreground;
   }
 
+  /* Monochrome stone-gray default for all Lucide icons */
+  .lucide {
+    color: hsl(var(--kd-darkstone-60));
+  }
+
   .font-noto-naskh-arabic {
     font-family: var(--font-noto-naskh-arabic);
   }
