@@ -747,10 +747,12 @@ function ActionBoard({
   actions,
   onAction,
   onCreateGraph,
+  highlightedIds = new Set<string>(),
 }: {
   actions: ControlTowerAction[];
   onAction: (actionId: string, nextState: ControlTowerActionState) => void;
   onCreateGraph: (prefill: GraphInstancePrefill) => void;
+  highlightedIds?: Set<string>;
 }) {
   const visibleActions = [...actions]
     .sort((left, right) => {
@@ -791,16 +793,20 @@ function ActionBoard({
           const stateMeta = ACTION_STATE_META[action.state];
           const severity = SEVERITY_META[action.severity];
 
+          const isHighlighted = highlightedIds.has(action.id);
+
           return (
             <div
+              id={`action-card-${action.id}`}
               key={action.id}
               className={cn(
-                "rounded-2xl border border-stone-200 bg-stone-50/40 px-4 py-3",
+                "rounded-2xl border border-stone-200 bg-stone-50/40 px-4 py-3 transition-all duration-500",
                 action.domain === "demand"
                   ? "border-l-4 border-l-teal-400"
                   : action.domain === "campaign"
                       ? "border-l-4 border-l-violet-400"
                       : "border-l-4 border-l-stone-400",
+                isHighlighted && "ring-2 ring-stone-700 ring-offset-2 bg-stone-100",
               )}
             >
               <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
@@ -1465,6 +1471,7 @@ function ControlTowerOverview() {
   );
   const [actions, setActions] = useState(CONTROL_TOWER_ACTIONS);
   const [isGraphDialogOpen, setIsGraphDialogOpen] = useState(false);
+  const [highlightedActionIds, setHighlightedActionIds] = useState<Set<string>>(new Set());
 
   const pendingActions = useMemo(
     () => actions.filter((a) => a.state === "pending"),
@@ -1505,6 +1512,19 @@ function ControlTowerOverview() {
   const handleCreateGraph = (prefill?: GraphInstancePrefill) => {
     setGraphPrefill(prefill);
     setIsGraphDialogOpen(true);
+  };
+
+  const scrollToActions = (ids: string[]) => {
+    const idSet = new Set(ids);
+    setHighlightedActionIds(idSet);
+    document.getElementById("action-board")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // Scroll the first matching card into view after the board is visible
+    setTimeout(() => {
+      const first = document.getElementById(`action-card-${ids[0]}`);
+      first?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 300);
+    // Clear highlight after 3s
+    setTimeout(() => setHighlightedActionIds(new Set()), 3000);
   };
 
   const updateActionState = (
@@ -1613,7 +1633,8 @@ function ControlTowerOverview() {
                   size="sm"
                   className="shrink-0 rounded-full bg-stone-700 text-[11px] text-white hover:bg-stone-800"
                   onClick={() => {
-                    document.getElementById("action-board")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    const criticalActions = actions.filter((a) => a.severity === "critical" && a.state === "pending");
+                    scrollToActions(criticalActions.map((a) => a.id));
                   }}
                 >
                   Review now
@@ -1638,7 +1659,7 @@ function ControlTowerOverview() {
                   size="sm"
                   className="shrink-0 rounded-full bg-stone-700 text-[11px] text-white hover:bg-stone-800"
                   onClick={() => {
-                    document.getElementById("action-board")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    scrollToActions(pendingActions.map((a) => a.id));
                   }}
                 >
                   Review approvals
@@ -1733,6 +1754,7 @@ function ControlTowerOverview() {
               actions={visibleActions}
               onAction={updateActionState}
               onCreateGraph={handleCreateGraph}
+              highlightedIds={highlightedActionIds}
             />
           </div>
         </div>
