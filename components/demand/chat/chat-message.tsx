@@ -9,7 +9,7 @@ import type { SnapshotType } from "./chat-data";
 
 const SnapshotCard = dynamic(
   () => import("./snapshot-card").then((m) => ({ default: m.SnapshotCard })),
-  { ssr: false, loading: () => <div className="h-24 rounded-lg bg-slate-100 animate-pulse" /> }
+  { ssr: false, loading: () => <div className="h-24 rounded-lg bg-stone-100 animate-pulse" /> }
 );
 
 export interface Message {
@@ -124,7 +124,7 @@ function InteractiveBold({ text, index }: { text: string; index: number }) {
         "font-semibold transition-all duration-200 rounded-sm",
         hasMapping && "cursor-pointer",
         isActive
-          ? "bg-slate-700/10 text-slate-900 ring-1 ring-slate-400/30 px-0.5 -mx-0.5"
+          ? "bg-stone-700/10 text-stone-900 ring-1 ring-stone-400/30 px-0.5 -mx-0.5"
           : ""
       )}
       onMouseEnter={() => hasMapping && setHoveredBoldIdx(index)}
@@ -188,7 +188,7 @@ export function ChatMessage({ message }: { message: Message }) {
         {/* Avatar - assistant only */}
         {!isUser && (
           <div className="flex-shrink-0 mt-1">
-            <div className="h-8 w-8 rounded-lg bg-slate-800 text-white flex items-center justify-center">
+            <div className="h-8 w-8 rounded-lg bg-stone-800 text-white flex items-center justify-center">
               <Ai size={16} />
             </div>
           </div>
@@ -205,8 +205,8 @@ export function ChatMessage({ message }: { message: Message }) {
             className={cn(
               "rounded-2xl px-4 py-3 text-sm leading-relaxed",
               isUser
-                ? "bg-slate-800 text-white rounded-br-md"
-                : "bg-slate-100 text-slate-900 rounded-bl-md border border-slate-200"
+                ? "bg-stone-800 text-white rounded-br-md"
+                : "bg-stone-100 text-stone-900 rounded-bl-md border border-stone-200"
             )}
           >
             <p className="whitespace-pre-wrap">
@@ -214,7 +214,7 @@ export function ChatMessage({ message }: { message: Message }) {
                 ? renderMarkdownInteractive(message.content)
                 : renderMarkdownPlain(message.content)}
               {isStreaming && (
-                <span className="inline-block w-[2px] h-4 bg-slate-500 ml-0.5 align-middle animate-pulse" />
+                <span className="inline-block w-[2px] h-4 bg-stone-500 ml-0.5 align-middle animate-pulse" />
               )}
             </p>
           </div>
@@ -245,7 +245,7 @@ export function ChatMessage({ message }: { message: Message }) {
         {/* Avatar - user only */}
         {isUser && (
           <div className="flex-shrink-0 mt-1">
-            <div className="h-8 w-8 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-lg bg-stone-200 text-stone-700 flex items-center justify-center">
               <User className="h-4 w-4" />
             </div>
           </div>

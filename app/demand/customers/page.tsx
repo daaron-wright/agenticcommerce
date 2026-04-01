@@ -20,10 +20,10 @@ const stores = [
 ];
 
 const clusterColors: Record<string, string> = {
-  "High-Traffic": "bg-red-50 text-red-700 border-red-200",
-  "Standard": "bg-blue-50 text-blue-700 border-blue-200",
-  "University": "bg-purple-50 text-purple-700 border-purple-200",
-  "Low-Volume": "bg-green-50 text-green-700 border-green-200",
+  "High-Traffic": "bg-stone-200 text-stone-800 border-stone-300",
+  "Standard": "bg-stone-100 text-stone-700 border-stone-200",
+  "University": "bg-stone-100 text-stone-600 border-stone-200",
+  "Low-Volume": "bg-stone-50 text-stone-500 border-stone-100",
 };
 
 const volatilityColors: Record<string, string> = {

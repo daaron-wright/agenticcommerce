@@ -81,7 +81,7 @@ const SCENARIO_ICONS: Record<ScenarioId, React.ElementType> = {
 
 const SCENARIO_COLORS: Record<ScenarioId, { primary: string; fill: string }> = {
   "waste-reduction": { primary: "#0f172a", fill: "rgba(15, 23, 42, 0.08)" },
-  "stockout-prevention": { primary: "#4f46e5", fill: "rgba(79, 70, 229, 0.08)" },
+  "stockout-prevention": { primary: "#29707a", fill: "rgba(41, 112, 122, 0.08)" },
   "promotion-planning": { primary: "#0d9488", fill: "rgba(13, 148, 136, 0.08)" },
 };
 
@@ -143,8 +143,8 @@ const scenarioBreakdownData: Record<ScenarioId, { category: string; forecast: st
 function ProjectionTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-slate-200 rounded-lg shadow-lg px-3 py-2 text-xs">
-      <p className="font-semibold text-slate-800 mb-1">{label}</p>
+    <div className="bg-white border border-stone-200 rounded-lg shadow-lg px-3 py-2 text-xs">
+      <p className="font-semibold text-stone-800 mb-1">{label}</p>
       {payload.map((entry: any, i: number) => (
         <div key={i} className="flex items-center gap-2">
           <span className="inline-block w-2 h-2 rounded-full" style={{ backgroundColor: entry.color || entry.stroke }} />
@@ -168,8 +168,8 @@ function MiniTabBar<T extends string>({ tabs, active, onChange }: { tabs: { id: 
           className={cn(
             "px-2.5 py-1 text-[10px] font-semibold transition-colors border-b-2",
             active === tab.id
-              ? "border-slate-800 text-slate-800"
-              : "border-transparent text-muted-foreground hover:text-slate-600"
+              ? "border-stone-800 text-stone-800"
+              : "border-transparent text-muted-foreground hover:text-stone-600"
           )}
         >
           {tab.label}
@@ -207,17 +207,17 @@ export function CurrentStateCard() {
   }));
 
   return (
-    <Card className="border border-slate-200 shadow-none overflow-hidden">
+    <Card className="border border-stone-200 shadow-none overflow-hidden">
       <CardContent className="p-0">
-        <div className="flex items-center justify-between px-3 py-2 border-b bg-slate-50/50">
+        <div className="flex items-center justify-between px-3 py-2 border-b bg-stone-50/50">
           <div className="flex items-center gap-2">
-            <Activity className="h-3.5 w-3.5 text-slate-600" />
-            <span className="text-xs font-semibold text-slate-700">
+            <Activity className="h-3.5 w-3.5 text-stone-600" />
+            <span className="text-xs font-semibold text-stone-700">
               Current Demand Planning Performance
             </span>
             <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4">Today</Badge>
           </div>
-          <Link href="/demand/dashboard" prefetch={false} className="text-[10px] font-medium text-slate-500 hover:text-slate-800 flex items-center gap-1 transition-colors">
+          <Link href="/demand/dashboard" prefetch={false} className="text-[10px] font-medium text-stone-500 hover:text-stone-800 flex items-center gap-1 transition-colors">
             Open dashboard <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
@@ -237,7 +237,7 @@ export function CurrentStateCard() {
         {activeTab === "kpis" && (
           <div className="grid grid-cols-4 gap-2 p-3">
             {kpis.map((kpi) => (
-              <div key={kpi.label} className="text-center p-2 bg-slate-50 rounded-md">
+              <div key={kpi.label} className="text-center p-2 bg-stone-50 rounded-md">
                 <p className="text-[10px] text-muted-foreground">{kpi.label}</p>
                 <p className="text-sm font-bold mt-0.5">{kpi.value}</p>
                 <p className="text-[10px] text-red-600 font-medium">{kpi.change}</p>
@@ -282,7 +282,7 @@ export function CurrentStateCard() {
                     <td className="text-right py-1.5">{row.accuracy}</td>
                     <td className="text-right py-1.5">{row.variance}</td>
                     <td className="text-right py-1.5">
-                      <span className={cn("font-medium", parseFloat(row.waste) > 8 ? "text-red-600" : "text-slate-700")}>{row.waste}</span>
+                      <span className={cn("font-medium", parseFloat(row.waste) > 8 ? "text-red-600" : "text-stone-700")}>{row.waste}</span>
                     </td>
                   </tr>
                 ))}
@@ -310,35 +310,35 @@ export function ScenarioProjectionCard({ scenarioId }: { scenarioId: ScenarioId 
   const breakdownItems = scenarioBreakdownData[scenarioId];
 
   return (
-    <Card className="border border-slate-200 shadow-none overflow-hidden">
+    <Card className="border border-stone-200 shadow-none overflow-hidden">
       <CardContent className="p-0">
         {/* Header */}
-        <div className="flex items-center justify-between px-3 py-2 border-b bg-slate-50/50">
+        <div className="flex items-center justify-between px-3 py-2 border-b bg-stone-50/50">
           <div className="flex items-center gap-2">
-            <div className="p-1 rounded bg-slate-100">
-              <Icon className="h-3.5 w-3.5 text-slate-700" />
+            <div className="p-1 rounded bg-stone-100">
+              <Icon className="h-3.5 w-3.5 text-stone-700" />
             </div>
-            <span className="text-xs font-semibold text-slate-700">{meta.label}</span>
-            <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 border-slate-300">
+            <span className="text-xs font-semibold text-stone-700">{meta.label}</span>
+            <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 border-stone-300">
               <AiRecommend size={12} className="mr-0.5" /> Projected
             </Badge>
           </div>
-          <Link href="/mmm" prefetch={false} className="text-[10px] font-medium text-slate-500 hover:text-slate-800 flex items-center gap-1 transition-colors">
+          <Link href="/mmm" prefetch={false} className="text-[10px] font-medium text-stone-500 hover:text-stone-800 flex items-center gap-1 transition-colors">
             Analyze drivers <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
 
         {/* Summary KPIs */}
         <div className="grid grid-cols-3 gap-2 p-3">
-          <div className="text-center p-2 bg-slate-50 rounded-md">
+          <div className="text-center p-2 bg-stone-50 rounded-md">
             <p className="text-[10px] text-muted-foreground">Expected Outcome</p>
             <p className="text-sm font-bold mt-0.5">{meta.outcome}</p>
           </div>
-          <div className="text-center p-2 bg-slate-50 rounded-md">
+          <div className="text-center p-2 bg-stone-50 rounded-md">
             <p className="text-[10px] text-muted-foreground">Budget Impact</p>
             <p className="text-sm font-bold mt-0.5">{meta.budget}</p>
           </div>
-          <div className="text-center p-2 bg-slate-50 rounded-md">
+          <div className="text-center p-2 bg-stone-50 rounded-md">
             <p className="text-[10px] text-muted-foreground">{secondary.label}</p>
             <p className="text-sm font-bold mt-0.5 text-emerald-700">
               {secondary.current} → {secondary.projected}
@@ -381,10 +381,10 @@ export function ScenarioProjectionCard({ scenarioId }: { scenarioId: ScenarioId 
             {/* Legend */}
             <div className="flex items-center justify-center gap-4 px-3 pb-2 text-[10px] text-muted-foreground">
               <span className="flex items-center gap-1.5">
-                <span className="inline-block w-4 h-[2px] bg-slate-900" /> Historical
+                <span className="inline-block w-4 h-[2px] bg-stone-900" /> Historical
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="inline-block w-4 h-[2px] bg-slate-400" style={{ borderTop: "2px dashed #94a3b8", height: 0 }} /> Baseline
+                <span className="inline-block w-4 h-[2px] bg-stone-400" style={{ borderTop: "2px dashed #94a3b8", height: 0 }} /> Baseline
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="inline-block w-4 h-[2px]" style={{ borderTop: `2.5px dashed ${colors.primary}`, height: 0 }} /> {meta.label}
@@ -436,7 +436,7 @@ export function ScenarioProjectionCard({ scenarioId }: { scenarioId: ScenarioId 
                     <td className="text-right py-1.5">
                       <span className={cn(
                         "font-semibold px-1 py-0.5 rounded text-[9px]",
-                        row.gap.startsWith("-") ? "bg-red-50 text-red-700" : row.gap === "0%" ? "bg-slate-50 text-slate-600" : "bg-green-50 text-green-700"
+                        row.gap.startsWith("-") ? "bg-red-50 text-red-700" : row.gap === "0%" ? "bg-stone-50 text-stone-600" : "bg-green-50 text-green-700"
                       )}>
                         {row.gap}
                       </span>
@@ -468,15 +468,15 @@ export function ScenarioComparisonCard() {
   const [activeScenario, setActiveScenario] = useState<ScenarioId>("waste-reduction");
 
   return (
-    <Card className="border border-slate-200 shadow-none overflow-hidden">
+    <Card className="border border-stone-200 shadow-none overflow-hidden">
       <CardContent className="p-0">
         {/* Header */}
-        <div className="flex items-center justify-between px-3 py-2 border-b bg-slate-50/50">
+        <div className="flex items-center justify-between px-3 py-2 border-b bg-stone-50/50">
           <div className="flex items-center gap-2">
-            <Activity className="h-3.5 w-3.5 text-slate-600" />
-            <span className="text-xs font-semibold text-slate-700">Scenario Comparison</span>
+            <Activity className="h-3.5 w-3.5 text-stone-600" />
+            <span className="text-xs font-semibold text-stone-700">Scenario Comparison</span>
           </div>
-          <Link href="/mmm" prefetch={false} className="text-[10px] font-medium text-slate-500 hover:text-slate-800 flex items-center gap-1 transition-colors">
+          <Link href="/mmm" prefetch={false} className="text-[10px] font-medium text-stone-500 hover:text-stone-800 flex items-center gap-1 transition-colors">
             Full analysis <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
@@ -493,8 +493,8 @@ export function ScenarioComparisonCard() {
                 className={cn(
                   "flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-semibold transition-colors border-b-2",
                   activeScenario === id
-                    ? "border-slate-800 text-slate-800"
-                    : "border-transparent text-muted-foreground hover:text-slate-600"
+                    ? "border-stone-800 text-stone-800"
+                    : "border-transparent text-muted-foreground hover:text-stone-600"
                 )}
               >
                 <Icon className="h-3 w-3" />
@@ -521,15 +521,15 @@ function ScenarioComparisonDetail({ scenarioId }: { scenarioId: ScenarioId }) {
     <div>
       {/* KPIs */}
       <div className="grid grid-cols-3 gap-2 p-3">
-        <div className="text-center p-1.5 bg-slate-50 rounded-md">
+        <div className="text-center p-1.5 bg-stone-50 rounded-md">
           <p className="text-[9px] text-muted-foreground">Outcome</p>
           <p className="text-xs font-bold mt-0.5">{meta.outcome}</p>
         </div>
-        <div className="text-center p-1.5 bg-slate-50 rounded-md">
+        <div className="text-center p-1.5 bg-stone-50 rounded-md">
           <p className="text-[9px] text-muted-foreground">Budget</p>
           <p className="text-xs font-bold mt-0.5">{meta.budget}</p>
         </div>
-        <div className="text-center p-1.5 bg-slate-50 rounded-md">
+        <div className="text-center p-1.5 bg-stone-50 rounded-md">
           <p className="text-[9px] text-muted-foreground">{secondary.label}</p>
           <p className="text-xs font-bold mt-0.5 text-emerald-700">{secondary.current} → {secondary.projected}</p>
         </div>

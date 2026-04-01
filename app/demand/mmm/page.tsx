@@ -214,7 +214,7 @@ function KPIHeader() {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       {/* Demand Outlook */}
-      <Card className="p-4 border-l-4 border-l-slate-800">
+      <Card className="p-4 border-l-4 border-l-stone-800">
         <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold mb-1">Demand Outlook</p>
         <p className="text-2xl font-bold tracking-tight">1,684,062</p>
         <div className="flex items-center gap-2 mt-1">
@@ -279,7 +279,7 @@ function TimePeriodToggles({ selected, onChange }: { selected: string; onChange:
           onClick={() => onChange(p)}
           className={cn(
             "px-2.5 py-1 font-semibold transition-colors",
-            selected === p ? "bg-slate-800 text-white" : "text-muted-foreground hover:bg-muted"
+            selected === p ? "bg-stone-800 text-white" : "text-muted-foreground hover:bg-muted"
           )}
         >
           {p}
@@ -495,22 +495,22 @@ function DemandResponsePanel({ isOverview, selectedDriver, onDriverChange }: {
             <div className="text-xs text-muted-foreground space-y-2 leading-relaxed">
               <p>
                 Current forecast accuracy across <strong>all perishable categories</strong> is{" "}
-                <span className="text-slate-800 font-bold">{insightText.accuracy}</span>.
+                <span className="text-stone-800 font-bold">{insightText.accuracy}</span>.
               </p>
               <p>
                 By integrating uncaptured demand drivers (local events, social trends, competitor activity), accuracy is projected to improve by{" "}
-                <span className="text-slate-800 font-bold">{insightText.improvement}</span>.
+                <span className="text-stone-800 font-bold">{insightText.improvement}</span>.
               </p>
             </div>
           ) : (
             <div className="text-xs text-muted-foreground space-y-2 leading-relaxed">
               <p>
                 The demand driver <strong>{selectedDriver}</strong> currently contributes{" "}
-                <span className="text-slate-800 font-bold">{insightText.accuracy}</span> to forecast accuracy.
+                <span className="text-stone-800 font-bold">{insightText.accuracy}</span> to forecast accuracy.
               </p>
               <p>
                 ML modeling shows this driver can improve forecast lift by{" "}
-                <span className="text-slate-800 font-bold">{insightText.improvement}</span> when fully captured.
+                <span className="text-stone-800 font-bold">{insightText.improvement}</span> when fully captured.
               </p>
               <p>
                 Adding real-time signal ingestion for this driver would reduce demand variance by an estimated 18%.
@@ -661,7 +661,7 @@ function DemandOverviewTab() {
                 onClick={() => setChartSubTab(tab)}
                 className={cn(
                   "px-3 py-1.5 font-medium transition-colors capitalize",
-                  chartSubTab === tab ? "bg-slate-800 text-white" : "text-muted-foreground hover:bg-muted"
+                  chartSubTab === tab ? "bg-stone-800 text-white" : "text-muted-foreground hover:bg-muted"
                 )}
               >
                 {tab === "gap" ? "Gap%" : tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -681,7 +681,7 @@ function DemandOverviewTab() {
             {/* Legend */}
             <div className="flex items-center justify-center gap-4 mt-2 text-[10px] text-muted-foreground">
               <span className="flex items-center gap-1.5">
-                <span className="inline-block w-3 h-3 rounded-sm bg-slate-600" /> Outlook
+                <span className="inline-block w-3 h-3 rounded-sm bg-stone-600" /> Outlook
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="inline-block w-3 h-3 rounded-sm bg-amber-500" /> Target
@@ -690,7 +690,7 @@ function DemandOverviewTab() {
                 <span className="inline-block w-3 h-3 rounded-sm bg-red-500" /> Negative
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="inline-block w-3 h-3 rounded-sm bg-slate-900" /> Result
+                <span className="inline-block w-3 h-3 rounded-sm bg-stone-900" /> Result
               </span>
             </div>
           </CardContent>
@@ -709,8 +709,8 @@ function DemandOverviewTab() {
                   className={cn(
                     "px-3 py-1.5 text-xs font-medium transition-colors capitalize border-b-2",
                     breakdownTab === tab
-                      ? "border-slate-800 text-slate-800"
-                      : "border-transparent text-muted-foreground hover:text-slate-600"
+                      ? "border-stone-800 text-stone-800"
+                      : "border-transparent text-muted-foreground hover:text-stone-600"
                   )}
                 >
                   {tab === "bucketized" ? "Bucketized Breakdown" : tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -721,7 +721,7 @@ function DemandOverviewTab() {
               <span className="text-muted-foreground">Measures:</span>
               <div className="flex border rounded overflow-hidden">
                 {["TG", "LY", "LC"].map((m) => (
-                  <button key={m} className={cn("px-2 py-0.5 font-semibold transition-colors", m === "TG" ? "bg-slate-800 text-white" : "text-muted-foreground hover:bg-muted")}>
+                  <button key={m} className={cn("px-2 py-0.5 font-semibold transition-colors", m === "TG" ? "bg-stone-800 text-white" : "text-muted-foreground hover:bg-muted")}>
                     {m}
                   </button>
                 ))}
@@ -754,7 +754,7 @@ function ScenarioPlanningTab() {
               <button
                 key={mode}
                 onClick={() => setTargetMode(mode)}
-                className={cn("py-2 px-3 font-medium transition-colors capitalize text-left", targetMode === mode ? "bg-slate-800 text-white" : "hover:bg-muted")}
+                className={cn("py-2 px-3 font-medium transition-colors capitalize text-left", targetMode === mode ? "bg-stone-800 text-white" : "hover:bg-muted")}
               >
                 {mode.replace("-", " ")}
               </button>
@@ -785,7 +785,7 @@ function ScenarioPlanningTab() {
                 className={cn(
                   "w-full text-left px-3 py-2 rounded-md text-xs font-medium transition-colors capitalize border",
                   activeScenario === s
-                    ? "bg-slate-800 text-white border-slate-800"
+                    ? "bg-stone-800 text-white border-stone-800"
                     : "border-border hover:bg-muted"
                 )}
               >
@@ -795,18 +795,18 @@ function ScenarioPlanningTab() {
           </div>
         </div>
 
-        <Button size="sm" className="w-full text-xs bg-slate-800 hover:bg-slate-700">
+        <Button size="sm" className="w-full text-xs bg-stone-800 hover:bg-stone-700">
           <Zap className="h-3.5 w-3.5 mr-1.5" /> Run Scenario
         </Button>
 
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+        <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 space-y-2">
           <div className="flex items-center gap-2">
-            <div className="bg-slate-800 text-white rounded p-1">
+            <div className="bg-stone-800 text-white rounded p-1">
               <Zap className="h-3 w-3" />
             </div>
-            <span className="text-xs font-semibold text-slate-800">Agent Insight</span>
+            <span className="text-xs font-semibold text-stone-800">Agent Insight</span>
           </div>
-          <p className="text-[10px] text-slate-700 leading-relaxed">
+          <p className="text-[10px] text-stone-700 leading-relaxed">
             Integrating weather signals + local events for dairy is projected to yield <strong>+22% forecast accuracy</strong> over 4 weeks, reducing waste by an estimated 320 units/day.
           </p>
         </div>
@@ -823,7 +823,7 @@ function ScenarioPlanningTab() {
                 onClick={() => setScenarioSubTab(tab)}
                 className={cn(
                   "px-3 py-1.5 font-medium transition-colors capitalize",
-                  scenarioSubTab === tab ? "bg-slate-800 text-white" : "text-muted-foreground hover:bg-muted"
+                  scenarioSubTab === tab ? "bg-stone-800 text-white" : "text-muted-foreground hover:bg-muted"
                 )}
               >
                 {tab}
@@ -1023,7 +1023,7 @@ export default function MMMPage() {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1.5 bg-slate-800 text-white text-xs rounded px-3 py-1.5 font-medium">
+          <div className="flex items-center gap-1.5 bg-stone-800 text-white text-xs rounded px-3 py-1.5 font-medium">
             <Calendar className="h-3 w-3" />
             {periodLabel[period]}
           </div>
@@ -1037,7 +1037,7 @@ export default function MMMPage() {
               <SelectItem value="last-month">Last Month</SelectItem>
             </SelectContent>
           </Select>
-          <Button size="sm" className="text-xs h-8 gap-1.5 bg-slate-800 hover:bg-slate-700">
+          <Button size="sm" className="text-xs h-8 gap-1.5 bg-stone-800 hover:bg-stone-700">
             <Zap className="h-3.5 w-3.5" /> New Forecast Report
           </Button>
         </div>
@@ -1057,8 +1057,8 @@ export default function MMMPage() {
               className={cn(
                 "px-4 py-2.5 text-sm font-medium transition-colors border-b-2 whitespace-nowrap",
                 primaryTab === tab.id
-                  ? "border-slate-800 text-slate-800"
-                  : "border-transparent text-muted-foreground hover:text-slate-600 hover:border-slate-300"
+                  ? "border-stone-800 text-stone-800"
+                  : "border-transparent text-muted-foreground hover:text-stone-600 hover:border-stone-300"
               )}
             >
               {tab.label}
@@ -1071,12 +1071,12 @@ export default function MMMPage() {
 
       {/* Agent banner */}
       {showBanner && (
-        <div className="flex items-start gap-3 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3">
-          <Info className="h-4 w-4 text-slate-500 mt-0.5 flex-shrink-0" />
-          <p className="text-xs text-slate-700 flex-1">
+        <div className="flex items-start gap-3 bg-stone-50 border border-stone-200 rounded-lg px-4 py-3">
+          <Info className="h-4 w-4 text-stone-500 mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-stone-700 flex-1">
             The ML-modeled impact reflects demand driver weights learned from 18 months of historical POS, weather, promotional calendar, and external signal data across all perishable categories.
           </p>
-          <button onClick={() => setShowBanner(false)} className="text-slate-400 hover:text-slate-600 flex-shrink-0">
+          <button onClick={() => setShowBanner(false)} className="text-stone-400 hover:text-stone-600 flex-shrink-0">
             <X className="h-4 w-4" />
           </button>
         </div>

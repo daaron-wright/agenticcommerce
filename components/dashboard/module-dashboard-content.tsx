@@ -42,15 +42,15 @@ function MetricGrid({
   return (
     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
       {metrics.map((metric) => (
-        <Card key={metric.label} className="border border-slate-200 bg-white/90 shadow-none">
+        <Card key={metric.label} className="border border-stone-200 bg-white/90 shadow-none">
           <CardContent className="p-4">
-            <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-stone-500">
               {metric.label}
             </p>
-            <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
+            <p className="mt-2 text-2xl font-semibold tracking-tight text-[#3d3c3c]">
               {metric.value}
             </p>
-            <p className="mt-1 text-[11px] text-slate-500">{metric.detail}</p>
+            <p className="mt-1 text-[11px] text-stone-500">{metric.detail}</p>
           </CardContent>
         </Card>
       ))}
@@ -68,10 +68,10 @@ function ListCard({
   items: Array<{ title: string; detail: string; tone?: "default" | "warning" | "critical" }>;
 }) {
   return (
-    <Card className="border border-slate-200 bg-white/90 shadow-none">
+    <Card className="border border-stone-200 bg-white/90 shadow-none">
       <CardHeader>
-        <CardTitle className="text-base font-semibold text-slate-900">{title}</CardTitle>
-        <p className="text-sm text-slate-500">{description}</p>
+        <CardTitle className="text-base font-semibold text-[#3d3c3c]">{title}</CardTitle>
+        <p className="text-sm text-stone-500">{description}</p>
       </CardHeader>
       <CardContent className="space-y-3">
         {items.map((item) => (
@@ -83,11 +83,11 @@ function ListCard({
                 ? "border-rose-200 bg-rose-50/70"
                 : item.tone === "warning"
                   ? "border-amber-200 bg-amber-50/70"
-                  : "border-slate-200 bg-slate-50/70",
+                  : "border-stone-200 bg-stone-50/70",
             )}
           >
-            <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-            <p className="mt-1 text-[11px] leading-snug text-slate-600">{item.detail}</p>
+            <p className="text-sm font-semibold text-[#3d3c3c]">{item.title}</p>
+            <p className="mt-1 text-[11px] leading-snug text-stone-600">{item.detail}</p>
           </div>
         ))}
       </CardContent>
@@ -105,10 +105,10 @@ function LinkCard({
   links: Array<{ label: string; href: string }>;
 }) {
   return (
-    <Card className="border border-slate-200 bg-white/90 shadow-none">
+    <Card className="border border-stone-200 bg-white/90 shadow-none">
       <CardHeader>
-        <CardTitle className="text-base font-semibold text-slate-900">{title}</CardTitle>
-        <p className="text-sm text-slate-500">{description}</p>
+        <CardTitle className="text-base font-semibold text-[#3d3c3c]">{title}</CardTitle>
+        <p className="text-sm text-stone-500">{description}</p>
       </CardHeader>
       <CardContent className="flex flex-wrap gap-2">
         {links.map((link) => (
@@ -454,27 +454,27 @@ export function DashboardModuleSurface({
 
   return (
     <div className="space-y-6">
-      <Card className="border border-slate-200 bg-white/90 shadow-none">
+      <Card className="border border-stone-200 bg-white/90 shadow-none">
         <CardContent className="flex flex-col gap-4 p-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex items-start gap-3">
-            <div className="rounded-2xl bg-slate-900 p-3">
-              <Icon className="h-5 w-5 text-white" />
+            <div className="rounded-2xl bg-stone-100 p-3">
+              <Icon className="h-5 w-5 text-[#3d3c3c]" />
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline" className="border-slate-200 bg-slate-50 text-[10px] uppercase tracking-wide text-slate-600">
+                <Badge variant="outline" className="border-stone-200 bg-stone-50 text-[10px] uppercase tracking-wide text-stone-600">
                   {moduleConfig.tabLabel}
                 </Badge>
                 {viewConfig ? (
-                  <Badge variant="outline" className="border-slate-200 bg-white text-[10px] text-slate-500">
+                  <Badge variant="outline" className="border-stone-200 bg-white text-[10px] text-stone-500">
                     {viewConfig.label}
                   </Badge>
                 ) : null}
               </div>
-              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#3d3c3c]">
                 {viewConfig?.label ?? moduleConfig.label}
               </h2>
-              <p className="mt-1 max-w-3xl text-sm text-slate-500">
+              <p className="mt-1 max-w-3xl text-sm text-stone-500">
                 {viewConfig?.description ?? moduleConfig.description}
               </p>
             </div>
@@ -494,7 +494,7 @@ export function DashboardModuleSurface({
                 </Link>
               </Button>
             ) : null}
-            <Button asChild className="rounded-full bg-slate-900 hover:bg-slate-950">
+            <Button asChild className="rounded-full bg-stone-700 hover:bg-stone-800">
               <Link href={viewConfig?.deepLinkHref ?? moduleConfig.deepLinkHref}>
                 Open full page
                 <ArrowRight className="ml-1 h-3.5 w-3.5" />
@@ -510,17 +510,17 @@ export function DashboardModuleSurface({
 
       {viewConfig?.artifactCategory ? <RecentFromChat category={viewConfig.artifactCategory} /> : null}
 
-      <Card className="border border-dashed border-slate-200 bg-slate-50/80 shadow-none">
+      <Card className="border border-dashed border-stone-200 bg-stone-50/80 shadow-none">
         <CardContent className="flex flex-col gap-3 p-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-start gap-3">
             <div className="rounded-xl bg-white p-2 shadow-sm">
-              <Sparkles className="h-4 w-4 text-slate-700" />
+              <Sparkles className="h-4 w-4 text-stone-700" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-slate-900">
+              <p className="text-sm font-semibold text-[#3d3c3c]">
                 Need the cross-domain view again?
               </p>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-stone-500">
                 Return to the operator control tower any time to coordinate actions across UDP, commercial activation, and demand planning.
               </p>
             </div>
