@@ -218,7 +218,7 @@ export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
     // Control Tower
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
     { label: "Chat", href: "/chat", description: "Unified AI Workspace" },
-    { label: "NBAs", href: "/demand/nba", description: "Next Best Actions" },
+
     // Data & Insights
     { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
     { label: "Customers", href: "/customers", description: "Customer Profiles" },
@@ -242,7 +242,7 @@ export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
   data_admin: [
     // Control Tower
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
-    { label: "NBAs", href: "/demand/nba", description: "Next Best Actions" },
+
     // Data & Insights
     { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
     { label: "Customers", href: "/customers", description: "Customer Profiles" },
@@ -257,7 +257,7 @@ export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
     // Control Tower
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
     { label: "Chat", href: "/chat", description: "AI Marketing Assistant" },
-    { label: "NBAs", href: "/demand/nba", description: "Next Best Actions" },
+
     // Data & Insights
     { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
     { label: "Customers", href: "/customers", description: "Customer Profiles" },
@@ -286,7 +286,7 @@ export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
     // Control Tower
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
     { label: "Chat", href: "/chat", description: "Unified AI Workspace" },
-    { label: "NBAs", href: "/demand/nba", description: "Next Best Actions" },
+
     // Data & Insights
     { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
     { label: "Customers", href: "/customers", description: "Customer Profiles" },
@@ -312,7 +312,7 @@ export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
     // Control Tower
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
     { label: "Chat", href: "/chat", description: "Unified AI Workspace" },
-    { label: "NBAs", href: "/demand/nba", description: "Next Best Actions" },
+
     // Data & Insights
     { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
     { label: "Customers", href: "/customers", description: "Customer Profiles" },
