@@ -1039,41 +1039,38 @@ export function ChatInterface({
     <div className="relative flex flex-col h-[calc(100vh-5.5rem)] -m-6 bg-background">
       {/* Full-panel background */}
       <SubwayMapBackground />
-      {/* Agent activity + controls bar */}
-      <div className="flex items-center gap-2 px-4 py-2 border-b bg-stone-50/60 text-xs text-muted-foreground shrink-0">
-        {!isIdle && (
-          <>
-            <MdOutlineFiberManualRecord className="h-3 w-3 text-amber-500" />
-            <span>
-              {phase === "thinking" && "Agent thinking..."}
-              {phase === "tool_call" && "Processing..."}
-              {phase === "streaming" && "Generating response..."}
-              {phase === "complete" && "Complete"}
-            </span>
-          </>
-        )}
+      {/* Agent activity bar – only visible when processing */}
+      {!isIdle && (
+        <div className="flex items-center gap-2 px-4 py-2 border-b bg-stone-50/60 text-xs text-muted-foreground shrink-0">
+          <MdOutlineFiberManualRecord className="h-3 w-3 text-amber-500" />
+          <span>
+            {phase === "thinking" && "Agent thinking..."}
+            {phase === "tool_call" && "Processing..."}
+            {phase === "streaming" && "Generating response..."}
+            {phase === "complete" && "Complete"}
+          </span>
 
-        {(phase === "tool_call" || phase === "streaming") &&
-          (completedSteps.length > 0 || currentStep) && (
-            <div className="flex items-center gap-1.5 ml-2 overflow-x-auto">
-              {completedSteps.map((step, i) => (
-                <span
-                  key={i}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-200 text-[10px] font-medium text-stone-600 whitespace-nowrap"
-                >
-                  <span className="text-emerald-500">✓</span> {step}
-                </span>
-              ))}
-              {currentStep && phase === "tool_call" && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-700 text-[10px] font-medium text-white whitespace-nowrap">
-                  <MdOutlineRefresh className="h-2.5 w-2.5 animate-spin" />
-                  {currentStep}
-                </span>
-              )}
-            </div>
-          )}
-
-      </div>
+          {(phase === "tool_call" || phase === "streaming") &&
+            (completedSteps.length > 0 || currentStep) && (
+              <div className="flex items-center gap-1.5 ml-2 overflow-x-auto">
+                {completedSteps.map((step, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-200 text-[10px] font-medium text-stone-600 whitespace-nowrap"
+                  >
+                    <span className="text-emerald-500">✓</span> {step}
+                  </span>
+                ))}
+                {currentStep && phase === "tool_call" && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-700 text-[10px] font-medium text-white whitespace-nowrap">
+                    <MdOutlineRefresh className="h-2.5 w-2.5 animate-spin" />
+                    {currentStep}
+                  </span>
+                )}
+              </div>
+            )}
+        </div>
+      )}
 
       {/* Messages area */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6">
