@@ -552,38 +552,40 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="p-2 flex flex-col gap-1">
-          <Button
-            className="w-full justify-start gap-3 rounded-md px-3 py-2 h-auto font-medium bg-red-50 text-[#cc1800] hover:bg-red-100 hover:text-[#cc1800] border border-red-200 shadow-none"
-            variant="outline"
-            onClick={() => openUtilityPanel("notifications")}
-          >
-            <AlertTriangle className="h-4 w-4" />
-            <span className="flex-1 text-left">Notifications</span>
-            <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ff462d] px-1 text-[10px] font-bold text-white">
-              {CONTROL_TOWER_ALERTS.length}
-            </span>
-          </Button>
-
-          {hasPermissionForUser(user, "nba_view") && (
-            <Button
-              className="w-full justify-start gap-3 rounded-md px-3 py-2 h-auto font-medium bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary border-none shadow-none"
-              variant="outline"
-              onClick={() => openUtilityPanel("explainability")}
+        <div className="p-2 flex flex-col gap-0.5">
+          <div className="flex items-center gap-1 mb-3">
+            <button
+              onClick={() => openUtilityPanel("notifications")}
+              className="relative flex-1 flex flex-col items-center gap-1 rounded-lg px-2 py-2 text-stone-500 hover:bg-stone-100 hover:text-stone-700 transition-colors"
+              title="Notifications"
             >
-              <AiGovernanceLifecycle size={16} />
-              <span>Explainability</span>
-            </Button>
-          )}
-
-          <Button
-            className="w-full justify-start gap-3 rounded-md px-3 py-2 h-auto font-medium mb-4 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:text-amber-800 border border-amber-200 shadow-none"
-            variant="outline"
-            onClick={() => openUtilityPanel("recommendations")}
-          >
-            <Sparkles className="h-4 w-4" />
-            <span>AI Recommendations</span>
-          </Button>
+              <AlertTriangle className="h-4 w-4" />
+              <span className="text-[10px] font-medium">Alerts</span>
+              {CONTROL_TOWER_ALERTS.length > 0 && (
+                <span className="absolute top-1 right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#ff462d] px-1 text-[8px] font-bold text-white">
+                  {CONTROL_TOWER_ALERTS.length}
+                </span>
+              )}
+            </button>
+            {hasPermissionForUser(user, "nba_view") && (
+              <button
+                onClick={() => openUtilityPanel("explainability")}
+                className="flex-1 flex flex-col items-center gap-1 rounded-lg px-2 py-2 text-stone-500 hover:bg-stone-100 hover:text-stone-700 transition-colors"
+                title="Explainability"
+              >
+                <AiGovernanceLifecycle size={16} />
+                <span className="text-[10px] font-medium">Explain</span>
+              </button>
+            )}
+            <button
+              onClick={() => openUtilityPanel("recommendations")}
+              className="flex-1 flex flex-col items-center gap-1 rounded-lg px-2 py-2 text-stone-500 hover:bg-stone-100 hover:text-stone-700 transition-colors"
+              title="AI Recommendations"
+            >
+              <Sparkles className="h-4 w-4" />
+              <span className="text-[10px] font-medium">AI Recs</span>
+            </button>
+          </div>
 
           <div className="pt-2 border-t flex flex-col gap-1">
             <button
