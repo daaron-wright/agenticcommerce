@@ -127,7 +127,7 @@ export function buildDraftIncrementalityExperiment(
       `${templateLabel} experiment for ${applicationLabel.toLowerCase()} created from the shared UDP experiment workspace.`,
     country: input.country ?? "United Kingdom",
     scopeLabel: input.scopeLabel ?? `${applicationLabel} · operator draft`,
-    owner: input.owner ?? "UDP Control Tower",
+    owner: input.owner ?? "Control Tower",
     primaryAudienceLabel:
       input.primaryAudienceLabel ?? `${applicationLabel} treatment audience`,
     controlAudienceLabel:

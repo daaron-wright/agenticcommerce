@@ -2558,7 +2558,7 @@ function ControlTowerOverview() {
               Business Dashboard
             </p>
             <h1 className="mt-1 text-3xl font-semibold tracking-tight text-[#3d3c3c]">
-              UDP Control Tower
+              Control Tower
             </h1>
             <p className="mt-2 max-w-3xl text-sm text-stone-500">
               A single business-facing dashboard for customer data readiness, campaign activation, demand-informed decisions, and the approvals that connect them.

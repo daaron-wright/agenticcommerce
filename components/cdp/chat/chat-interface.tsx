@@ -373,7 +373,7 @@ export function ChatInterface({
           ? (() => {
               const draftInput = buildIncrementalityDraftInputFromAction(
                 initialNBAId,
-                user?.username || "UDP Control Tower",
+                user?.username || "Control Tower",
               );
               return draftInput ? createExperiment(draftInput) : null;
             })()

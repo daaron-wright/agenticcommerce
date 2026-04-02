@@ -199,12 +199,12 @@ function BreadcrumbBar({
 }
 
 const DATA_SOURCE_MAP: Record<string, { label: string; module: string }> = {
-  "/dashboard": { label: "UDP Control Tower", module: "Control Tower" },
-  "/chat": { label: "UDP Control Tower", module: "Conversational AI" },
+  "/dashboard": { label: "Control Tower", module: "Control Tower" },
+  "/chat": { label: "Control Tower", module: "Conversational AI" },
   "/udp": { label: "Unified Data Platform", module: "Customer Profiles" },
   "/campaigns": { label: "Campaign Management", module: "Campaigns" },
   "/demand": { label: "Demand Signal Engine", module: "Demand Planning" },
-  "/analytics": { label: "UDP Control Tower", module: "Analytics" },
+  "/analytics": { label: "Control Tower", module: "Analytics" },
 };
 
 function resolveDataSource(pathname: string) {
@@ -657,7 +657,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                   </div>
                   <div>
                     <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                      UDP Control Tower
+                      Control Tower
                     </p>
                     <p className="text-sm font-semibold leading-none text-foreground">
                       Business decision dashboard

@@ -1085,7 +1085,7 @@ export function IncrementalityWorkspace({
         onCreate={(input) => {
           const experiment = createExperiment({
             ...input,
-            owner: "UDP Control Tower",
+            owner: "Control Tower",
             summary: `${INCREMENTALITY_TEMPLATE_LABELS[input.template]} experiment for ${INCREMENTALITY_APPLICATION_LABELS[input.application].toLowerCase()} created from the shared control-tower workspace.`,
             primaryMetric: "Primary lift metric",
             impactedEntities: [
