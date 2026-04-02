@@ -361,23 +361,21 @@ function MetricNavigator() {
 
   return (
     <div className="space-y-0">
-      {/* Pill tab bar */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-3">
+      {/* Tab bar */}
+      <div className="flex items-center gap-1 border-b border-stone-200 overflow-x-auto">
         {CONTROL_TOWER_HERO_METRICS.map((m, i) => {
-          const s = STATUS_META[m.status];
           const isActive = i === selectedIndex;
           return (
             <button
               key={m.id}
               onClick={() => setSelectedIndex(i)}
               className={cn(
-                "flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition-colors",
+                "shrink-0 px-4 py-2.5 text-sm font-medium transition-colors border-b-2",
                 isActive
-                  ? "border-stone-700 bg-stone-700 text-white"
-                  : "border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:text-stone-700"
+                  ? "border-[#3d3c3c] text-[#3d3c3c]"
+                  : "border-transparent text-stone-400 hover:text-stone-600"
               )}
             >
-              <span className={cn("h-2 w-2 rounded-full", s.dot)} />
               {METRIC_SHORT_LABELS[m.id] ?? m.label}
             </button>
           );
