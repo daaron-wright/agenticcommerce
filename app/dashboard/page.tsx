@@ -2231,39 +2231,20 @@ function ControlTowerOverview() {
             </p>
           </div>
 
-          {/* Row 2 — Status + Actions bar */}
-          <div className="mt-4 flex flex-col gap-3 border-t border-stone-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-wrap items-center gap-1.5 text-xs text-stone-400">
-              <span className="inline-flex items-center gap-1 rounded-full bg-[#cc1800]/10 px-2 py-0.5 text-[11px] font-medium text-[#cc1800]">
-                {CONTROL_TOWER_SUMMARY.criticalAlerts} critical
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
-                {CONTROL_TOWER_SUMMARY.highAlerts} high priority
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600">
-                {pendingActions.length} open approvals
-              </span>
-              <span className="text-stone-300">·</span>
-              <span className="inline-flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                {CONTROL_TOWER_SUMMARY.dataFreshness}
-              </span>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                className="rounded-full bg-stone-700 text-white hover:bg-stone-800"
-                onClick={() => {
-                  document.getElementById("action-board")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                }}
-              >
-                <Check className="mr-1 h-4 w-4" />
-                Review open approvals
-                <Badge className="ml-1.5 rounded-full bg-white/20 px-1.5 text-[10px] text-white">
-                  {pendingActions.length}
-                </Badge>
-              </Button>
-            </div>
+          {/* Actions bar */}
+          <div className="mt-4 flex items-center border-t border-stone-100 pt-4">
+            <Button
+              className="rounded-full bg-stone-700 text-white hover:bg-stone-800"
+              onClick={() => {
+                document.getElementById("action-board")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+            >
+              <Check className="mr-1 h-4 w-4" />
+              Review open approvals
+              <Badge className="ml-1.5 rounded-full bg-white/20 px-1.5 text-[10px] text-white">
+                {pendingActions.length}
+              </Badge>
+            </Button>
           </div>
 
           {/* Needs Attention action strip */}
