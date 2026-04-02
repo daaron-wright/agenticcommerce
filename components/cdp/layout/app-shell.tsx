@@ -1,6 +1,7 @@
 "use client";
 
-import { Fragment, useState, useMemo, useCallback, useRef, useEffect } from "react";
+import { Fragment, useState, useMemo, useCallback, useRef, useEffect, type ReactNode } from "react";
+import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { getNavigation, getPermissions, hasPermissionForUser } from "@/lib/permissions/roles";
 import {
@@ -30,13 +31,16 @@ import {
   Network, MessageSquare, X, CheckCircle2,
   Loader2, ChevronRight, ChevronDown, Monitor,
   AlertTriangle, Zap, FlaskConical, Database, Sparkles,
+  Shield, Truck, ShoppingCart, Radio, MapPin, Package, Thermometer, User,
 } from "lucide-react";
 import { AiGovernanceLifecycle, DataEnrichment } from "@carbon/icons-react";
 import { AIRecommendationsPanel } from "@/components/dashboard/ai-recommendations-panel";
 import {
   CONTROL_TOWER_ALERTS,
+  CONTROL_TOWER_ACTIONS,
   CONTROL_TOWER_SUMMARY,
   type ControlTowerAlert,
+  type ControlTowerAction,
   type ControlTowerSeverity,
 } from "@/lib/control-tower-data";
 import { buildKnowledgeGraphHref } from "@/lib/knowledge-graph-data";
@@ -879,199 +883,685 @@ const CONTROL_TOWER_ALERT_BADGE_STYLES: Record<
   },
 };
 
+// ── Notifications Panel — 6-tab channel ─────────────────────────────────────
+
+type ChannelTab = "profile" | "alerts" | "approvals" | "reach" | "demand" | "campaign";
+
+const CHANNEL_TABS: { id: ChannelTab; label: string; icon: React.ElementType }[] = [
+  { id: "profile", label: "Profile", icon: User },
+  { id: "alerts", label: "Alerts", icon: AlertTriangle },
+  { id: "approvals", label: "Approvals", icon: ClipboardList },
+  { id: "reach", label: "Reach", icon: MapPin },
+  { id: "demand", label: "Demand", icon: TrendingUp },
+  { id: "campaign", label: "Campaign", icon: Megaphone },
+];
+
+const PROJECTED_OUTCOMES: Record<string, { label: string; before: string; after: string; note?: string }[]> = {
+  "alert-demand-stockout": [
+    { label: "Ordering Cut-off Risk", before: "Critical", after: "Resolved" },
+    { label: "Revenue at Risk", before: "$847,200", after: "$106,140", note: "87% reduction in revenue exposure" },
+    { label: "Inventory Coverage (2-day)", before: "38% Below", after: "12% Above", note: "Coverage restored to target levels" },
+    { label: "Cold-Chain Compliance", before: "Moderate Risk", after: "Verified" },
+  ],
+  "alert-coldchain-risk": [
+    { label: "Cold-Chain Status", before: "At Risk", after: "Protected" },
+    { label: "Product Waste Risk", before: "$76K exposed", after: "$4K residual", note: "95% waste risk reduction" },
+    { label: "Generator Coverage", before: "18h remaining", after: "72h secured" },
+  ],
+  "alert-lastmile-constraint": [
+    { label: "On-Time Delivery", before: "68.2%", after: "82.4%" },
+    { label: "Delay Cost", before: "$145K", after: "$38K", note: "74% cost reduction" },
+    { label: "Affected Orders", before: "3,400", after: "850", note: "75% recovery via rerouting + pickup" },
+  ],
+};
+
+const SEVERITY_DOT: Record<ControlTowerSeverity, string> = {
+  critical: "bg-[#ff462d]",
+  high: "bg-amber-500",
+  medium: "bg-stone-400",
+  info: "bg-stone-300",
+};
+
 function NotificationsPanel() {
-  const [activeAlertId, setActiveAlertId] = useState(CONTROL_TOWER_ALERTS[0]?.id ?? "");
+  const { user } = useAuth();
+  const [channelTab, setChannelTab] = useState<ChannelTab>("alerts");
+  const [resolvedAlerts, setResolvedAlerts] = useState<Record<string, "approved" | "conditional" | "rejected">>({});
+  const [expandedAlertId, setExpandedAlertId] = useState<string | null>(null);
+  const [approvedActions, setApprovedActions] = useState<Record<string, "approved" | "rejected">>({});
+  const [reachRedirectActive, setReachRedirectActive] = useState(false);
+  const [demandReorderSubmitted, setDemandReorderSubmitted] = useState(false);
+  const [campaignApplied, setCampaignApplied] = useState(false);
 
-  const activeAlert =
-    CONTROL_TOWER_ALERTS.find((alert) => alert.id === activeAlertId) ??
-    CONTROL_TOWER_ALERTS[0] ??
-    null;
-  const secondaryAlerts = CONTROL_TOWER_ALERTS.filter(
-    (alert) => alert.id !== activeAlert?.id,
-  );
+  const unresolvedAlertCount = CONTROL_TOWER_ALERTS.length - Object.keys(resolvedAlerts).length;
+  const pendingApprovalCount = CONTROL_TOWER_ACTIONS.length - Object.keys(approvedActions).length;
 
-  if (!activeAlert) {
+  const tabBadge = (tab: ChannelTab): number | null => {
+    if (tab === "alerts" && unresolvedAlertCount > 0) return unresolvedAlertCount;
+    if (tab === "approvals" && pendingApprovalCount > 0) return pendingApprovalCount;
     return null;
-  }
-
-  const activeSeverity = CONTROL_TOWER_ALERT_BADGE_STYLES[activeAlert.severity];
+  };
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-stone-50/80 shrink-0">
-        <div className="flex items-center gap-2">
-          <AlertTriangle className="h-4 w-4 text-[#ff462d]" />
-          <div>
-            <h2 className="text-sm font-semibold text-[#3d3c3c]">Notifications</h2>
-            <p className="text-[10px] text-muted-foreground">
-              Business alerts and decision support
-            </p>
-          </div>
-        </div>
-        <Badge variant="outline" className="text-[9px]">
-          {CONTROL_TOWER_ALERTS.length} active
-        </Badge>
+      {/* Tab strip */}
+      <div className="flex items-center gap-0.5 border-b bg-stone-50/80 px-2 py-1.5 shrink-0 overflow-x-auto">
+        {CHANNEL_TABS.map((tab) => {
+          const Icon = tab.icon;
+          const badge = tabBadge(tab.id);
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setChannelTab(tab.id)}
+              className={cn(
+                "relative flex items-center gap-1 rounded-md px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider transition whitespace-nowrap",
+                channelTab === tab.id
+                  ? "bg-[#3d3c3c] text-white"
+                  : "text-stone-500 hover:bg-stone-100 hover:text-stone-700",
+              )}
+            >
+              <Icon className="h-3 w-3" />
+              {tab.label}
+              {badge !== null && (
+                <span className="ml-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-[#ff462d] px-0.5 text-[8px] font-bold text-white">
+                  {badge}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-3 bg-stone-50/50 px-4 py-4">
-        <div className="overflow-hidden rounded-xl border border-red-200 bg-white shadow-[0_6px_24px_rgba(255,70,45,0.08)]">
-          <div className="border-b border-red-200 bg-[#ff462d] px-4 py-3 text-white">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <p className="text-sm font-semibold">{activeAlert.title}</p>
-                <p className="mt-1 text-[10px] text-white/80">{activeSeverity.label}</p>
-              </div>
-              <Badge
-                variant="outline"
-                className="border-white/30 bg-white/10 text-[9px] text-white"
-              >
-                {activeSeverity.label}
-              </Badge>
-            </div>
-          </div>
+      {/* Tab content */}
+      <div className="flex-1 overflow-y-auto bg-stone-50/50">
+        {channelTab === "profile" && <ProfileTab user={user} onNavigate={setChannelTab} unresolvedAlerts={unresolvedAlertCount} pendingApprovals={pendingApprovalCount} />}
+        {channelTab === "alerts" && (
+          <AlertsTab
+            resolvedAlerts={resolvedAlerts}
+            expandedAlertId={expandedAlertId}
+            onToggleExpand={(id) => setExpandedAlertId(expandedAlertId === id ? null : id)}
+            onResolve={(id, type) => {
+              setResolvedAlerts((prev) => ({ ...prev, [id]: type }));
+              toast.success(`Alert resolved — ${type}`, { description: CONTROL_TOWER_ALERTS.find((a) => a.id === id)?.title });
+            }}
+          />
+        )}
+        {channelTab === "approvals" && (
+          <ApprovalsTab
+            approvedActions={approvedActions}
+            onAction={(id, type) => {
+              setApprovedActions((prev) => ({ ...prev, [id]: type }));
+              toast.success(`Action ${type}`, { description: CONTROL_TOWER_ACTIONS.find((a) => a.id === id)?.title });
+            }}
+          />
+        )}
+        {channelTab === "reach" && (
+          <ReachTab
+            redirectActive={reachRedirectActive}
+            onApproveRedirect={() => {
+              setReachRedirectActive(true);
+              toast.success("Redirect activated", { description: "3,400 orders redirected to in-store pickup at 26 open stores" });
+            }}
+          />
+        )}
+        {channelTab === "demand" && (
+          <DemandTab
+            reorderSubmitted={demandReorderSubmitted}
+            onTriggerReorder={() => {
+              setDemandReorderSubmitted(true);
+              toast.success("Emergency reorder submitted", { description: "47 SKUs queued for emergency replenishment" });
+            }}
+          />
+        )}
+        {channelTab === "campaign" && (
+          <CampaignTab
+            applied={campaignApplied}
+            onApply={() => {
+              setCampaignApplied(true);
+              toast.success("Channel reallocation applied", { description: "8% shifted from In-Store Signage to Push Notifications" });
+            }}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
 
-          <div className="space-y-3 px-4 py-4">
-            <div className="rounded-xl border border-red-100 bg-red-50/70 p-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#cc1800]">
-                Overview
-              </p>
-              <ul className="mt-2 space-y-2">
-                {activeAlert.drilldown.summary.slice(0, 3).map((line) => (
+/* ── Profile Tab ──────────────────────────────────────────────────────────── */
+
+function ProfileTab({ user, onNavigate, unresolvedAlerts, pendingApprovals }: {
+  user: ReturnType<typeof useAuth>["user"];
+  onNavigate: (tab: ChannelTab) => void;
+  unresolvedAlerts: number;
+  pendingApprovals: number;
+}) {
+  return (
+    <div className="space-y-3 px-4 py-4">
+      {/* User card */}
+      <div className="rounded-xl border border-stone-200 bg-white p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#3d3c3c] text-xs font-bold text-white">
+            {(user?.displayName || "U").slice(0, 2).toUpperCase()}
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-[#3d3c3c]">{user?.displayName || "User"}</p>
+            <p className="text-[10px] text-stone-500">{user?.role?.replace(/_/g, " ") || "Operator"} · {user?.email || ""}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* AI Situation Summary */}
+      <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Sparkles className="h-4 w-4 text-amber-600" />
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-800">Your Situation Summary</p>
+        </div>
+        <ul className="space-y-2">
+          <li className="flex gap-2 text-[11px] text-stone-700">
+            <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#ff462d] shrink-0" />
+            <span>{unresolvedAlerts} alerts assigned — {CONTROL_TOWER_ALERTS.filter(a => a.severity === "critical").length} critical, {CONTROL_TOWER_ALERTS.filter(a => a.severity === "high").length} high, {CONTROL_TOWER_ALERTS.filter(a => a.severity === "medium").length} medium</span>
+          </li>
+          <li className="flex gap-2 text-[11px] text-stone-700">
+            <span className="mt-1 h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />
+            <span>{pendingApprovals} approvals pending — {CONTROL_TOWER_ACTIONS.filter(a => a.severity === "critical").length} due within 2 hours</span>
+          </li>
+          <li className="flex gap-2 text-[11px] text-stone-700">
+            <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#ff462d] shrink-0" />
+            <span>Revenue exposure: $2.4M if no action by 2:00 PM</span>
+          </li>
+        </ul>
+        <div className="mt-3 flex items-center gap-1.5 text-[10px] text-amber-700">
+          <Sparkles className="h-3 w-3" />
+          <span>AI Agent has pre-triaged alerts and ranked approvals by urgency</span>
+        </div>
+      </div>
+
+      {/* Quick actions */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => onNavigate("alerts")}
+          className="flex-1 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-center text-xs font-semibold text-[#3d3c3c] hover:bg-stone-50 transition"
+        >
+          View Alerts
+        </button>
+        <button
+          onClick={() => onNavigate("approvals")}
+          className="flex-1 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-center text-xs font-semibold text-[#3d3c3c] hover:bg-stone-50 transition"
+        >
+          View Approvals
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ── Alerts Tab ───────────────────────────────────────────────────────────── */
+
+function AlertsTab({ resolvedAlerts, expandedAlertId, onToggleExpand, onResolve }: {
+  resolvedAlerts: Record<string, string>;
+  expandedAlertId: string | null;
+  onToggleExpand: (id: string) => void;
+  onResolve: (id: string, type: "approved" | "conditional" | "rejected") => void;
+}) {
+  return (
+    <div className="space-y-3 px-4 py-4">
+      {CONTROL_TOWER_ALERTS.map((alert) => {
+        const isResolved = !!resolvedAlerts[alert.id];
+        const isExpanded = expandedAlertId === alert.id;
+        const severity = CONTROL_TOWER_ALERT_BADGE_STYLES[alert.severity];
+        const outcomes = PROJECTED_OUTCOMES[alert.id] || [];
+
+        if (isResolved) {
+          return (
+            <div key={alert.id} className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-3">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                <p className="text-xs font-semibold text-emerald-800">{alert.title}</p>
+                <Badge variant="outline" className="ml-auto text-[9px] border-emerald-300 bg-emerald-100 text-emerald-700">
+                  {resolvedAlerts[alert.id]}
+                </Badge>
+              </div>
+              {outcomes.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  {outcomes.slice(0, 2).map((o) => (
+                    <div key={o.label} className="flex items-center gap-2 text-[10px] text-emerald-700">
+                      <span className="text-stone-500">{o.label}:</span>
+                      <span className="line-through text-stone-400">{o.before}</span>
+                      <ChevronRight className="h-2.5 w-2.5 text-stone-400" />
+                      <span className="font-semibold">{o.after}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        return (
+          <div key={alert.id} className="rounded-xl border border-stone-200 bg-white overflow-hidden">
+            {/* Alert header */}
+            <div className={cn("px-4 py-3", alert.severity === "critical" ? "bg-[#ff462d] text-white" : alert.severity === "high" ? "bg-amber-500 text-white" : "bg-stone-100")}>
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <p className="text-sm font-semibold">{alert.title}</p>
+                  <p className={cn("mt-1 text-[10px]", alert.severity === "critical" || alert.severity === "high" ? "text-white/80" : "text-stone-500")}>{severity.label}</p>
+                </div>
+                <Badge variant="outline" className={cn("shrink-0 text-[9px]", alert.severity === "critical" || alert.severity === "high" ? "border-white/30 bg-white/10 text-white" : severity.className)}>
+                  {severity.label}
+                </Badge>
+              </div>
+            </div>
+
+            {/* Summary bullets */}
+            <div className="px-4 py-3 space-y-3">
+              <ul className="space-y-1.5">
+                {alert.drilldown.summary.slice(0, 2).map((line) => (
                   <li key={line} className="flex gap-2 text-[11px] text-stone-700">
-                    <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#ff6b57]" />
+                    <span className={cn("mt-1 h-1.5 w-1.5 rounded-full shrink-0", SEVERITY_DOT[alert.severity])} />
                     <span>{line}</span>
                   </li>
                 ))}
               </ul>
-            </div>
 
-            <div className="space-y-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
-                Requiring attention
-              </p>
-              {activeAlert.drilldown.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-start justify-between gap-3 rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-xs font-semibold text-[#3d3c3c]">
-                      {item.title}
-                    </p>
-                    <p className="mt-0.5 text-[10px] text-stone-500">{item.subtitle}</p>
-                  </div>
-                  <Badge
-                    variant="outline"
-                    className={cn("shrink-0 text-[9px]", activeSeverity.className)}
-                  >
-                    {activeSeverity.label}
-                  </Badge>
+              {/* Incident timeline */}
+              <div className="space-y-1">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">Timeline</p>
+                <div className="relative ml-2 border-l border-stone-200 pl-3 space-y-1.5">
+                  {alert.drilldown.auditTrail.slice(0, 3).map((entry, i) => (
+                    <div key={i} className="flex items-start gap-2 text-[10px]">
+                      <span className={cn("absolute -left-[3px] mt-1 h-1.5 w-1.5 rounded-full", i === 0 ? SEVERITY_DOT[alert.severity] : "bg-stone-300")} style={{ position: "relative", left: "-15.5px" }} />
+                      <div className="-ml-3">
+                        <span className="font-semibold text-stone-600">{entry.time}</span>
+                        <span className="text-stone-400"> · </span>
+                        <span className="text-stone-500">{entry.detail}</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
 
-            <div className="rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2 text-[11px] text-stone-500">
-              {CONTROL_TOWER_SUMMARY.dataFreshness} · {activeAlert.timestamp}
-            </div>
-
-            <Button
-              asChild
-              className="w-full rounded-full bg-[#3d3c3c] text-white hover:bg-[#161616]"
-            >
-              <Link href="/dashboard">Resolve</Link>
-            </Button>
-            {activeAlert.experimentHref ? (
-              <Button
-                asChild
-                variant="outline"
-                className="w-full rounded-full border-[#8ecfd9] bg-[#29707a]/[0.25] text-[#29707a] hover:bg-[#29707a]/[0.15] hover:text-[#163d43]"
+              {/* Resolve button */}
+              <button
+                onClick={() => onToggleExpand(alert.id)}
+                className={cn(
+                  "w-full rounded-lg px-3 py-2 text-xs font-semibold transition",
+                  isExpanded ? "bg-stone-100 text-stone-700" : "bg-[#3d3c3c] text-white hover:bg-[#161616]",
+                )}
               >
-                <Link href={activeAlert.experimentHref}>Open experiment</Link>
-              </Button>
-            ) : null}
-          </div>
-        </div>
+                {isExpanded ? "Collapse" : "Resolve"}
+              </button>
 
-        <div className="rounded-xl border border-stone-200 bg-white px-3 py-3">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
-              Other business alerts
-            </p>
-            <Badge variant="outline" className="text-[9px]">
-              {CONTROL_TOWER_ALERTS.length} active
-            </Badge>
-          </div>
-          <div className="mt-3 space-y-2">
-            {secondaryAlerts.map((alert) => {
-              const severity = CONTROL_TOWER_ALERT_BADGE_STYLES[alert.severity];
-              return (
-                <button
-                  key={alert.id}
-                  type="button"
-                  onClick={() => setActiveAlertId(alert.id)}
-                  className="flex w-full items-start justify-between gap-3 rounded-xl border border-stone-200 px-3 py-2 text-left transition hover:border-stone-300 hover:bg-stone-50"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-xs font-semibold text-[#3d3c3c]">
-                      {alert.title}
-                    </p>
-                    <p className="mt-0.5 text-[10px] text-stone-500">
-                      {alert.description}
+              {/* Expanded resolve area */}
+              {isExpanded && (
+                <div className="space-y-3 pt-1">
+                  {/* AI recommendation */}
+                  <div className="rounded-lg border border-amber-200 bg-amber-50/60 p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Sparkles className="h-3.5 w-3.5 text-amber-600" />
+                      <span className="text-[10px] font-semibold text-amber-800">AI Agent Recommendation</span>
+                      <Badge variant="outline" className="ml-auto text-[9px] border-amber-300 bg-amber-100 text-amber-700">94% confidence</Badge>
+                    </div>
+                    <p className="text-[11px] text-stone-700">
+                      {alert.severity === "critical"
+                        ? "Approve emergency reorder — projected to reduce revenue exposure by 87% and restore inventory coverage above target."
+                        : alert.severity === "high"
+                          ? "Approve with cold-chain conditions — fuel resupply confirmed, temperature monitoring elevated."
+                          : "Approve rerouting plan — recovers 40% of affected deliveries through cleared highways and in-store pickup."}
                     </p>
                   </div>
-                  <Badge
-                    variant="outline"
-                    className={cn("shrink-0 text-[9px]", severity.className)}
-                  >
-                    {severity.label}
-                  </Badge>
-                </button>
-              );
-            })}
-          </div>
-        </div>
 
-        <div className="rounded-xl border border-stone-200 bg-white px-3 py-3">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
-              Experiment shortcuts
-            </p>
-            <Badge variant="outline" className="text-[9px]">
-              Shared workspace
-            </Badge>
+                  {/* Projected outcomes */}
+                  {outcomes.length > 0 && (
+                    <div className="rounded-lg border border-stone-200 bg-stone-50/70 p-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 mb-2">Projected Outcome Improvements</p>
+                      <div className="space-y-2">
+                        {outcomes.map((o) => (
+                          <div key={o.label}>
+                            <div className="flex items-center justify-between text-[11px]">
+                              <span className="text-stone-600">{o.label}</span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-stone-400">{o.before}</span>
+                                <ChevronRight className="h-2.5 w-2.5 text-stone-400" />
+                                <span className="font-bold text-[#3d3c3c]">{o.after}</span>
+                              </div>
+                            </div>
+                            {o.note && <p className="text-[9px] text-stone-400 mt-0.5">{o.note}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Action buttons */}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => onResolve(alert.id, "approved")}
+                      className="flex-1 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700 transition"
+                    >
+                      Approve Resolution
+                    </button>
+                    <button
+                      onClick={() => onResolve(alert.id, "conditional")}
+                      className="flex-1 rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-50 transition"
+                    >
+                      Set Conditions
+                    </button>
+                    <button
+                      onClick={() => onResolve(alert.id, "rejected")}
+                      className="rounded-lg border border-stone-300 bg-white px-2 py-2 text-xs font-semibold text-stone-500 hover:bg-stone-50 transition"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-          <div className="mt-3 space-y-2">
-            <Link
-              href={buildIncrementalityHref({ entry: "udp", create: true })}
-              className="flex items-center justify-between rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2 text-xs text-stone-700 transition hover:border-stone-300 hover:bg-stone-100"
-            >
-              <span>Launch shared experiment</span>
-              <FlaskConical className="h-3.5 w-3.5 text-[#29707a]" />
-            </Link>
-            <Link
-              href={buildIncrementalityHref({
-                entry: "udp",
-                lens: "udp",
-                application: "identity",
-              })}
-              className="flex items-center justify-between rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2 text-xs text-stone-700 transition hover:border-stone-300 hover:bg-stone-100"
-            >
-              <span>Identity resolution tests</span>
-              <ChevronRight className="h-3.5 w-3.5 text-stone-400" />
-            </Link>
-            <Link
-              href={buildIncrementalityHref({
-                entry: "udp",
-                lens: "udp",
-                application: "campaigns",
-              })}
-              className="flex items-center justify-between rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2 text-xs text-stone-700 transition hover:border-stone-300 hover:bg-stone-100"
-            >
-              <span>Campaign lift experiments</span>
-              <ChevronRight className="h-3.5 w-3.5 text-stone-400" />
-            </Link>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ── Approvals Tab ────────────────────────────────────────────────────────── */
+
+function ApprovalsTab({ approvedActions, onAction }: {
+  approvedActions: Record<string, "approved" | "rejected">;
+  onAction: (id: string, type: "approved" | "rejected") => void;
+}) {
+  return (
+    <div className="space-y-3 px-4 py-4">
+      {CONTROL_TOWER_ACTIONS.map((action) => {
+        const isDone = !!approvedActions[action.id];
+        const severity = CONTROL_TOWER_ALERT_BADGE_STYLES[action.severity];
+        const aiConfidence = action.severity === "critical" ? 96 : action.severity === "high" ? 89 : 82;
+        const aiReasoning = action.severity === "critical"
+          ? "47 SKUs will stock out within 18 hours without this reorder"
+          : action.severity === "high"
+            ? "Cold-chain integrity degrades within 6 hours without conditional transport"
+            : "Rerouting through cleared highways recovers 40% of affected deliveries";
+
+        if (isDone) {
+          return (
+            <div key={action.id} className={cn(
+              "rounded-xl border p-3",
+              approvedActions[action.id] === "approved"
+                ? "border-emerald-200 bg-emerald-50/60"
+                : "border-stone-200 bg-stone-50",
+            )}>
+              <div className="flex items-center gap-2">
+                {approvedActions[action.id] === "approved" ? (
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                ) : (
+                  <X className="h-4 w-4 text-stone-400" />
+                )}
+                <p className={cn("text-xs font-semibold", approvedActions[action.id] === "approved" ? "text-emerald-800" : "text-stone-500")}>{action.title}</p>
+              </div>
+              <Badge variant="outline" className={cn("mt-1 text-[9px]", approvedActions[action.id] === "approved" ? "border-emerald-300 text-emerald-700" : "border-stone-300 text-stone-500")}>
+                {approvedActions[action.id]}
+              </Badge>
+            </div>
+          );
+        }
+
+        return (
+          <div key={action.id} className="rounded-xl border border-stone-200 bg-white p-3 space-y-2">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Badge variant="outline" className={cn("text-[9px]", severity.className)}>{severity.label}</Badge>
+                  <span className={cn(
+                    "flex items-center gap-1 text-[9px] font-semibold",
+                    action.severity === "critical" ? "text-[#ff462d]" : "text-amber-600",
+                  )}>
+                    {action.severity === "critical" && <span className="h-1.5 w-1.5 rounded-full bg-[#ff462d] animate-pulse" />}
+                    {action.dueLabel}
+                  </span>
+                </div>
+                <p className="text-xs font-semibold text-[#3d3c3c]">{action.title}</p>
+              </div>
+            </div>
+            <p className="text-[11px] text-stone-600">{action.impact}</p>
+
+            {/* AI confidence */}
+            <div className="flex items-center gap-2">
+              <div className="flex-1 h-1 bg-stone-100 rounded-full overflow-hidden max-w-[100px]">
+                <div className="h-full bg-[#29707a] rounded-full" style={{ width: `${aiConfidence}%` }} />
+              </div>
+              <span className="text-[10px] font-semibold text-stone-500">{aiConfidence}% confidence</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-[10px] text-amber-700 bg-amber-50 rounded-md px-2 py-1">
+              <Sparkles className="h-3 w-3 text-amber-500" />
+              <span>{aiReasoning}</span>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={() => onAction(action.id, "approved")}
+                className="flex-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 transition"
+              >
+                {action.primaryAction.label}
+              </button>
+              <button
+                onClick={() => onAction(action.id, "rejected")}
+                className="rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-xs font-semibold text-stone-500 hover:bg-stone-50 transition"
+              >
+                Reject
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ── Reach Tab ────────────────────────────────────────────────────────────── */
+
+function ReachTab({ redirectActive, onApproveRedirect }: { redirectActive: boolean; onApproveRedirect: () => void }) {
+  return (
+    <div className="space-y-3 px-4 py-4">
+      {/* Store Coverage */}
+      <div className="rounded-xl border border-stone-200 bg-white p-4">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 mb-3">Store Coverage Summary</p>
+        <div className="space-y-2">
+          {[
+            { zone: "Zone A — Closing", count: 8, color: "bg-[#ff462d]", pct: 6 },
+            { zone: "Zone B — Reduced Hours", count: 15, color: "bg-amber-500", pct: 11 },
+            { zone: "Zone C — Normal", count: 119, color: "bg-emerald-500", pct: 83 },
+          ].map((z) => (
+            <div key={z.zone}>
+              <div className="flex items-center justify-between text-[11px] mb-1">
+                <span className="text-stone-700 font-medium">{z.zone}</span>
+                <span className="text-stone-500">{z.count} stores</span>
+              </div>
+              <div className="h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                <div className={cn("h-full rounded-full", z.color)} style={{ width: `${z.pct}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Delivery Route Status */}
+      <div className="rounded-xl border border-stone-200 bg-white p-4">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 mb-3">Delivery Route Status</p>
+        <div className="grid grid-cols-3 gap-2 text-center">
+          <div className="rounded-lg bg-red-50 p-2">
+            <p className="text-lg font-bold text-[#ff462d]">12</p>
+            <p className="text-[9px] text-stone-500">Closed</p>
+          </div>
+          <div className="rounded-lg bg-emerald-50 p-2">
+            <p className="text-lg font-bold text-emerald-600">2</p>
+            <p className="text-[9px] text-stone-500">Clear</p>
+          </div>
+          <div className="rounded-lg bg-amber-50 p-2">
+            <p className="text-lg font-bold text-amber-600">4</p>
+            <p className="text-[9px] text-stone-500">Restricted</p>
           </div>
         </div>
+        <div className="mt-3 flex items-center justify-between text-[11px]">
+          <span className="text-stone-600">On-Time Delivery</span>
+          <span className="font-bold text-[#ff462d]">68.2% <TrendingUp className="inline h-3 w-3 rotate-180" /></span>
+        </div>
+      </div>
+
+      {/* AI Recommendation */}
+      <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles className="h-3.5 w-3.5 text-amber-600" />
+          <p className="text-[10px] font-semibold text-amber-800">AI Agent Recommendation</p>
+        </div>
+        <p className="text-[11px] text-stone-700 mb-1">Redirect 3,400 orders to in-store pickup at 26 open Zone B stores</p>
+        <p className="text-[10px] text-stone-500 mb-3">Estimated 60% customer acceptance rate</p>
+        {redirectActive ? (
+          <div className="flex items-center gap-2 text-emerald-700 text-xs font-semibold">
+            <CheckCircle2 className="h-4 w-4" /> Redirect Active
+          </div>
+        ) : (
+          <button
+            onClick={onApproveRedirect}
+            className="w-full rounded-lg bg-[#3d3c3c] px-3 py-2 text-xs font-semibold text-white hover:bg-[#161616] transition"
+          >
+            Approve Redirect
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── Demand Tab ───────────────────────────────────────────────────────────── */
+
+const DEMAND_SURGE_ITEMS = [
+  { category: "Water", velocity: "4.2x", hoursToZero: 8, color: "bg-[#ff462d]" },
+  { category: "Batteries", velocity: "3.8x", hoursToZero: 12, color: "bg-[#ff462d]" },
+  { category: "First Aid", velocity: "2.6x", hoursToZero: 14, color: "bg-amber-500" },
+  { category: "Ready Meals", velocity: "2.4x", hoursToZero: 18, color: "bg-amber-500" },
+  { category: "Pet Food", velocity: "1.9x", hoursToZero: 22, color: "bg-yellow-500" },
+];
+
+function DemandTab({ reorderSubmitted, onTriggerReorder }: { reorderSubmitted: boolean; onTriggerReorder: () => void }) {
+  return (
+    <div className="space-y-3 px-4 py-4">
+      {/* Surge Velocity */}
+      <div className="rounded-xl border border-stone-200 bg-white p-4">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 mb-3">Demand Surge Velocity</p>
+        <div className="space-y-2">
+          {DEMAND_SURGE_ITEMS.map((item) => (
+            <div key={item.category} className="flex items-center gap-3">
+              <span className={cn("h-2 w-2 rounded-full shrink-0", item.color)} />
+              <span className="text-xs font-medium text-stone-700 flex-1">{item.category}</span>
+              <span className="text-xs font-bold text-[#3d3c3c]">{item.velocity}</span>
+              <span className="text-[10px] text-stone-400">baseline</span>
+              <span className={cn(
+                "text-[10px] font-semibold",
+                item.hoursToZero <= 12 ? "text-[#ff462d]" : item.hoursToZero <= 18 ? "text-amber-600" : "text-yellow-600",
+              )}>
+                {item.hoursToZero}h to zero
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* AI Threshold Alert */}
+      <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles className="h-3.5 w-3.5 text-amber-600" />
+          <p className="text-[10px] font-semibold text-amber-800">AI Agent Threshold Alert</p>
+        </div>
+        <ul className="space-y-1.5">
+          <li className="text-[11px] text-stone-700 flex gap-2"><span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#ff462d] shrink-0" />47 SKUs crossed emergency reorder threshold</li>
+          <li className="text-[11px] text-stone-700 flex gap-2"><span className="mt-1 h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />Demand accelerating 8-12% per hour — peak in 4-6 hours</li>
+          <li className="text-[11px] text-stone-700 flex gap-2"><span className="mt-1 h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />Fill rate: 78.4% and declining</li>
+        </ul>
+      </div>
+
+      {/* Reorder Action */}
+      <div className="rounded-xl border border-stone-200 bg-white p-4">
+        {reorderSubmitted ? (
+          <div className="flex items-center gap-2 text-emerald-700 text-xs font-semibold">
+            <CheckCircle2 className="h-4 w-4" /> Emergency Reorder Submitted
+            <Badge variant="outline" className="ml-auto text-[9px] border-emerald-300 text-emerald-700">47 SKUs queued</Badge>
+          </div>
+        ) : (
+          <button
+            onClick={onTriggerReorder}
+            className="w-full rounded-lg bg-[#ff462d] px-3 py-2.5 text-xs font-semibold text-white hover:bg-[#e63e28] transition"
+          >
+            Trigger Emergency Reorder
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── Campaign Tab ─────────────────────────────────────────────────────────── */
+
+const CAMPAIGN_CHANNELS_DEFAULT = [
+  { label: "Push Notifications", pct: 38, spend: "$190K", color: "bg-[#3f7f89]" },
+  { label: "App Alerts", pct: 24, spend: "$120K", color: "bg-[#f28c82]" },
+  { label: "Email / CRM", pct: 18, spend: "$90K", color: "bg-[#8a9bcf]" },
+  { label: "SMS Alerts", pct: 12, spend: "$60K", color: "bg-[#92c6c0]" },
+  { label: "In-Store Signage", pct: 8, spend: "$40K", color: "bg-[#d6b37a]" },
+];
+
+const CAMPAIGN_CHANNELS_OPTIMIZED = [
+  { label: "Push Notifications", pct: 46, spend: "$230K", color: "bg-[#3f7f89]" },
+  { label: "App Alerts", pct: 24, spend: "$120K", color: "bg-[#f28c82]" },
+  { label: "Email / CRM", pct: 18, spend: "$90K", color: "bg-[#8a9bcf]" },
+  { label: "SMS Alerts", pct: 12, spend: "$60K", color: "bg-[#92c6c0]" },
+  { label: "In-Store Signage", pct: 0, spend: "$0", color: "bg-[#d6b37a]" },
+];
+
+function CampaignTab({ applied, onApply }: { applied: boolean; onApply: () => void }) {
+  const channels = applied ? CAMPAIGN_CHANNELS_OPTIMIZED : CAMPAIGN_CHANNELS_DEFAULT;
+  return (
+    <div className="space-y-3 px-4 py-4">
+      {/* Channel Mix */}
+      <div className="rounded-xl border border-stone-200 bg-white p-4">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 mb-3">Active Storm Communications</p>
+        <div className="space-y-2">
+          {channels.map((ch) => (
+            <div key={ch.label}>
+              <div className="flex items-center justify-between text-[11px] mb-1">
+                <span className="text-stone-700 font-medium">{ch.label}</span>
+                <span className="text-stone-500">{ch.pct}% · {ch.spend}</span>
+              </div>
+              <div className="h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                <div className={cn("h-full rounded-full transition-all duration-700", ch.color)} style={{ width: `${ch.pct}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 pt-3 border-t border-stone-100 text-[11px] text-stone-500">
+          482 stores · 2.1M customers in notification radius
+        </div>
+      </div>
+
+      {/* AI Recommendation */}
+      <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles className="h-3.5 w-3.5 text-amber-600" />
+          <p className="text-[10px] font-semibold text-amber-800">AI Agent Recommendation</p>
+        </div>
+        <p className="text-[11px] text-stone-700 mb-1">Shift 8% from In-Store Signage to Push Notifications</p>
+        <p className="text-[10px] text-stone-500 mb-1">Reason: 8 stores closing — signage reach drops to zero in storm zone</p>
+        <p className="text-[10px] text-stone-500 mb-3">Projected impact: +12% message reach in storm zone</p>
+        {applied ? (
+          <div className="flex items-center gap-2 text-emerald-700 text-xs font-semibold">
+            <CheckCircle2 className="h-4 w-4" /> Recommendation Applied
+          </div>
+        ) : (
+          <button
+            onClick={onApply}
+            className="w-full rounded-lg bg-[#3d3c3c] px-3 py-2 text-xs font-semibold text-white hover:bg-[#161616] transition"
+          >
+            Apply Recommendation
+          </button>
+        )}
       </div>
     </div>
   );
