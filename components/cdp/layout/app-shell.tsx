@@ -652,9 +652,6 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                   <Menu className="h-5 w-5" />
                 </Button>
                 <div className="flex items-center gap-3">
-                  <div className="rounded-lg bg-[#3d3c3c] p-1.5">
-                    <Monitor className="h-4 w-4 text-white" />
-                  </div>
                   <div>
                     <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                       Control Tower
