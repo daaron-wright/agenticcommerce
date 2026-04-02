@@ -3,7 +3,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ClipboardList, ShieldCheck, Clock, CheckCircle2, XCircle, Zap } from "lucide-react";
+import { ClipboardList, ShieldCheck, Clock, CheckCircle2, XCircle, Zap, LayoutGrid, Table2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import { hasPermissionForUser } from "@/lib/permissions/roles";
 import { useWorkflowEvents } from "@/lib/workflow-event-context";
@@ -14,6 +15,7 @@ import { addConfirmedAction } from "@/lib/confirmed-actions-store";
 import { ALL_ITEMS, type ReviewItem } from "@/lib/action-queue-data";
 
 type FilterMode = "all" | "team" | "agent";
+type ViewMode = "cards" | "table";
 
 export default function PendingReviewPage() {
   const { user, isAuthenticated } = useAuth();
@@ -21,6 +23,7 @@ export default function PendingReviewPage() {
   const { emitWorkflowEvent, resetDAG } = useWorkflowEvents();
   const [items, setItems] = useState<ReviewItem[]>(ALL_ITEMS);
   const [filter, setFilter] = useState<FilterMode>("all");
+  const [viewMode, setViewMode] = useState<ViewMode>("table");
   const hasResetForSessionRef = useRef(false);
   const scheduledTimeoutsRef = useRef<number[]>([]);
 
@@ -171,7 +174,8 @@ export default function PendingReviewPage() {
         </Card>
       </div>
 
-      {/* Filter tabs */}
+      {/* Filter tabs & view toggle */}
+      <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
         {([
           { key: "all" as FilterMode, label: "All" },
@@ -194,7 +198,102 @@ export default function PendingReviewPage() {
           </button>
         ))}
       </div>
+      <div className="flex items-center gap-1 rounded-lg border border-stone-200 p-0.5">
+        <button
+          onClick={() => setViewMode("cards")}
+          className={cn(
+            "rounded-md p-1.5 transition",
+            viewMode === "cards" ? "bg-stone-800 text-white" : "text-stone-400 hover:text-stone-600"
+          )}
+        >
+          <LayoutGrid className="h-3.5 w-3.5" />
+        </button>
+        <button
+          onClick={() => setViewMode("table")}
+          className={cn(
+            "rounded-md p-1.5 transition",
+            viewMode === "table" ? "bg-stone-800 text-white" : "text-stone-400 hover:text-stone-600"
+          )}
+        >
+          <Table2 className="h-3.5 w-3.5" />
+        </button>
+      </div>
+      </div>
 
+      {viewMode === "table" ? (
+        <Card>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b bg-muted/30 text-left">
+                    <th className="px-4 py-3 font-semibold text-muted-foreground">Source</th>
+                    <th className="px-4 py-3 font-semibold text-muted-foreground">Title</th>
+                    <th className="px-4 py-3 font-semibold text-muted-foreground">Action</th>
+                    <th className="px-4 py-3 font-semibold text-muted-foreground">Segment</th>
+                    <th className="px-4 py-3 text-right font-semibold text-muted-foreground">Confidence</th>
+                    <th className="px-4 py-3 font-semibold text-muted-foreground">Expected Lift</th>
+                    <th className="px-4 py-3 font-semibold text-muted-foreground">Status</th>
+                    <th className="px-4 py-3 text-right font-semibold text-muted-foreground">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredItems.map((item) => (
+                    <tr key={item.id} className="border-b hover:bg-muted/20">
+                      <td className="px-4 py-3">
+                        {item.source === "agent" ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-stone-800 px-2 py-0.5">
+                            <Zap className="h-2.5 w-2.5 text-white" />
+                            <span className="text-[9px] font-semibold text-white">Agent</span>
+                          </span>
+                        ) : (
+                          <Badge variant="outline" className="text-[9px] text-stone-500 border-stone-200">Team</Badge>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 font-medium text-stone-800">{item.title}</td>
+                      <td className="px-4 py-3 max-w-[200px] truncate text-stone-600">{item.action}</td>
+                      <td className="px-4 py-3 text-stone-600">{item.segment}</td>
+                      <td className="px-4 py-3 text-right font-medium text-teal-700">{item.confidence}%</td>
+                      <td className="px-4 py-3 text-stone-600">{item.expectedLift}</td>
+                      <td className="px-4 py-3">
+                        {item.status === "pending" ? (
+                          <Badge variant="outline" className="text-amber-700 border-amber-200 bg-amber-50 text-[10px]">Pending</Badge>
+                        ) : item.status === "approved" ? (
+                          <Badge variant="outline" className="border-[#4CDD84]/25 text-[10px]" style={{ color: '#4CDD84', backgroundColor: 'rgba(76,221,132,0.25)' }}>Approved</Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-stone-700 border-stone-200 bg-stone-50 text-[10px]">Dismissed</Badge>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 border-[#4CDD84]/40 text-[#4CDD84] hover:bg-[#4CDD84]/10 hover:text-[#3bc774] text-[10px] px-2"
+                            disabled={item.status !== "pending"}
+                            onClick={() => handleApprove(item)}
+                          >
+                            Approve
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 text-[10px] px-2"
+                            disabled={item.status !== "pending"}
+                            onClick={() => handleReject(item)}
+                          >
+                            Reject
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
       <div className="space-y-3">
         {filteredItems.map((item) => (
           <Card key={item.id}>
@@ -267,6 +366,8 @@ export default function PendingReviewPage() {
           </Card>
         ))}
       </div>
+
+      )}
 
       {filteredItems.length === 0 && (
         <Card>

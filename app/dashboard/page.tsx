@@ -41,7 +41,6 @@ import {
 } from "@/lib/dashboard-ia";
 import { createKnowledgeGraphInstanceHref } from "@/lib/knowledge-graph-instances";
 import { cn } from "@/lib/utils";
-import { ALL_ITEMS as ACTION_QUEUE_ITEMS, type ReviewItem } from "@/lib/action-queue-data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -1211,87 +1210,6 @@ function ActionBoard({
   );
 }
 
-function ActionQueuePreview() {
-  const pendingItems = ACTION_QUEUE_ITEMS.filter((item) => item.status === "pending");
-  const previewItems = pendingItems.slice(0, 4);
-  const totalPending = pendingItems.length;
-
-  return (
-    <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
-      <div className="border-b border-stone-200 px-4 py-4">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
-              Agent & Team Actions
-            </p>
-            <p className="mt-1 text-sm text-stone-500">
-              Recommendations and team-submitted actions awaiting review.
-            </p>
-          </div>
-          <Badge variant="outline" className="w-fit text-[10px]">
-            {totalPending} pending
-          </Badge>
-        </div>
-      </div>
-
-      <div className="space-y-3 px-4 py-4">
-        {previewItems.map((item) => (
-          <div
-            key={item.id}
-            className="rounded-2xl border border-stone-200 bg-stone-50/40 px-4 py-3 border-l-4 border-l-stone-300"
-          >
-            <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  {item.source === "agent" && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-stone-800 px-2 py-0.5">
-                      <Zap className="h-2.5 w-2.5 text-white" />
-                      <span className="text-[9px] font-semibold text-white">Agent NBA</span>
-                    </span>
-                  )}
-                  {item.source === "team" && (
-                    <Badge variant="outline" className="text-[9px] text-stone-500 border-stone-200">
-                      Team
-                    </Badge>
-                  )}
-                  <span className="text-[10px] font-medium text-teal-700">
-                    {item.confidence}% confidence
-                  </span>
-                </div>
-                <p className="mt-1 text-sm font-semibold text-[#3d3c3c]">{item.title}</p>
-                <p className="mt-0.5 text-[11px] leading-snug text-stone-600">{item.action}</p>
-                <div className="mt-2 flex flex-wrap items-center gap-3 text-[11px] text-stone-500">
-                  <span><span className="font-medium text-stone-700">Segment:</span> {item.segment}</span>
-                  <span><span className="font-medium text-stone-700">Lift:</span> {item.expectedLift}</span>
-                </div>
-              </div>
-              <div className="flex shrink-0 items-center gap-2">
-                <Link
-                  href="/analytics/pending-review"
-                  className="inline-flex h-8 items-center rounded-full bg-teal-700 px-3 text-[11px] font-medium text-white hover:bg-teal-800 transition"
-                >
-                  Review
-                </Link>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {totalPending > previewItems.length && (
-        <div className="border-t border-stone-200 px-4 py-3">
-          <Link
-            href="/analytics/pending-review"
-            className="inline-flex items-center gap-1.5 text-[11px] font-medium text-teal-700 hover:text-teal-800 transition"
-          >
-            View all {totalPending} pending actions
-            <ArrowRight className="h-3 w-3" />
-          </Link>
-        </div>
-      )}
-    </div>
-  );
-}
 
 function DecisionItemCard({
   item,
@@ -2484,7 +2402,6 @@ function ControlTowerOverview() {
             />
           </div>
 
-          <ActionQueuePreview />
         </div>
       </div>
 
