@@ -2217,7 +2217,7 @@ function ControlTowerOverview() {
   return (
     <>
       <div className="mx-auto max-w-[1560px] space-y-5 pb-44">
-        <div className="rounded-2xl border border-stone-200 bg-white px-5 py-5">
+        <div className="px-1 py-2">
           {/* Row 1 — Header */}
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-stone-500">
