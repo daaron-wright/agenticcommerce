@@ -15,10 +15,12 @@ import { ForecastLineCard } from "@/components/dashboard/charts/forecast-line-ca
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-import { productReportRows, productReportTotals, inventoryForecastData, atRiskProducts, sellThroughProducts } from "@/lib/dashboard/mock-product-inventory";
+import { productReportRows, productReportTotals, inventoryForecastData, atRiskProducts, sellThroughProducts, productProfitabilityCards, type ProductProfitabilityCard } from "@/lib/dashboard/mock-product-inventory";
 import { performanceHeroKpis } from "@/lib/dashboard/mock-overall-performance";
 import {
   CartesianGrid,
+  Line,
+  LineChart,
   ResponsiveContainer,
   Scatter,
   ScatterChart,
@@ -33,9 +35,14 @@ import {
   visualizationSmallTick,
   visualizationTooltipStyle,
 } from "@/lib/visualization-theme";
-import { Check } from "lucide-react";
+import { Check, TrendingUp, TrendingDown, FlaskConical, Megaphone, X, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { buildIncrementalityHref } from "@/lib/incrementality-data";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { NewCampaignDialog } from "@/components/campaigns/new-campaign-dialog";
 
 /* ── Sell-Through Optimization Section ────────────────────────────────── */
 
@@ -178,10 +185,246 @@ function SellThroughOptimization() {
   );
 }
 
+/* ── Change indicator helper ───────────────────────────────────────────── */
+
+function ChangeIndicator({ value, suffix = "%" }: { value: number; suffix?: string }) {
+  const positive = value >= 0;
+  return (
+    <span className={cn("inline-flex items-center gap-0.5 text-[10px] font-medium", positive ? "text-emerald-600" : "text-red-500")}>
+      {positive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+      {positive ? "+" : ""}{value}{suffix}
+    </span>
+  );
+}
+
+/* ── Product Profitability Card ───────────────────────────────────────── */
+
+function ProductCard({ product, onClick }: { product: ProductProfitabilityCard; onClick: () => void }) {
+  const isAtRisk = atRiskProducts.some((r) => r.name === product.name);
+
+  return (
+    <Card
+      className={cn("rounded-2xl border-stone-200 bg-white shadow-none cursor-pointer hover:border-stone-300 transition-colors group", isAtRisk && "border-amber-200")}
+      onClick={onClick}
+    >
+      <CardContent className="p-4 space-y-3">
+        {/* Image */}
+        <div className="relative aspect-square rounded-xl overflow-hidden bg-stone-100">
+          <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          {isAtRisk && (
+            <div className="absolute top-2 right-2">
+              <Badge variant="outline" className="border-red-200 bg-red-50 text-red-700 text-[9px]">
+                <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />
+                At risk
+              </Badge>
+            </div>
+          )}
+        </div>
+
+        {/* Header */}
+        <div>
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-[#3d3c3c] truncate">{product.name}</h3>
+          </div>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="text-[10px] text-stone-400">{product.category}</span>
+            <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-stone-200 text-stone-500">{product.market}</Badge>
+          </div>
+        </div>
+
+        {/* Metrics */}
+        <div className="space-y-1.5 text-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-stone-500">Products sold</span>
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-[#3d3c3c]">{product.productsSold.toLocaleString()}</span>
+              <ChangeIndicator value={product.productsSoldChange} />
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-stone-500">Forecast sell-through</span>
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-[#3d3c3c]">{product.forecastSellThrough}%</span>
+              <ChangeIndicator value={product.sellThroughChange} />
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-stone-500">Marketing spend</span>
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-[#3d3c3c]">£{product.marketingSpend.toLocaleString()}</span>
+              <ChangeIndicator value={product.marketingSpendChange} />
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-stone-500">Margin after marketing</span>
+            <div className="flex items-center gap-2">
+              <span className={cn("font-medium", product.marginAfterMarketing >= 0 ? "text-[#3d3c3c]" : "text-red-600")}>{product.marginAfterMarketing}%</span>
+              <ChangeIndicator value={product.marginChange} />
+            </div>
+          </div>
+        </div>
+
+        <button className="text-[10px] text-stone-400 hover:text-stone-600 font-medium">▸ View all</button>
+      </CardContent>
+    </Card>
+  );
+}
+
+/* ── Product Detail Side Panel ────────────────────────────────────────── */
+
+function ProductDetailPanel({
+  product,
+  open,
+  onOpenChange,
+  onLaunchCampaign,
+}: {
+  product: ProductProfitabilityCard | null;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onLaunchCampaign: (product: ProductProfitabilityCard) => void;
+}) {
+  if (!product) return null;
+
+  const matchingRow = productReportRows.find((r) => r.productId === product.id);
+  const isAtRisk = atRiskProducts.some((r) => r.name === product.name);
+  const riskInfo = atRiskProducts.find((r) => r.name === product.name);
+
+  const weekLabels = ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8"];
+  const salesChartData = product.weeklySales.map((v, i) => ({ week: weekLabels[i], sales: v }));
+
+  const grossSales = matchingRow?.grossSales ?? product.productsSold * 50;
+  const cogs = Math.round(grossSales * 0.42);
+  const grossMarginPct = (((grossSales - cogs) / grossSales) * 100).toFixed(1);
+  const revenue = grossSales;
+
+  const experimentHref = buildIncrementalityHref({
+    entry: "udp",
+    lens: "udp",
+    application: "campaigns",
+    create: true,
+  });
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
+        <SheetHeader className="pb-4">
+          <SheetTitle className="sr-only">{product.name}</SheetTitle>
+          <SheetDescription className="sr-only">Product profitability details for {product.name}</SheetDescription>
+          <div className="flex items-start gap-4">
+            <div className="h-16 w-16 rounded-xl overflow-hidden bg-stone-100 flex-shrink-0">
+              <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-base font-semibold text-[#3d3c3c]">{product.name}</h3>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="text-xs text-stone-400">{product.category}</span>
+                <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-stone-200 text-stone-500">{product.market}</Badge>
+              </div>
+              {isAtRisk && riskInfo && (
+                <div className="mt-1.5">
+                  <Badge variant="outline" className="border-red-200 bg-red-50 text-red-700 text-[10px]">
+                    <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />
+                    {riskInfo.daysOfStock} days of stock · {riskInfo.sellThroughRate}% sell-through
+                  </Badge>
+                </div>
+              )}
+            </div>
+          </div>
+        </SheetHeader>
+
+        {/* KPI Strip */}
+        <div className="grid grid-cols-2 gap-3 mb-5">
+          {[
+            { label: "Gross sales", value: `£${grossSales.toLocaleString()}` },
+            { label: "Order count", value: matchingRow?.orderCount.toLocaleString() ?? "—" },
+            { label: "Current inventory", value: matchingRow?.currentInventory.toLocaleString() ?? "—" },
+            { label: "Sell-through", value: `${product.forecastSellThrough}%` },
+          ].map((kpi) => (
+            <div key={kpi.label} className="rounded-xl bg-stone-50 p-3">
+              <div className="text-[10px] text-stone-400 uppercase tracking-wide">{kpi.label}</div>
+              <div className="text-sm font-semibold text-[#3d3c3c] mt-0.5">{kpi.value}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Mini Sales Trend Chart */}
+        <div className="mb-5">
+          <h4 className="text-xs font-medium text-stone-500 mb-2">Sales trend (last 8 weeks)</h4>
+          <ResponsiveContainer width="100%" height={120}>
+            <LineChart data={salesChartData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+              <CartesianGrid {...visualizationGrid} />
+              <XAxis dataKey="week" tick={visualizationSmallTick} tickLine={false} axisLine={false} />
+              <YAxis tick={visualizationSmallTick} tickLine={false} axisLine={false} width={40} />
+              <Tooltip contentStyle={visualizationTooltipStyle} />
+              <Line type="monotone" dataKey="sales" stroke={visualizationPalette.teal} strokeWidth={2} dot={{ fill: visualizationPalette.teal, r: 3 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Profitability Breakdown */}
+        <div className="mb-5">
+          <h4 className="text-xs font-medium text-stone-500 mb-2">Profitability breakdown</h4>
+          <div className="space-y-2 text-xs">
+            {[
+              { label: "Revenue", value: `£${revenue.toLocaleString()}` },
+              { label: "COGS", value: `£${cogs.toLocaleString()}` },
+              { label: "Gross margin", value: `${grossMarginPct}%` },
+              { label: "Marketing spend", value: `£${product.marketingSpend.toLocaleString()}`, change: product.marketingSpendChange },
+              { label: "Margin after marketing", value: `${product.marginAfterMarketing}%`, change: product.marginChange },
+            ].map((row) => (
+              <div key={row.label} className="flex items-center justify-between py-1 border-b border-stone-50 last:border-0">
+                <span className="text-stone-500">{row.label}</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-[#3d3c3c]">{row.value}</span>
+                  {row.change !== undefined && <ChangeIndicator value={row.change} />}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          <Button asChild variant="outline" className="flex-1 gap-1.5 text-xs">
+            <Link href={experimentHref}>
+              <FlaskConical className="h-3.5 w-3.5" />
+              Launch Experiment
+            </Link>
+          </Button>
+          <Button className="flex-1 gap-1.5 text-xs" onClick={() => onLaunchCampaign(product)}>
+            <Megaphone className="h-3.5 w-3.5" />
+            Create Campaign
+          </Button>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
 export default function UdpDashboardPage() {
   const { user } = useAuth();
+  const [selectedProduct, setSelectedProduct] = useState<ProductProfitabilityCard | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [campaignOpen, setCampaignOpen] = useState(false);
+  const [campaignDefaultName, setCampaignDefaultName] = useState("");
 
   if (!user) return null;
+
+  const handleProductClick = (product: ProductProfitabilityCard) => {
+    setSelectedProduct(product);
+    setDetailOpen(true);
+  };
+
+  const handleLaunchCampaign = (product: ProductProfitabilityCard) => {
+    setCampaignDefaultName(`Push ${product.name} — Sell-Through Boost`);
+    setDetailOpen(false);
+    setCampaignOpen(true);
+  };
+
+  const handleTableRowClick = (row: typeof productReportRows[0]) => {
+    const matching = productProfitabilityCards.find((p) => p.id === row.productId);
+    if (matching) handleProductClick(matching);
+  };
 
   const dashboard = {
     ...ecommerceDashboardData,
@@ -220,6 +463,19 @@ export default function UdpDashboardPage() {
 
       {/* Sell-Through Optimization */}
       <SellThroughOptimization />
+
+      {/* Product Profitability */}
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold text-[#3d3c3c]">Product Profitability</h2>
+          <p className="text-sm text-stone-500">Click a product to drill down into profitability and launch experiments</p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {productProfitabilityCards.map((product) => (
+            <ProductCard key={product.id} product={product} onClick={() => handleProductClick(product)} />
+          ))}
+        </div>
+      </div>
 
       {/* Product Report — Scatter + Table */}
       <div className="space-y-4">
@@ -262,7 +518,7 @@ export default function UdpDashboardPage() {
                     <td className="px-4 py-3 text-right">{productReportTotals.marketingSpend.toLocaleString()}</td>
                   </tr>
                   {productReportRows.map((row) => (
-                    <tr key={row.productId} className="border-b border-stone-50 text-stone-700 hover:bg-stone-50/40">
+                    <tr key={row.productId} className="border-b border-stone-50 text-stone-700 hover:bg-stone-50/40 cursor-pointer" onClick={() => handleTableRowClick(row)}>
                       <td className="px-4 py-2.5 text-stone-400">{row.productId}</td>
                       <td className="px-4 py-2.5 font-medium text-[#3d3c3c]">{row.name}</td>
                       <td className="px-4 py-2.5 text-right">{row.endOfSeasonInventory.toLocaleString()}</td>
@@ -320,6 +576,21 @@ export default function UdpDashboardPage() {
       <CommerceTables channels={dashboard.channels} topProducts={dashboard.topProducts} />
 
       <OperationsActivity operations={dashboard.operations} recentActivity={dashboard.recentActivity} />
+
+      {/* Product Detail Side Panel */}
+      <ProductDetailPanel
+        product={selectedProduct}
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+        onLaunchCampaign={handleLaunchCampaign}
+      />
+
+      {/* Campaign Dialog */}
+      <NewCampaignDialog
+        open={campaignOpen}
+        onOpenChange={setCampaignOpen}
+        defaultName={campaignDefaultName}
+      />
     </div>
   );
 }
