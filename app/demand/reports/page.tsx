@@ -46,6 +46,15 @@ import {
   visualizationSmallTick,
   visualizationTooltipStyle,
 } from "@/lib/visualization-theme";
+import { HorizontalBarCard } from "@/components/dashboard/charts/horizontal-bar-card";
+import { ComparisonBarCard } from "@/components/dashboard/charts/horizontal-bar-card";
+import {
+  incrementalityMetrics,
+  incrementalityComparisonBars,
+  experimentSummary,
+  epRoasComparison,
+} from "@/lib/dashboard/mock-incrementality-summary";
+import { CardHeader, CardTitle } from "@/components/ui/card";
 
 // ── Mock Data ────────────────────────────────────────────────────────────────
 
@@ -380,6 +389,45 @@ export default function ReportsPage() {
           </div>
         )}
       </div>
+
+      {/* Incrementality Results */}
+      <div className="grid gap-4 xl:grid-cols-2">
+        <HorizontalBarCard
+          title="Incrementality Metrics"
+          subtitle={experimentSummary.name}
+          items={incrementalityMetrics}
+        />
+        <ComparisonBarCard
+          title="Campaign Incrementality Comparison"
+          subtitle="ROAS across attribution models"
+          items={incrementalityComparisonBars}
+        />
+      </div>
+
+      {/* epROAS Comparison */}
+      <Card className={visualizationCardClass}>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">epROAS Comparison</CardTitle>
+        </CardHeader>
+        <CardContent className="px-4 pb-4">
+          <div className="space-y-3">
+            {epRoasComparison.map((item) => (
+              <div key={item.label} className="space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-stone-600">{item.label}</span>
+                  <span className="font-semibold text-[#3d3c3c]">{item.value}x</span>
+                </div>
+                <div className="h-5 w-full rounded bg-stone-100">
+                  <div
+                    className="h-full rounded bg-[#6366f1] transition-all"
+                    style={{ width: `${(item.value / 5) * 100}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Data table */}
       <div className="border rounded-xl overflow-x-auto">

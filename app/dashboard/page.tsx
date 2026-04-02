@@ -81,6 +81,13 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import {
+  productReportTotals,
+  atRiskProducts,
+} from "@/lib/dashboard/mock-product-inventory";
+import { missedPotentialData, channelRecommendations } from "@/lib/dashboard/mock-mmm-saturation";
+import { experimentSummary } from "@/lib/dashboard/mock-incrementality-summary";
+import { performanceHeroKpis } from "@/lib/dashboard/mock-overall-performance";
 
 const DOMAIN_META: Record<
   Exclude<ControlTowerDomain, "risk">,
@@ -2085,6 +2092,97 @@ function ControlTowerOverview() {
                   }
                 />
               ))}
+            </div>
+          </div>
+
+          {/* DEMA-style insight summary widgets */}
+          <div className="grid gap-4 xl:grid-cols-2">
+            {/* Product & Inventory Pulse */}
+            <Link href="/udp/dashboard" className="group">
+              <Card className="border border-stone-200 bg-white shadow-none rounded-2xl h-full transition-colors group-hover:border-stone-300">
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-stone-400">Product &amp; Inventory</p>
+                    <ArrowRight className="h-3.5 w-3.5 text-stone-300 group-hover:text-stone-500 transition-colors" />
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <p className="text-lg font-bold text-[#3d3c3c]">{(productReportTotals.currentInventory / 1000000).toFixed(1)}M</p>
+                      <p className="text-[10px] text-stone-500">Current inventory</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold text-[#3d3c3c]">{(productReportTotals.grossSales / 1000000).toFixed(1)}M</p>
+                      <p className="text-[10px] text-stone-500">Gross sales</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold text-[#cc1800]">{atRiskProducts.length}</p>
+                      <p className="text-[10px] text-stone-500">At-risk SKUs</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* MMM Highlights */}
+            <Link href="/mmm" className="group">
+              <Card className="border border-stone-200 bg-white shadow-none rounded-2xl h-full transition-colors group-hover:border-stone-300">
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-stone-400">MMM Highlights</p>
+                    <ArrowRight className="h-3.5 w-3.5 text-stone-300 group-hover:text-stone-500 transition-colors" />
+                  </div>
+                  <p className="text-lg font-bold text-[#3d3c3c]">+SEK {missedPotentialData.missedPotential.toLocaleString()}</p>
+                  <p className="text-[10px] text-stone-500 mb-2">Missed profit potential</p>
+                  <p className="text-xs text-stone-600">
+                    Top rec: <span className="font-medium">{channelRecommendations[1]?.channel}</span> — {channelRecommendations[1]?.recommendation}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Incrementality Snapshot */}
+            <Link href="/udp/incrementality" className="group">
+              <Card className="border border-stone-200 bg-white shadow-none rounded-2xl h-full transition-colors group-hover:border-stone-300">
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-stone-400">Incrementality</p>
+                    <ArrowRight className="h-3.5 w-3.5 text-stone-300 group-hover:text-stone-500 transition-colors" />
+                  </div>
+                  <p className="text-sm font-medium text-[#3d3c3c] mb-1">{experimentSummary.name}</p>
+                  <div className="grid grid-cols-2 gap-3 mt-2">
+                    <div>
+                      <p className="text-lg font-bold text-[#3d3c3c]">{experimentSummary.incrementalEpRoas}</p>
+                      <p className="text-[10px] text-stone-500">Incremental epROAS</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold text-emerald-600">{experimentSummary.incrementalProfit}</p>
+                      <p className="text-[10px] text-stone-500">Incremental profit</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Overall Performance Strip */}
+            <div className="xl:col-span-1">
+              <Card className="border border-stone-200 bg-white shadow-none rounded-2xl h-full">
+                <CardContent className="p-5">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-stone-400 mb-3">Overall Performance</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {performanceHeroKpis.map((kpi) => (
+                      <div key={kpi.label}>
+                        <p className="text-lg font-bold text-[#3d3c3c]">{kpi.value}</p>
+                        <div className="flex items-center gap-1">
+                          <span className={cn("text-[10px] font-medium", kpi.positive ? "text-emerald-600" : "text-rose-500")}>
+                            {kpi.positive ? "+" : ""}{kpi.delta}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-stone-500">{kpi.label}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
 

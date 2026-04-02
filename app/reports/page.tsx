@@ -43,6 +43,7 @@ import {
   visualizationTick,
   visualizationTooltipStyle,
 } from "@/lib/visualization-theme";
+import { attributionModelRows } from "@/lib/dashboard/mock-incrementality-summary";
 
 function ChangeBadge({ value }: { value: string }) {
   return (
@@ -325,6 +326,48 @@ export default function ReportsPage() {
                     <td className="text-right py-2.5 px-3">{row.cac}</td>
                     <td className="text-right py-2.5 px-3">{row.newCustomers}</td>
                     <td className="py-2.5 px-3 text-muted-foreground">{row.action}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Attribution Model Comparison */}
+      <Card className={visualizationCardClass}>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">Attribution Model Comparison</CardTitle>
+          <p className="text-xs text-stone-500">ROAS by channel across Dema MTA, Linear, Last Click, Ad Platform, and MMM models</p>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs min-w-[900px]">
+              <thead>
+                <tr className="border-b text-left text-[10px] uppercase tracking-wide text-stone-500">
+                  <th className="px-4 py-2 font-medium">Channel Group</th>
+                  <th className="px-4 py-2 font-medium">Channel</th>
+                  <th className="px-4 py-2 font-medium">Campaign</th>
+                  <th className="px-4 py-2 font-medium text-right">Marketing Spend</th>
+                  <th className="px-4 py-2 font-medium text-right">ROAS (Dema MTA)</th>
+                  <th className="px-4 py-2 font-medium text-right">ROAS (Linear)</th>
+                  <th className="px-4 py-2 font-medium text-right">ROAS (Last Click)</th>
+                  <th className="px-4 py-2 font-medium text-right">ROAS (Ad Platform)</th>
+                  <th className="px-4 py-2 font-medium text-right">ROAS (MMM)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {attributionModelRows.map((row) => (
+                  <tr key={row.campaign} className="border-b border-stone-50 hover:bg-stone-50/40">
+                    <td className="px-4 py-2.5 text-stone-500">{row.channelGroup}</td>
+                    <td className="px-4 py-2.5 font-medium text-[#3d3c3c]">{row.channel}</td>
+                    <td className="px-4 py-2.5 text-stone-600">{row.campaign}</td>
+                    <td className="px-4 py-2.5 text-right font-medium">{row.marketingSpend.toLocaleString()}</td>
+                    <td className="px-4 py-2.5 text-right">{row.roasDemaMTA}</td>
+                    <td className="px-4 py-2.5 text-right">{row.roasLinear}</td>
+                    <td className="px-4 py-2.5 text-right">{row.roasLastClick}</td>
+                    <td className="px-4 py-2.5 text-right">{row.roasAdPlatform}</td>
+                    <td className="px-4 py-2.5 text-right">{row.roasMMM}</td>
                   </tr>
                 ))}
               </tbody>
