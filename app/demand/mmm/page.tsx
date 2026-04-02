@@ -1015,7 +1015,7 @@ function ProfitAnalysisTab() {
         title="Profit Analysis — Actual vs Potential"
         subtitle="Missed potential shown as gap between actual and forecast"
         data={profitTrendData}
-        yLabel="Net gross profit (SEK)"
+        yLabel="Net gross profit (USD)"
       />
 
       <Card className={visualizationCardClass}>
@@ -1028,11 +1028,11 @@ function ProfitAnalysisTab() {
               <thead>
                 <tr className="border-b text-left text-[10px] uppercase tracking-wide text-stone-500">
                   <th className="px-4 py-2 font-medium">Week</th>
-                  <th className="px-4 py-2 font-medium text-right">Spend (SEK)</th>
+                  <th className="px-4 py-2 font-medium text-right">Spend (USD)</th>
                   <th className="px-4 py-2 font-medium text-right">Proposed spend</th>
-                  <th className="px-4 py-2 font-medium text-right">Sales (SEK)</th>
+                  <th className="px-4 py-2 font-medium text-right">Sales (USD)</th>
                   <th className="px-4 py-2 font-medium text-right">Missed sales</th>
-                  <th className="px-4 py-2 font-medium text-right">Profit (SEK)</th>
+                  <th className="px-4 py-2 font-medium text-right">Profit (USD)</th>
                   <th className="px-4 py-2 font-medium text-right">Missed profit</th>
                 </tr>
               </thead>

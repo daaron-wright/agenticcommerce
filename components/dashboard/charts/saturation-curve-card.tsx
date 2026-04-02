@@ -55,19 +55,19 @@ export function SaturationCurveCard({ channel, className }: SaturationCurveCardP
               type="number"
               tick={visualizationSmallTick}
               tickFormatter={(v) => `${(v / 1000).toFixed(0)}K`}
-              label={{ value: "Marketing spend (SEK)", position: "bottom", offset: 6, style: { fontSize: 10, fill: visualizationPalette.axis } }}
+              label={{ value: "Marketing spend (USD)", position: "bottom", offset: 6, style: { fontSize: 10, fill: visualizationPalette.axis } }}
             />
             <YAxis
               dataKey="profit"
               type="number"
               tick={visualizationSmallTick}
               tickFormatter={(v) => `${(v / 1000).toFixed(0)}K`}
-              label={{ value: "Net gross profit (SEK)", angle: -90, position: "insideLeft", offset: -5, style: { fontSize: 10, fill: visualizationPalette.axis } }}
+              label={{ value: "Net gross profit (USD)", angle: -90, position: "insideLeft", offset: -5, style: { fontSize: 10, fill: visualizationPalette.axis } }}
             />
             <Tooltip
               contentStyle={visualizationTooltipStyle}
-              formatter={(value: number) => `SEK ${value.toLocaleString()}`}
-              labelFormatter={(v) => `Spend: SEK ${Number(v).toLocaleString()}`}
+              formatter={(value: number) => `$${value.toLocaleString()}`}
+              labelFormatter={(v) => `Spend: $${Number(v).toLocaleString()}`}
             />
             <Line
               dataKey="profit"

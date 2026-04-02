@@ -40,8 +40,8 @@ export const multiMetricTrend: MultiMetricTrendPoint[] = [
 ];
 
 export const productSellThrough: ProductSellThrough[] = [
-  { name: "Cropped Denim Jacket", orderCount: 53, currentAndIncoming: 152, predictedSellThrough: "225.39%", risk: true },
-  { name: "Ribbed Knit Cardigan", orderCount: 105, currentAndIncoming: 340, predictedSellThrough: "156.26%", risk: false },
-  { name: "Wool Blend Overcoat", orderCount: 78, currentAndIncoming: 210, predictedSellThrough: "142.18%", risk: false },
-  { name: "Silk Camisole Top", orderCount: 165, currentAndIncoming: 380, predictedSellThrough: "198.42%", risk: true },
+  { name: "Water Bulk Pack (24ct)", orderCount: 12840, currentAndIncoming: 4800, predictedSellThrough: "225.39%", risk: true },
+  { name: "AA Batteries 48-Pack", orderCount: 9820, currentAndIncoming: 6200, predictedSellThrough: "156.26%", risk: false },
+  { name: "First Aid Kit Deluxe", orderCount: 6420, currentAndIncoming: 12400, predictedSellThrough: "142.18%", risk: false },
+  { name: "LED Flashlight Pro", orderCount: 7620, currentAndIncoming: 3800, predictedSellThrough: "198.42%", risk: true },
 ];

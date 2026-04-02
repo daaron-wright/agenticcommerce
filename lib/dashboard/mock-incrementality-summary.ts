@@ -43,10 +43,10 @@ export type IncrementalityComparisonBar = {
 };
 
 export const incrementalityMetrics: IncrementalityMetric[] = [
-  { label: "Spend", value: "€1'149", barWidth: 35 },
+  { label: "Spend", value: "$1,149", barWidth: 35 },
   { label: "ROAS", value: "3.1x", barWidth: 62 },
   { label: "Profit ROAS", value: "2.2x", barWidth: 48 },
-  { label: "CAC", value: "€ 42", barWidth: 28, highlight: true },
+  { label: "CAC", value: "$42", barWidth: 28, highlight: true },
 ];
 
 export const epRoasComparison: EpRoasComparison[] = [
@@ -67,8 +67,8 @@ export const experimentSummary: ExperimentSummary = {
   status: "Final results",
   country: "United States",
   channel: "Google",
-  spendDuringExperiment: "SEK 797 983",
-  incrementalProfit: "SEK 1 450 974",
+  spendDuringExperiment: "$797,983",
+  incrementalProfit: "$1,450,974",
   incrementalEpRoas: "181.83%",
   pValue: "1.00%",
   treatmentPeriod: "6 weeks",

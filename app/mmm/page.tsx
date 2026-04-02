@@ -480,12 +480,12 @@ function SaturationCurvesTab() {
           <CardContent>
             <div className="flex items-end gap-6 h-40">
               <div className="flex flex-col items-center flex-1">
-                <p className="text-lg font-bold text-[#3d3c3c]">SEK {missedPotentialData.actualProfit.toLocaleString()}</p>
+                <p className="text-lg font-bold text-[#3d3c3c]">${missedPotentialData.actualProfit.toLocaleString()}</p>
                 <div className="w-full h-24 rounded bg-[#6366f1]/20 mt-2" />
                 <p className="text-[10px] text-stone-500 mt-1">Actual profit</p>
               </div>
               <div className="flex flex-col items-center flex-1">
-                <p className="text-xs font-semibold text-emerald-600">+ SEK {missedPotentialData.missedPotential.toLocaleString()}</p>
+                <p className="text-xs font-semibold text-emerald-600">+ ${missedPotentialData.missedPotential.toLocaleString()}</p>
                 <div className="w-full rounded mt-2 flex flex-col">
                   <div className="h-6 rounded-t border-2 border-dashed border-[#6366f1]/40 bg-[#6366f1]/10" />
                   <div className="h-24 rounded-b bg-[#6366f1]/20" />
@@ -493,7 +493,7 @@ function SaturationCurvesTab() {
                 <p className="text-[10px] text-stone-500 mt-1">Missed potential</p>
               </div>
               <div className="flex flex-col items-center flex-1">
-                <p className="text-lg font-bold text-[#3d3c3c]">SEK {missedPotentialData.predictedProfit.toLocaleString()}</p>
+                <p className="text-lg font-bold text-[#3d3c3c]">${missedPotentialData.predictedProfit.toLocaleString()}</p>
                 <div className="w-full h-28 rounded bg-[#6366f1]/30 mt-2" />
                 <p className="text-[10px] text-stone-500 mt-1">Predicted profit</p>
               </div>

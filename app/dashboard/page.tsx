@@ -2708,12 +2708,12 @@ function ControlTowerOverview() {
                   </div>
                   <div className="grid grid-cols-3 gap-3">
                     <div>
-                      <p className="text-lg font-bold text-[#3d3c3c]">{(productReportTotals.currentInventory / 1000000).toFixed(1)}M</p>
-                      <p className="text-[10px] text-stone-500">Current inventory</p>
+                      <p className="text-lg font-bold text-[#3d3c3c]">{productReportTotals.currentInventory.toLocaleString()}</p>
+                      <p className="text-[10px] text-stone-500">Current inventory (units)</p>
                     </div>
                     <div>
-                      <p className="text-lg font-bold text-[#3d3c3c]">{(productReportTotals.grossSales / 1000000).toFixed(1)}M</p>
-                      <p className="text-[10px] text-stone-500">Gross sales</p>
+                      <p className="text-lg font-bold text-[#3d3c3c]">${(productReportTotals.grossSales / 1000000).toFixed(1)}M</p>
+                      <p className="text-[10px] text-stone-500">Gross sales (USD)</p>
                     </div>
                     <div>
                       <p className="text-lg font-bold text-[#cc1800]">{atRiskProducts.length}</p>
@@ -2732,7 +2732,7 @@ function ControlTowerOverview() {
                     <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-stone-400">MMM Highlights</p>
                     <ArrowRight className="h-3.5 w-3.5 text-stone-300 group-hover:text-stone-500 transition-colors" />
                   </div>
-                  <p className="text-lg font-bold text-[#3d3c3c]">+SEK {missedPotentialData.missedPotential.toLocaleString()}</p>
+                  <p className="text-lg font-bold text-[#3d3c3c]">+${(missedPotentialData.missedPotential / 1000).toFixed(0)}K</p>
                   <p className="text-[10px] text-stone-500 mb-2">Missed profit potential</p>
                   <p className="text-xs text-stone-600">
                     Top rec: <span className="font-medium">{channelRecommendations[1]?.channel}</span> — {channelRecommendations[1]?.recommendation}
