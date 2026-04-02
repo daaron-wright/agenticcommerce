@@ -714,7 +714,7 @@ function MetricNavigator() {
               {signal && (
                 <button
                   onClick={() => setSignalSheetOpen(true)}
-                  className="mt-2 flex items-center gap-1.5 text-left"
+                  className="mt-2 flex flex-col items-start gap-1 text-left"
                 >
                   <Badge
                     variant="outline"
