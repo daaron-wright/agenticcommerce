@@ -6,7 +6,7 @@ import {
   MdOutlineShowChart, MdOutlineVerifiedUser, MdOutlineBarChart, MdOutlinePieChart, MdOutlineKeyboardArrowDown,
   MdOutlinePlayArrow, MdOutlineClose, MdOutlineMonitor, MdOutlineStorage, MdOutlinePersonSearch,
   MdOutlineGroup, MdOutlineCampaign, MdOutlineGppBad, MdOutlineWarning, MdOutlineChecklist,
-  MdOutlineAutoAwesome, MdOutlineLightbulb,
+  MdOutlineAutoAwesome, MdOutlineLightbulb, MdOutlineMenuBook,
 } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -258,6 +258,8 @@ export function ChatInterface({
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [showScenarioPicker, setShowScenarioPicker] = useState(false);
   const [showMorePrompts, setShowMorePrompts] = useState(false);
+  const [promptLibraryOpen, setPromptLibraryOpen] = useState(false);
+  const [promptLibrarySearch, setPromptLibrarySearch] = useState("");
   const [promptDomainFilter, setPromptDomainFilter] = useState<SuggestedPromptDomain | "all">("all");
   const [isGraphDialogOpen, setIsGraphDialogOpen] = useState(false);
   const [graphPrefill, setGraphPrefill] = useState<GraphInstancePrefill | undefined>(undefined);
@@ -1112,6 +1114,51 @@ export function ChatInterface({
                   </div>
                 </div>
 
+                {/* Prompt library button */}
+                <div className="relative w-full max-w-xl flex items-center">
+                  <button
+                    onClick={() => { setPromptLibraryOpen(!promptLibraryOpen); setPromptLibrarySearch(""); }}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-600 hover:border-stone-400 hover:text-stone-800 transition-all"
+                  >
+                    <MdOutlineMenuBook className="h-3.5 w-3.5" />
+                    Prompt library
+                  </button>
+
+                  {/* Prompt Library Popover */}
+                  {promptLibraryOpen && (
+                    <div className="absolute top-full left-0 mt-2 w-[480px] bg-white rounded-xl border border-stone-200 shadow-lg z-50 p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-sm font-semibold text-stone-800">Prompt Library</h3>
+                        <button onClick={() => setPromptLibraryOpen(false)} className="p-0.5 rounded hover:bg-stone-100 transition-colors">
+                          <MdOutlineClose className="h-4 w-4 text-stone-500" />
+                        </button>
+                      </div>
+                      <input
+                        type="text"
+                        value={promptLibrarySearch}
+                        onChange={(e) => setPromptLibrarySearch(e.target.value)}
+                        placeholder="Search library..."
+                        className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-stone-300 mb-3"
+                        autoFocus
+                      />
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-400 mb-2">Available Prompts</p>
+                      <div className="grid grid-cols-2 gap-2 max-h-[280px] overflow-y-auto">
+                        {welcomePromptCards
+                          .filter((c) => !promptLibrarySearch || c.label.toLowerCase().includes(promptLibrarySearch.toLowerCase()))
+                          .map((card) => (
+                            <button
+                              key={card.prompt}
+                              onClick={() => { handleSend(card.prompt); setPromptLibraryOpen(false); }}
+                              className="text-left text-xs text-stone-700 hover:bg-stone-50 rounded-lg px-2.5 py-2 transition-colors leading-snug"
+                            >
+                              {card.label}
+                            </button>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 {/* Domain filter pills (cross-domain roles only) */}
                 {isCrossDomainRole && (
                   <div className="flex flex-wrap items-center gap-1.5">
@@ -1317,8 +1364,8 @@ function PromptCard({
       className="flex flex-col items-start gap-2.5 p-3.5 rounded-xl border border-stone-200 bg-white hover:border-stone-400 hover:shadow-sm transition-all text-left group"
     >
       <div className="flex w-full items-center justify-between gap-2">
-        <div className="p-1.5 rounded-lg bg-stone-100 group-hover:bg-stone-200 transition-colors">
-          <Icon className="h-4 w-4 text-stone-700" />
+        <div className="p-1.5 rounded-lg bg-blue-50 group-hover:bg-blue-100 transition-colors">
+          <Icon className="h-4 w-4 text-blue-600" />
         </div>
         {domainTag && (
           <span className={cn("rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide", domainTag.className)}>
