@@ -1364,8 +1364,8 @@ function PromptCard({
       className="flex flex-col items-start gap-2.5 p-3.5 rounded-xl border border-stone-200 bg-white hover:border-stone-400 hover:shadow-sm transition-all text-left group"
     >
       <div className="flex w-full items-center justify-between gap-2">
-        <div className="p-1.5 rounded-lg bg-blue-50 group-hover:bg-blue-100 transition-colors">
-          <Icon className="h-4 w-4 text-blue-600" />
+        <div className="p-1.5 rounded-lg bg-stone-100 group-hover:bg-stone-200 transition-colors">
+          <Icon className="h-4 w-4 text-stone-700" />
         </div>
         {domainTag && (
           <span className={cn("rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide", domainTag.className)}>
