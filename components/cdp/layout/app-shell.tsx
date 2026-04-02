@@ -29,10 +29,9 @@ import {
   ShieldCheck, Lock, ClipboardList, Activity, Clock, UserSearch,
   Network, MessageSquare, X, CheckCircle2,
   Loader2, ChevronRight, ChevronDown, Monitor,
-  AlertTriangle, Zap, FlaskConical, Database,
+  AlertTriangle, Zap, FlaskConical, Database, Sparkles,
 } from "lucide-react";
 import { AiGovernanceLifecycle, DataEnrichment } from "@carbon/icons-react";
-import { Sparkles } from "lucide-react";
 import { AIRecommendationsPanel } from "@/components/dashboard/ai-recommendations-panel";
 import {
   CONTROL_TOWER_ALERTS,

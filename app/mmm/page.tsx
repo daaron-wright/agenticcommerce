@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ArrowDownRight, ArrowUpRight, BarChart2, Info, TrendingDown, TrendingUp, Zap } from "lucide-react";
 import {
@@ -21,7 +20,6 @@ import { RecentFromChat } from "@/components/cdp/recent-from-chat";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth-context";
-import { hasPermissionForUser } from "@/lib/permissions/roles";
 import { SaturationCurveCard } from "@/components/dashboard/charts/saturation-curve-card";
 import {
   missedPotentialData,
@@ -110,7 +108,6 @@ function AgentBanner({ onClose }: { onClose: () => void }) {
 
 function WeeklyCommercialPanel() {
   const { user } = useAuth();
-  const canExecuteAI = user ? hasPermissionForUser(user, "ai_action_execute") : false;
 
   return (
     <div className="space-y-6">

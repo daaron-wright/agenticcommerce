@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,8 +28,6 @@ import { PageBanner } from "@/components/ui/page-banner";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/lib/auth-context";
-import { hasPermissionForUser } from "@/lib/permissions/roles";
 import {
   WEEKLY_COMMERCIAL_REVIEW,
   formatCommercialCurrency,
@@ -85,8 +82,6 @@ export default function ReportsPage() {
   const [xAxisScale, setXAxisScale] = useState("days");
   const [showYAxes, setShowYAxes] = useState(true);
   const [showYAxisLabels, setShowYAxisLabels] = useState(true);
-  const { user } = useAuth();
-  const canExecuteAI = user ? hasPermissionForUser(user, "ai_action_execute") : false;
 
   const dateRangeLabels: Record<string, string> = {
     "last-7": "Last Week: 09 Mar – 15 Mar, 2026",
