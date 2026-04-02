@@ -383,7 +383,7 @@ function MetricNavigator() {
       </div>
 
       {/* Selected metric panel */}
-      <div className="rounded-2xl border border-stone-200 bg-white shadow-[0_1px_0_rgba(15,23,42,0.02)]">
+      <div className="rounded-none bg-stone-50">
         <div className="flex flex-col md:flex-row">
           {/* Left sidebar */}
           <div className="flex flex-col gap-4 border-b border-stone-100 px-5 py-5 md:w-48 md:border-b-0 md:border-r">
