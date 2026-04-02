@@ -62,10 +62,20 @@ import {
   Clock,
   Database,
   Megaphone,
+  Plus,
+  Trash2,
   TrendingDown,
   TrendingUp,
   X,
   Zap,
+  BarChart2,
+  PieChart,
+  LineChart as LineChartIcon,
+  Target,
+  ShoppingCart,
+  Users,
+  Activity,
+  Globe,
 } from "lucide-react";
 import {
   Area,
@@ -83,11 +93,25 @@ import {
 } from "recharts";
 import {
   productReportTotals,
+  productReportRows,
   atRiskProducts,
 } from "@/lib/dashboard/mock-product-inventory";
-import { missedPotentialData, channelRecommendations } from "@/lib/dashboard/mock-mmm-saturation";
-import { experimentSummary } from "@/lib/dashboard/mock-incrementality-summary";
-import { performanceHeroKpis } from "@/lib/dashboard/mock-overall-performance";
+import { missedPotentialData, channelRecommendations, marketOverview } from "@/lib/dashboard/mock-mmm-saturation";
+import { experimentSummary, incrementalityComparisonBars } from "@/lib/dashboard/mock-incrementality-summary";
+import { performanceHeroKpis, multiMetricTrend, productSellThrough } from "@/lib/dashboard/mock-overall-performance";
+import { ecommerceDashboardData } from "@/lib/dashboard/mock-ecommerce";
+import {
+  Bar,
+  BarChart,
+  Legend,
+} from "recharts";
+import {
+  visualizationPalette,
+  visualizationGrid,
+  visualizationSmallTick,
+  visualizationTooltipStyle,
+  visualizationCardClass,
+} from "@/lib/visualization-theme";
 
 const DOMAIN_META: Record<
   Exclude<ControlTowerDomain, "risk">,
@@ -1830,6 +1854,288 @@ function AlertDecisionDialog({
   );
 }
 
+/* ── Custom Widget System ─────────────────────────────────────────────────── */
+
+type CustomWidgetId =
+  | "revenue-trend"
+  | "channel-mix"
+  | "conversion-funnel"
+  | "top-products"
+  | "market-overview"
+  | "sell-through"
+  | "channel-roas"
+  | "at-risk-skus";
+
+type WidgetCatalogEntry = {
+  id: CustomWidgetId;
+  label: string;
+  description: string;
+  icon: React.ElementType;
+  category: "Performance" | "Commercial" | "Inventory";
+};
+
+const WIDGET_CATALOG: WidgetCatalogEntry[] = [
+  { id: "revenue-trend", label: "Revenue Trend", description: "Daily revenue and orders over the past 14 days", icon: LineChartIcon, category: "Performance" },
+  { id: "channel-mix", label: "Channel Mix", description: "Revenue breakdown by acquisition channel", icon: PieChart, category: "Performance" },
+  { id: "conversion-funnel", label: "Conversion Funnel", description: "Sessions → Add to Cart → Checkout → Purchase", icon: Target, category: "Performance" },
+  { id: "top-products", label: "Top Products", description: "Best-selling products by revenue", icon: ShoppingCart, category: "Inventory" },
+  { id: "market-overview", label: "Market Overview", description: "Spend changes and potential by market", icon: Globe, category: "Commercial" },
+  { id: "sell-through", label: "Product Sell-Through", description: "Predicted sell-through rates with risk flags", icon: Activity, category: "Inventory" },
+  { id: "channel-roas", label: "Channel ROAS", description: "Incrementality ROAS comparison across models", icon: BarChart2, category: "Commercial" },
+  { id: "at-risk-skus", label: "At-Risk SKUs", description: "Products with low stock days remaining", icon: AlertTriangle, category: "Inventory" },
+];
+
+function CustomWidgetRenderer({ widgetId, onRemove }: { widgetId: CustomWidgetId; onRemove: () => void }) {
+  const entry = WIDGET_CATALOG.find((w) => w.id === widgetId);
+  if (!entry) return null;
+
+  return (
+    <Card className="border border-stone-200 bg-white shadow-none rounded-2xl relative group">
+      <button
+        onClick={onRemove}
+        className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity rounded-full p-1 hover:bg-stone-100"
+        title="Remove widget"
+      >
+        <X className="h-3.5 w-3.5 text-stone-400" />
+      </button>
+      <CardContent className="p-5">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-stone-400 mb-3">{entry.label}</p>
+        <CustomWidgetContent widgetId={widgetId} />
+      </CardContent>
+    </Card>
+  );
+}
+
+function CustomWidgetContent({ widgetId }: { widgetId: CustomWidgetId }) {
+  switch (widgetId) {
+    case "revenue-trend":
+      return (
+        <ResponsiveContainer width="100%" height={160}>
+          <AreaChart data={ecommerceDashboardData.dailyPerformance} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id="cw-rev" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={visualizationPalette.teal} stopOpacity={0.2} />
+                <stop offset="100%" stopColor={visualizationPalette.teal} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid {...visualizationGrid} vertical={false} />
+            <XAxis dataKey="day" tick={visualizationSmallTick} tickLine={false} axisLine={false} />
+            <YAxis tick={visualizationSmallTick} tickLine={false} axisLine={false} tickFormatter={(v) => `£${(v / 1000).toFixed(0)}K`} />
+            <Tooltip contentStyle={visualizationTooltipStyle} formatter={(v: number) => [`£${v.toLocaleString()}`, "Revenue"]} />
+            <Area type="monotone" dataKey="revenue" stroke={visualizationPalette.teal} strokeWidth={2} fill="url(#cw-rev)" dot={false} isAnimationActive={false} />
+          </AreaChart>
+        </ResponsiveContainer>
+      );
+
+    case "channel-mix": {
+      const COLORS = [visualizationPalette.teal, visualizationPalette.sky, visualizationPalette.coral, visualizationPalette.sand, visualizationPalette.mint, visualizationPalette.steel];
+      const channels = ecommerceDashboardData.channels.filter((c) => c.revenue > 0);
+      return (
+        <div className="flex items-center gap-4">
+          <ResponsiveContainer width={120} height={120}>
+            <RechartsPieChart>
+              <Pie data={channels} dataKey="revenue" nameKey="channel" cx="50%" cy="50%" innerRadius={30} outerRadius={55} strokeWidth={1} isAnimationActive={false}>
+                {channels.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+              </Pie>
+              <Tooltip contentStyle={visualizationTooltipStyle} formatter={(v: number) => `£${v.toLocaleString()}`} />
+            </RechartsPieChart>
+          </ResponsiveContainer>
+          <div className="space-y-1.5 text-[10px]">
+            {channels.map((c, i) => (
+              <div key={c.channel} className="flex items-center gap-1.5">
+                <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                <span className="text-stone-600">{c.channel}</span>
+                <span className="ml-auto font-medium text-[#3d3c3c]">£{(c.revenue / 1000).toFixed(0)}K</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    case "conversion-funnel":
+      return (
+        <div className="space-y-2">
+          {ecommerceDashboardData.funnel.map((stage, i) => {
+            const maxUsers = ecommerceDashboardData.funnel[0].users;
+            const pct = (stage.users / maxUsers) * 100;
+            return (
+              <div key={stage.stage} className="space-y-0.5">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-stone-600">{stage.stage}</span>
+                  <span className="font-medium text-[#3d3c3c]">{stage.users.toLocaleString()}</span>
+                </div>
+                <div className="h-4 w-full rounded bg-stone-100">
+                  <div className="h-full rounded transition-all" style={{ width: `${pct}%`, backgroundColor: visualizationPalette.teal, opacity: 1 - i * 0.15 }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
+
+    case "top-products":
+      return (
+        <div className="space-y-2">
+          {ecommerceDashboardData.topProducts.slice(0, 4).map((p) => (
+            <div key={p.sku} className="flex items-center justify-between text-[11px]">
+              <div className="min-w-0">
+                <p className="font-medium text-[#3d3c3c] truncate">{p.name}</p>
+                <p className="text-[10px] text-stone-400">{p.sku} · {p.unitsSold.toLocaleString()} sold</p>
+              </div>
+              <div className="text-right shrink-0 ml-3">
+                <p className="font-semibold text-[#3d3c3c]">£{(p.revenue / 1000).toFixed(1)}K</p>
+                <Badge variant="outline" className={cn("text-[9px]", p.stockStatus === "Healthy" ? "border-emerald-200 text-emerald-700" : p.stockStatus === "Low" ? "border-amber-200 text-amber-700" : "border-red-200 text-red-700")}>
+                  {p.stockStatus}
+                </Badge>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+
+    case "market-overview":
+      return (
+        <div className="space-y-2">
+          {marketOverview.map((row) => (
+            <div key={row.market} className="flex items-center justify-between text-[11px]">
+              <span className="font-medium text-[#3d3c3c]">{row.market}</span>
+              <div className="flex items-center gap-3">
+                <span className={cn("font-medium", row.positive ? "text-emerald-600" : "text-rose-500")}>{row.spendChange}</span>
+                <span className="text-stone-500">{row.potential}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+
+    case "sell-through":
+      return (
+        <div className="space-y-2">
+          {productSellThrough.map((p) => (
+            <div key={p.name} className="flex items-center justify-between text-[11px]">
+              <div className="min-w-0">
+                <p className="font-medium text-[#3d3c3c] truncate">{p.name}</p>
+                <p className="text-[10px] text-stone-400">{p.orderCount} orders</p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0 ml-3">
+                <span className={cn("font-semibold", p.risk ? "text-rose-500" : "text-[#3d3c3c]")}>{p.predictedSellThrough}</span>
+                {p.risk && <span className="inline-block h-2 w-2 rounded-full bg-rose-400" />}
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+
+    case "channel-roas":
+      return (
+        <div className="flex items-end gap-3 h-32">
+          {incrementalityComparisonBars.map((item) => {
+            const max = Math.max(...incrementalityComparisonBars.map((b) => b.roas));
+            const pct = (item.roas / max) * 100;
+            return (
+              <div key={item.model} className="flex flex-col items-center flex-1 h-full justify-end">
+                <span className="text-[10px] font-semibold text-[#3d3c3c] mb-1">{item.roas}x</span>
+                <div className="w-full rounded-t" style={{ height: `${pct}%`, backgroundColor: item.highlight ? "#d4f542" : visualizationPalette.ink }} />
+                <span className="mt-1.5 text-[9px] text-stone-500 text-center leading-tight">{item.model}</span>
+              </div>
+            );
+          })}
+        </div>
+      );
+
+    case "at-risk-skus":
+      return (
+        <div className="space-y-2">
+          {atRiskProducts.map((p) => (
+            <div key={p.sku} className="flex items-center justify-between rounded-lg border border-stone-100 px-3 py-2">
+              <div>
+                <p className="text-[11px] font-medium text-[#3d3c3c]">{p.name}</p>
+                <p className="text-[10px] text-stone-400">{p.sku}</p>
+              </div>
+              <div className="text-right">
+                <p className={cn("text-[11px] font-semibold", p.risk === "high" ? "text-red-600" : "text-amber-600")}>{p.daysOfStock} days</p>
+                <p className="text-[10px] text-stone-400">{p.sellThroughRate}% sell-through</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+
+    default:
+      return null;
+  }
+}
+
+function AddWidgetDialog({
+  open,
+  onOpenChange,
+  activeWidgets,
+  onAdd,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  activeWidgets: CustomWidgetId[];
+  onAdd: (id: CustomWidgetId) => void;
+}) {
+  const categories = ["Performance", "Commercial", "Inventory"] as const;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Add Widget</DialogTitle>
+          <p className="text-sm text-stone-500">Choose a widget to add to your Control Tower dashboard.</p>
+        </DialogHeader>
+        <div className="space-y-5 mt-2">
+          {categories.map((cat) => {
+            const items = WIDGET_CATALOG.filter((w) => w.category === cat);
+            return (
+              <div key={cat}>
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-stone-400 mb-2">{cat}</p>
+                <div className="space-y-2">
+                  {items.map((widget) => {
+                    const isActive = activeWidgets.includes(widget.id);
+                    const Icon = widget.icon;
+                    return (
+                      <button
+                        key={widget.id}
+                        disabled={isActive}
+                        onClick={() => { onAdd(widget.id); onOpenChange(false); }}
+                        className={cn(
+                          "flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors",
+                          isActive
+                            ? "border-stone-100 bg-stone-50 opacity-50 cursor-not-allowed"
+                            : "border-stone-200 bg-white hover:border-stone-300 hover:bg-stone-50 cursor-pointer"
+                        )}
+                      >
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-stone-100">
+                          <Icon className="h-4 w-4 text-stone-500" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-semibold text-[#3d3c3c]">{widget.label}</p>
+                          <p className="text-[11px] text-stone-500">{widget.description}</p>
+                        </div>
+                        {isActive ? (
+                          <Badge variant="outline" className="text-[10px] border-stone-200 text-stone-400 shrink-0">Added</Badge>
+                        ) : (
+                          <Plus className="h-4 w-4 text-stone-400 shrink-0" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ── End Custom Widget System ──────────────────────────────────────────── */
+
 function ControlTowerOverview() {
   const { user } = useAuth();
   const router = useRouter();
@@ -1842,6 +2148,8 @@ function ControlTowerOverview() {
   const [actions, setActions] = useState(CONTROL_TOWER_ACTIONS);
   const [isGraphDialogOpen, setIsGraphDialogOpen] = useState(false);
   const [highlightedActionIds, setHighlightedActionIds] = useState<Set<string>>(new Set());
+  const [customWidgets, setCustomWidgets] = useState<CustomWidgetId[]>([]);
+  const [addWidgetOpen, setAddWidgetOpen] = useState(false);
 
   const pendingActions = useMemo(
     () => actions.filter((a) => a.state === "pending"),
@@ -2186,6 +2494,28 @@ function ControlTowerOverview() {
             </div>
           </div>
 
+          {/* Custom widgets added by user */}
+          {customWidgets.length > 0 && (
+            <div className="grid gap-4 xl:grid-cols-2">
+              {customWidgets.map((widgetId) => (
+                <CustomWidgetRenderer
+                  key={widgetId}
+                  widgetId={widgetId}
+                  onRemove={() => setCustomWidgets((prev) => prev.filter((id) => id !== widgetId))}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Add widget button */}
+          <button
+            onClick={() => setAddWidgetOpen(true)}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-stone-200 bg-stone-50/40 py-4 text-xs font-medium text-stone-400 transition-colors hover:border-stone-300 hover:bg-stone-50 hover:text-stone-600"
+          >
+            <Plus className="h-4 w-4" />
+            Add widget
+          </button>
+
           <div id="action-board">
             <ActionBoard
               actions={visibleActions}
@@ -2208,6 +2538,13 @@ function ControlTowerOverview() {
           setGraphPrefill(undefined);
           router.push(createKnowledgeGraphInstanceHref(instance.id));
         }}
+      />
+
+      <AddWidgetDialog
+        open={addWidgetOpen}
+        onOpenChange={setAddWidgetOpen}
+        activeWidgets={customWidgets}
+        onAdd={(id) => setCustomWidgets((prev) => [...prev, id])}
       />
     </>
   );
