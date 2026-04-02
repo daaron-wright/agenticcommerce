@@ -20,12 +20,13 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Copy, Download, Filter, ChevronDown, ChevronUp, X, Trash2, TrendingUp, BarChart2, Settings2 } from "lucide-react";
+import { Copy, Download, Filter, ChevronDown, ChevronUp, X, Trash2, TrendingUp, BarChart2, Settings2, ArrowDown, Sparkles } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { RecentFromChat } from "@/components/cdp/recent-from-chat";
 import { PageBanner } from "@/components/ui/page-banner";
 import { toast } from "sonner";
+import { useActionEffects } from "@/lib/action-effects-store";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import {
@@ -69,6 +70,38 @@ const kpiSummaryRow = [
   { label: "Profit", value: "4,375,526", model: null, change: "+99%", forecast: true },
   { label: "Net Sales", value: "722,677", model: "Dema MTA", change: "+49%", forecast: true },
 ];
+
+function StormResponseKpis() {
+  const effects = useActionEffects();
+  const kpis = effects.getAdjustedCommercialKpis();
+  const hasAdjustments = Object.values(kpis).some((k) => k.adjusted);
+  if (!hasAdjustments) return null;
+  return (
+    <Card className={cn(visualizationCardClass)}>
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-sm">
+          <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+          Storm Response Impact
+          <span className="ml-auto text-[10px] font-normal text-emerald-600">Updated by actions</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {Object.entries(kpis).map(([label, { value, adjusted }]) => (
+            <div key={label} className={cn("rounded-lg border p-3", adjusted ? "border-emerald-200 bg-emerald-50/40" : "border-stone-200 bg-white")}>
+              <div className="text-[10px] text-stone-500 uppercase tracking-wide">{label}</div>
+              <div className="flex items-center gap-1.5 mt-1">
+                <span className="text-lg font-semibold text-[#3d3c3c]">{value}</span>
+                {adjusted && <ArrowDown className="h-3 w-3 text-emerald-600" />}
+              </div>
+              {adjusted && <span className="text-[9px] text-emerald-600 font-medium">Adjusted by storm response</span>}
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function ReportsPage() {
   const [dateRange, setDateRange] = useState("last-7");
@@ -523,6 +556,7 @@ export default function ReportsPage() {
         </CardContent>
       </Card>
 
+      <StormResponseKpis />
       </div>
   );
 }

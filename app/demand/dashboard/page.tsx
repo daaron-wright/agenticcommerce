@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
+import { useActionEffects } from "@/lib/action-effects-store";
+import { CONTROL_TOWER_ACTIONS } from "@/lib/control-tower-data";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -570,11 +572,14 @@ export default function DashboardPage() {
 
   // ── Shared KPI stats (used by data_admin and marketing_admin) ──────────
 
+  const effects = useActionEffects();
+  const adjustedDemand = effects.getAdjustedDemandKpis();
+
   const sharedStats = [
-    { label: "Forecast Accuracy", value: "72%", icon: Activity, colorClass: "text-stone-700", bgClass: "bg-stone-100", nbaContext: "planning" as NBAContext, chatPrompt: "What is driving the drop in forecast accuracy during the storm?" },
+    { label: "Forecast Accuracy", value: `${adjustedDemand.forecastAccuracy}%`, icon: Activity, colorClass: adjustedDemand.forecastAccuracy > 72 ? "text-emerald-700" : "text-stone-700", bgClass: adjustedDemand.forecastAccuracy > 72 ? "bg-emerald-50" : "bg-stone-100", nbaContext: "planning" as NBAContext, chatPrompt: "What is driving the drop in forecast accuracy during the storm?" },
     { label: "Waste Rate", value: "14.2%", icon: TrendingDown, colorClass: "text-stone-700", bgClass: "bg-stone-100", nbaContext: "waste" as NBAContext, chatPrompt: "What is the cold-chain spoilage risk from the storm and how can we protect inventory?" },
-    { label: "Fill Rate", value: "78%", icon: ShieldCheck, colorClass: "text-stone-700", bgClass: "bg-stone-100", nbaContext: "stockout" as NBAContext, chatPrompt: "Which regions have the lowest fill rates due to the storm and what emergency actions can we take?" },
-    { label: "Pending Actions", value: String(reviewCounts.pending), icon: FileText, colorClass: "text-stone-700", bgClass: "bg-stone-100", nbaContext: "general" as NBAContext, chatPrompt: "Show me all pending storm response actions and their expected impact." },
+    { label: "Fill Rate", value: `${adjustedDemand.fillRate}%`, icon: ShieldCheck, colorClass: adjustedDemand.fillRate > 78 ? "text-emerald-700" : "text-stone-700", bgClass: adjustedDemand.fillRate > 78 ? "bg-emerald-50" : "bg-stone-100", nbaContext: "stockout" as NBAContext, chatPrompt: "Which regions have the lowest fill rates due to the storm and what emergency actions can we take?" },
+    { label: "Pending Actions", value: String(adjustedDemand.pendingActions), icon: FileText, colorClass: adjustedDemand.pendingActions < CONTROL_TOWER_ACTIONS.length ? "text-emerald-700" : "text-stone-700", bgClass: adjustedDemand.pendingActions < CONTROL_TOWER_ACTIONS.length ? "bg-emerald-50" : "bg-stone-100", nbaContext: "general" as NBAContext, chatPrompt: "Show me all pending storm response actions and their expected impact." },
   ];
 
   const getDashboardContent = () => {

@@ -22,6 +22,7 @@ import {
   type ControlTowerJourneySignal,
 } from "@/lib/control-tower-data";
 import { useAuth } from "@/lib/auth-context";
+import { useActionEffects } from "@/lib/action-effects-store";
 import { DashboardModuleSurface } from "@/components/dashboard/module-dashboard-content";
 import {
   GraphInstanceDialog,
@@ -344,15 +345,17 @@ const METRIC_ACTIONS: Record<string, { label: string; href: string }[]> = {
 };
 
 function MetricNavigator() {
+  const effects = useActionEffects();
+  const heroMetrics = effects.getAdjustedHeroMetrics();
   const [selectedIndex, setSelectedIndex] = useState(() => {
-    const criticalIdx = CONTROL_TOWER_HERO_METRICS.findIndex(
+    const criticalIdx = heroMetrics.findIndex(
       (m) => m.status === "critical"
     );
     return criticalIdx >= 0 ? criticalIdx : 0;
   });
 
   const [signalSheetOpen, setSignalSheetOpen] = useState(false);
-  const metric = CONTROL_TOWER_HERO_METRICS[selectedIndex];
+  const metric = heroMetrics[selectedIndex];
   const status = STATUS_META[metric.status];
   const sparkColor = SPARKLINE_COLORS[metric.status];
   const actions = METRIC_ACTIONS[metric.id] ?? [];
@@ -362,7 +365,7 @@ function MetricNavigator() {
     <div className="space-y-0">
       {/* Tab bar */}
       <div className="flex items-center gap-1 border-b border-stone-200 overflow-x-auto">
-        {CONTROL_TOWER_HERO_METRICS.map((m, i) => {
+        {heroMetrics.map((m, i) => {
           const isActive = i === selectedIndex;
           return (
             <button
@@ -2055,6 +2058,9 @@ function AddWidgetDialog({
 function ControlTowerOverview() {
   const { user } = useAuth();
   const router = useRouter();
+  const effects = useActionEffects();
+  const adjustedSummary = effects.getAdjustedSummary();
+  const adjustedHeroMetrics = effects.getAdjustedHeroMetrics();
 
   const [expandedWidgets, setExpandedWidgets] = useState<Record<string, boolean>>(
     Object.fromEntries(
@@ -2071,8 +2077,8 @@ function ControlTowerOverview() {
     () => actions.filter((a) => a.state === "pending"),
     [actions],
   );
-  const criticalAlert = CONTROL_TOWER_ALERTS.find((a) => a.severity === "critical");
-  const decliningMetric = CONTROL_TOWER_HERO_METRICS.find(
+  const criticalAlert = adjustedSummary.criticalAlerts > 0 ? CONTROL_TOWER_ALERTS.find((a) => a.severity === "critical" && !effects.resolvedAlerts[a.id]) : undefined;
+  const decliningMetric = adjustedHeroMetrics.find(
     (m) =>
       (m.status === "attention" || m.status === "critical") &&
       m.sparkline.length >= 2 &&
@@ -2174,7 +2180,7 @@ function ControlTowerOverview() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-[11px] font-semibold text-[#cc1800]">
-                    {CONTROL_TOWER_SUMMARY.criticalAlerts} critical alert
+                    {adjustedSummary.criticalAlerts} critical alert{adjustedSummary.criticalAlerts !== 1 ? "s" : ""}
                   </p>
                   <p className="truncate text-[11px] text-stone-600">
                     {criticalAlert.title} — {criticalAlert.drilldown?.title ?? "Needs review"}

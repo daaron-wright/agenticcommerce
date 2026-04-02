@@ -7,6 +7,7 @@ import { ArtifactProvider } from "@/lib/artifact-store";
 import { IncrementalityExperimentProvider } from "@/lib/incrementality-store";
 import { KnowledgeGraphInstanceProvider } from "@/lib/knowledge-graph-instances";
 import { WorkflowEventProvider } from "@/lib/workflow-event-context";
+import { ActionEffectsProvider } from "@/lib/action-effects-store";
 import { ResizeObserverErrorHandler } from "@/components/resize-observer-error-handler";
 
 const notoKufi = Noto_Kufi_Arabic({
@@ -35,10 +36,12 @@ export default function RootLayout({
             <IncrementalityExperimentProvider>
               <KnowledgeGraphInstanceProvider>
                 <ArtifactProvider>
-                  <WorkflowEventProvider>
-                    {children}
-                    <Toaster position="top-right" />
-                  </WorkflowEventProvider>
+                  <ActionEffectsProvider>
+                    <WorkflowEventProvider>
+                      {children}
+                      <Toaster position="top-right" />
+                    </WorkflowEventProvider>
+                  </ActionEffectsProvider>
                 </ArtifactProvider>
               </KnowledgeGraphInstanceProvider>
             </IncrementalityExperimentProvider>

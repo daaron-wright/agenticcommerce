@@ -42,6 +42,7 @@ import {
   type ControlTowerAlert,
   type ControlTowerSeverity,
 } from "@/lib/control-tower-data";
+import { useActionEffects } from "@/lib/action-effects-store";
 import { buildKnowledgeGraphHref } from "@/lib/knowledge-graph-data";
 import { useArtifacts, type ArtifactCategory } from "@/lib/artifact-store";
 import { cn } from "@/lib/utils";
@@ -215,6 +216,32 @@ function resolveDataSource(pathname: string) {
   return { label: "Unified Data Platform", module: "Platform" };
 }
 
+function ConnectionStatusBadges() {
+  let summary: { criticalAlerts: number; highAlerts: number; totalAlerts: number; dataFreshness: string };
+  try {
+    const effects = useActionEffects();
+    const adj = effects.getAdjustedSummary();
+    summary = adj;
+  } catch {
+    summary = CONTROL_TOWER_SUMMARY;
+  }
+  return (
+    <>
+      <span className="inline-flex items-center gap-1 rounded-full bg-[#ff462d]/10 px-2 py-0.5 text-[10px] font-semibold text-[#ff462d]">
+        {summary.criticalAlerts} critical
+      </span>
+      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-600">
+        {summary.highAlerts} high
+      </span>
+      <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-500">
+        {summary.totalAlerts} alerts
+      </span>
+      <span className="text-stone-300">&middot;</span>
+      <span className="text-[10px] text-stone-400">{summary.dataFreshness}</span>
+    </>
+  );
+}
+
 function ConnectionStatusBar({ pathname }: { pathname: string }) {
   const source = resolveDataSource(pathname);
   const { bannerControls } = useBannerControls();
@@ -228,17 +255,7 @@ function ConnectionStatusBar({ pathname }: { pathname: string }) {
       <span className="text-stone-400">{source.module}</span>
       <div className="ml-auto flex items-center gap-2 shrink-0">
         {bannerControls}
-        <span className="inline-flex items-center gap-1 rounded-full bg-[#ff462d]/10 px-2 py-0.5 text-[10px] font-semibold text-[#ff462d]">
-          {CONTROL_TOWER_SUMMARY.criticalAlerts} critical
-        </span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-600">
-          {CONTROL_TOWER_SUMMARY.highAlerts} high
-        </span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-500">
-          {CONTROL_TOWER_SUMMARY.totalAlerts} alerts
-        </span>
-        <span className="text-stone-300">·</span>
-        <span className="text-[10px] text-stone-400">{CONTROL_TOWER_SUMMARY.dataFreshness}</span>
+        <ConnectionStatusBadges />
       </div>
     </div>
   );
@@ -923,13 +940,10 @@ const SEVERITY_DOT: Record<ControlTowerSeverity, string> = {
 
 function NotificationsPanel() {
   const { user } = useAuth();
+  const effects = useActionEffects();
+  const { resolvedAlerts, approvedActions, reachRedirectActive, demandReorderSubmitted, campaignApplied } = effects;
   const [channelTab, setChannelTab] = useState<ChannelTab>("alerts");
-  const [resolvedAlerts, setResolvedAlerts] = useState<Record<string, "approved" | "conditional" | "rejected">>({});
   const [expandedAlertId, setExpandedAlertId] = useState<string | null>(null);
-  const [approvedActions, setApprovedActions] = useState<Record<string, "approved" | "rejected">>({});
-  const [reachRedirectActive, setReachRedirectActive] = useState(false);
-  const [demandReorderSubmitted, setDemandReorderSubmitted] = useState(false);
-  const [campaignApplied, setCampaignApplied] = useState(false);
 
   const unresolvedAlertCount = CONTROL_TOWER_ALERTS.length - Object.keys(resolvedAlerts).length;
   const pendingApprovalCount = CONTROL_TOWER_ACTIONS.length - Object.keys(approvedActions).length;
@@ -979,7 +993,7 @@ function NotificationsPanel() {
             expandedAlertId={expandedAlertId}
             onToggleExpand={(id) => setExpandedAlertId(expandedAlertId === id ? null : id)}
             onResolve={(id, type) => {
-              setResolvedAlerts((prev) => ({ ...prev, [id]: type }));
+              effects.resolveAlert(id, type);
               toast.success(`Alert resolved — ${type}`, { description: CONTROL_TOWER_ALERTS.find((a) => a.id === id)?.title });
             }}
           />
@@ -988,7 +1002,7 @@ function NotificationsPanel() {
           <ApprovalsTab
             approvedActions={approvedActions}
             onAction={(id, type) => {
-              setApprovedActions((prev) => ({ ...prev, [id]: type }));
+              effects.approveAction(id, type);
               toast.success(`Action ${type}`, { description: CONTROL_TOWER_ACTIONS.find((a) => a.id === id)?.title });
             }}
           />
@@ -997,7 +1011,7 @@ function NotificationsPanel() {
           <ReachTab
             redirectActive={reachRedirectActive}
             onApproveRedirect={() => {
-              setReachRedirectActive(true);
+              effects.activateReachRedirect();
               toast.success("Redirect activated", { description: "3,400 orders redirected to in-store pickup at 26 open stores" });
             }}
           />
@@ -1006,7 +1020,7 @@ function NotificationsPanel() {
           <DemandTab
             reorderSubmitted={demandReorderSubmitted}
             onTriggerReorder={() => {
-              setDemandReorderSubmitted(true);
+              effects.submitDemandReorder();
               toast.success("Emergency reorder submitted", { description: "47 SKUs queued for emergency replenishment" });
             }}
           />
@@ -1015,7 +1029,7 @@ function NotificationsPanel() {
           <CampaignTab
             applied={campaignApplied}
             onApply={() => {
-              setCampaignApplied(true);
+              effects.applyCampaign();
               toast.success("Channel reallocation applied", { description: "8% shifted from In-Store Signage to Push Notifications" });
             }}
           />
