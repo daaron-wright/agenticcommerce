@@ -63,139 +63,138 @@ import { NewCampaignDialog } from "@/components/campaigns/new-campaign-dialog";
 
 const conditionTabs = ["Slow moving stock", "Slow movers", "Expiry date"] as const;
 
-const featureBullets = [
-  "Link marketing actions directly to inventory insights",
-  "Prioritize promotional efforts on items needing visibility",
-  "Keep top-selling products consistently available",
-  "Prevent overstocks and stockouts with precise alignment",
-  "Improve return on marketing spend through targeted inventory support",
-];
+
+function getSellThroughTabData(tab: (typeof conditionTabs)[number]) {
+  const regularProducts = sellThroughProducts.filter((p) => !p.excludedFromMarketing);
+  const excludedProducts = sellThroughProducts.filter((p) => p.excludedFromMarketing);
+
+  switch (tab) {
+    case "Slow moving stock":
+      // Products with low sell-through (<15)
+      return {
+        primary: regularProducts
+          .filter((p) => p.forecastSellThrough < 15)
+          .map((p) => ({ x: p.forecastSellThrough, y: p.marketingSpend, label: p.name })),
+        secondary: excludedProducts
+          .filter((p) => p.forecastSellThrough < 15)
+          .map((p) => ({ x: p.forecastSellThrough, y: p.marketingSpend, label: p.name })),
+        primaryLabel: "Active products",
+        secondaryLabel: "Excluded products",
+      };
+    case "Slow movers":
+      // All products — highlight those with both low sell-through AND low spend
+      return {
+        primary: regularProducts
+          .filter((p) => p.forecastSellThrough < 20 && p.marketingSpend < 8000)
+          .map((p) => ({ x: p.forecastSellThrough, y: p.marketingSpend, label: p.name })),
+        secondary: regularProducts
+          .filter((p) => !(p.forecastSellThrough < 20 && p.marketingSpend < 8000))
+          .concat(excludedProducts)
+          .map((p) => ({ x: p.forecastSellThrough, y: p.marketingSpend, label: p.name })),
+        primaryLabel: "Slow movers",
+        secondaryLabel: "Other products",
+      };
+    case "Expiry date":
+      // Simulate days-until-expiry as a derived dimension
+      return {
+        primary: sellThroughProducts
+          .filter((p) => p.forecastSellThrough < 10)
+          .map((p) => ({ x: p.forecastSellThrough, y: p.marketingSpend, label: p.name })),
+        secondary: sellThroughProducts
+          .filter((p) => p.forecastSellThrough >= 10)
+          .map((p) => ({ x: p.forecastSellThrough, y: p.marketingSpend, label: p.name })),
+        primaryLabel: "Approaching expiry",
+        secondaryLabel: "Healthy stock",
+      };
+  }
+}
 
 function SellThroughOptimization() {
   const [activeTab, setActiveTab] = useState<(typeof conditionTabs)[number]>("Slow moving stock");
 
-  const regularProducts = sellThroughProducts.filter((p) => !p.excludedFromMarketing);
-  const excludedProducts = sellThroughProducts.filter((p) => p.excludedFromMarketing);
+  const tabData = getSellThroughTabData(activeTab);
 
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold text-[#3d3c3c]">Let marketing automatically optimize sell-through</h2>
-        <p className="text-sm text-stone-500">Sync marketing strategies with inventory forecasts</p>
+        <h2 className="text-lg font-semibold text-[#3d3c3c]">Sell-Through Analysis</h2>
+        <p className="text-sm text-stone-500">Product sell-through rates and spend distribution</p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Left: Condition builder + scatter chart */}
-        <Card className={cn(visualizationCardClass)}>
-          <CardContent className="pt-4 space-y-4">
-            {/* Tab bar */}
-            <div className="flex gap-1 border-b border-stone-100">
-              {conditionTabs.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={cn(
-                    "px-3 py-1.5 text-xs font-medium rounded-t transition-colors",
-                    activeTab === tab
-                      ? "bg-stone-100 text-[#3d3c3c] border-b-2 border-[#3d3c3c]"
-                      : "text-stone-400 hover:text-stone-600"
-                  )}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            {/* Condition rows */}
-            <div className="space-y-1.5 text-xs">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-stone-400 w-16">Condition</span>
-                <span className="rounded border border-stone-200 bg-stone-50 px-2 py-1 font-medium">Forecast sell-through rate</span>
-                <span className="rounded border border-stone-200 bg-stone-50 px-2 py-1">is less than</span>
-                <span className="rounded border border-stone-200 bg-stone-50 px-2 py-1 font-semibold">15</span>
-                <span className="rounded border border-stone-200 bg-stone-50 px-2 py-1">This year</span>
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-stone-400 w-16">and</span>
-                <span className="rounded border border-stone-200 bg-stone-50 px-2 py-1 font-medium">Marketing spend</span>
-                <span className="rounded border border-stone-200 bg-stone-50 px-2 py-1">is top</span>
-                <span className="rounded border border-stone-200 bg-stone-50 px-2 py-1 font-semibold">30</span>
-                <span className="rounded border border-stone-200 bg-stone-50 px-2 py-1">Last 30 days</span>
-              </div>
-            </div>
-
-            {/* Scatter chart */}
-            <ResponsiveContainer width="100%" height={260}>
-              <ScatterChart margin={{ top: 10, right: 10, bottom: 30, left: 10 }}>
-                <CartesianGrid {...visualizationGrid} />
-                <XAxis
-                  type="number"
-                  dataKey="x"
-                  tick={visualizationSmallTick}
-                  tickLine={false}
-                  axisLine={false}
-                  label={{ value: "Forecast sell-through", position: "bottom", offset: 10, style: { fontSize: 10, fill: visualizationPalette.axis } }}
-                />
-                <YAxis
-                  type="number"
-                  dataKey="y"
-                  tick={visualizationSmallTick}
-                  tickLine={false}
-                  axisLine={false}
-                  label={{ value: "Marketing spend", angle: -90, position: "insideLeft", offset: -5, style: { fontSize: 10, fill: visualizationPalette.axis } }}
-                />
-                <Tooltip
-                  contentStyle={visualizationTooltipStyle}
-                  formatter={(value: number) => value.toLocaleString()}
-                />
-                <Scatter
-                  name="Regular products"
-                  data={regularProducts.map((p) => ({ x: p.forecastSellThrough, y: p.marketingSpend, label: p.name }))}
-                  fill={visualizationPalette.teal}
-                  fillOpacity={0.75}
-                  strokeWidth={0}
-                />
-                <Scatter
-                  name="Excluded from marketing"
-                  data={excludedProducts.map((p) => ({ x: p.forecastSellThrough, y: p.marketingSpend, label: p.name }))}
-                  fill={visualizationPalette.mist}
-                  fillOpacity={0.6}
-                  strokeWidth={0}
-                />
-              </ScatterChart>
-            </ResponsiveContainer>
-
-            {/* Legend */}
-            <div className="flex items-center gap-4 text-[10px] text-stone-500">
-              <div className="flex items-center gap-1.5">
-                <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: visualizationPalette.teal }} />
-                Regular products
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: visualizationPalette.mist }} />
-                Excluded from marketing
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Right: Description + feature bullets */}
-        <div className="flex flex-col justify-center space-y-4">
-          <p className="text-sm text-stone-600 leading-relaxed">
-            Seamlessly connect your marketing activities with real-time inventory predictions.
-            Dema ensures bestsellers remain stocked and slow-moving items gain targeted
-            exposure to optimize overall profitability.
-          </p>
-          <ul className="space-y-2.5">
-            {featureBullets.map((bullet) => (
-              <li key={bullet} className="flex items-start gap-2.5 text-sm text-stone-700">
-                <Check className="h-4 w-4 mt-0.5 flex-shrink-0 text-stone-400" />
-                {bullet}
-              </li>
+      <Card className={cn(visualizationCardClass)}>
+        <CardContent className="pt-4 space-y-4">
+          {/* Tab bar */}
+          <div className="flex gap-1 border-b border-stone-100">
+            {conditionTabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={cn(
+                  "px-3 py-1.5 text-xs font-medium rounded-t transition-colors",
+                  activeTab === tab
+                    ? "bg-stone-100 text-[#3d3c3c] border-b-2 border-[#3d3c3c]"
+                    : "text-stone-400 hover:text-stone-600"
+                )}
+              >
+                {tab}
+              </button>
             ))}
-          </ul>
-        </div>
-      </div>
+          </div>
+
+          {/* Scatter chart */}
+          <ResponsiveContainer width="100%" height={300}>
+            <ScatterChart margin={{ top: 10, right: 10, bottom: 30, left: 10 }}>
+              <CartesianGrid {...visualizationGrid} />
+              <XAxis
+                type="number"
+                dataKey="x"
+                tick={visualizationSmallTick}
+                tickLine={false}
+                axisLine={false}
+                label={{ value: "Forecast sell-through", position: "bottom", offset: 10, style: { fontSize: 10, fill: visualizationPalette.axis } }}
+              />
+              <YAxis
+                type="number"
+                dataKey="y"
+                tick={visualizationSmallTick}
+                tickLine={false}
+                axisLine={false}
+                label={{ value: "Marketing spend", angle: -90, position: "insideLeft", offset: -5, style: { fontSize: 10, fill: visualizationPalette.axis } }}
+              />
+              <Tooltip
+                contentStyle={visualizationTooltipStyle}
+                formatter={(value: number) => value.toLocaleString()}
+              />
+              <Scatter
+                name={tabData.primaryLabel}
+                data={tabData.primary}
+                fill={visualizationPalette.teal}
+                fillOpacity={0.75}
+                strokeWidth={0}
+              />
+              <Scatter
+                name={tabData.secondaryLabel}
+                data={tabData.secondary}
+                fill={visualizationPalette.mist}
+                fillOpacity={0.6}
+                strokeWidth={0}
+              />
+            </ScatterChart>
+          </ResponsiveContainer>
+
+          {/* Legend */}
+          <div className="flex items-center gap-4 text-[10px] text-stone-500">
+            <div className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: visualizationPalette.teal }} />
+              {tabData.primaryLabel}
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: visualizationPalette.mist }} />
+              {tabData.secondaryLabel}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
