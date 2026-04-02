@@ -32,6 +32,8 @@ import {
   AlertTriangle, Zap, FlaskConical, Database,
 } from "lucide-react";
 import { AiGovernanceLifecycle, DataEnrichment } from "@carbon/icons-react";
+import { Sparkles } from "lucide-react";
+import { AIRecommendationsPanel } from "@/components/dashboard/ai-recommendations-panel";
 import {
   CONTROL_TOWER_ALERTS,
   CONTROL_TOWER_SUMMARY,
@@ -239,7 +241,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
   const [utilityPanelOpen, setUtilityPanelOpen] = useState(false);
-  const [activeUtilityTab, setActiveUtilityTab] = useState<"notifications" | "explainability">("explainability");
+  const [activeUtilityTab, setActiveUtilityTab] = useState<"notifications" | "explainability" | "recommendations">("explainability");
   const [bannerControls, setBannerControls] = useState<React.ReactNode>(null);
   const { getUnseenCount, clearArtifacts } = useArtifacts();
   const { setWorkflowEventHandler, setResetDAGHandler, clearWorkflowSession } = useWorkflowEvents();
@@ -306,7 +308,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const openUtilityPanel = useCallback((tab: "notifications" | "explainability") => {
+  const openUtilityPanel = useCallback((tab: "notifications" | "explainability" | "recommendations") => {
     setActiveUtilityTab(tab);
     setUtilityPanelOpen(true);
   }, []);
@@ -566,7 +568,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
 
           {hasPermissionForUser(user, "nba_view") && (
             <Button
-              className="w-full justify-start gap-3 rounded-md px-3 py-2 h-auto font-medium mb-4 bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary border-none shadow-none"
+              className="w-full justify-start gap-3 rounded-md px-3 py-2 h-auto font-medium bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary border-none shadow-none"
               variant="outline"
               onClick={() => openUtilityPanel("explainability")}
             >
@@ -574,6 +576,15 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
               <span>Explainability</span>
             </Button>
           )}
+
+          <Button
+            className="w-full justify-start gap-3 rounded-md px-3 py-2 h-auto font-medium mb-4 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:text-amber-800 border border-amber-200 shadow-none"
+            variant="outline"
+            onClick={() => openUtilityPanel("recommendations")}
+          >
+            <Sparkles className="h-4 w-4" />
+            <span>AI Recommendations</span>
+          </Button>
 
           <div className="pt-2 border-t flex flex-col gap-1">
             <button
@@ -1210,13 +1221,32 @@ function ExplainabilityPanel() {
   );
 }
 
+function RecommendationsTabPanel() {
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex items-center justify-between px-4 py-3 border-b bg-stone-50/80 shrink-0">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-amber-600" />
+          <div>
+            <h2 className="text-sm font-semibold text-[#3d3c3c]">AI Recommendations</h2>
+            <p className="text-[10px] text-muted-foreground">Actionable insights from your data</p>
+          </div>
+        </div>
+      </div>
+      <div className="flex-1 overflow-y-auto px-4 py-4">
+        <AIRecommendationsPanel />
+      </div>
+    </div>
+  );
+}
+
 function UtilityPanel({
   activeTab,
   onTabChange,
   onClose,
 }: {
-  activeTab: "notifications" | "explainability";
-  onTabChange: (tab: "notifications" | "explainability") => void;
+  activeTab: "notifications" | "explainability" | "recommendations";
+  onTabChange: (tab: "notifications" | "explainability" | "recommendations") => void;
   onClose: () => void;
 }) {
   return (
@@ -1247,6 +1277,18 @@ function UtilityPanel({
           >
             Explainability
           </button>
+          <button
+            type="button"
+            onClick={() => onTabChange("recommendations")}
+            className={cn(
+              "rounded-full px-3 py-1.5 text-xs font-medium transition",
+              activeTab === "recommendations"
+                ? "bg-amber-100 text-amber-800"
+                : "text-stone-500 hover:bg-stone-100 hover:text-stone-800",
+            )}
+          >
+            AI Recs
+          </button>
         </div>
         <Button variant="ghost" size="icon" onClick={onClose} className="h-7 w-7">
           <X className="h-4 w-4" />
@@ -1254,8 +1296,10 @@ function UtilityPanel({
       </div>
       {activeTab === "notifications" ? (
         <NotificationsPanel />
-      ) : (
+      ) : activeTab === "explainability" ? (
         <ExplainabilityPanel />
+      ) : (
+        <RecommendationsTabPanel />
       )}
     </>
   );

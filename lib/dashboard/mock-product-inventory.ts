@@ -59,6 +59,38 @@ export const inventoryForecastData: InventoryForecastPoint[] = [
   { week: "W12", actual: null, forecast: 27500 },
 ];
 
+/* ── Sell-Through Optimization scatter data ───────────────────────────── */
+
+export type SellThroughProduct = {
+  name: string;
+  forecastSellThrough: number;
+  marketingSpend: number;
+  excludedFromMarketing: boolean;
+};
+
+export const sellThroughProducts: SellThroughProduct[] = [
+  { name: "Belted Wrap Cardigan", forecastSellThrough: 12, marketingSpend: 9100, excludedFromMarketing: false },
+  { name: "Jacquard Knitted Dress", forecastSellThrough: 8, marketingSpend: 17200, excludedFromMarketing: false },
+  { name: "Wool Blend Overcoat", forecastSellThrough: 22, marketingSpend: 22400, excludedFromMarketing: false },
+  { name: "Ribbed Knit Cardigan", forecastSellThrough: 6, marketingSpend: 8900, excludedFromMarketing: false },
+  { name: "Cropped Denim Jacket", forecastSellThrough: 45, marketingSpend: 31500, excludedFromMarketing: false },
+  { name: "Linen Blend Trousers", forecastSellThrough: 10, marketingSpend: 5600, excludedFromMarketing: true },
+  { name: "Silk Camisole Top", forecastSellThrough: 35, marketingSpend: 14200, excludedFromMarketing: false },
+  { name: "Cotton Polo Shirt", forecastSellThrough: 18, marketingSpend: 3200, excludedFromMarketing: true },
+  { name: "Pleated Midi Skirt", forecastSellThrough: 28, marketingSpend: 11800, excludedFromMarketing: false },
+  { name: "Cashmere V-Neck", forecastSellThrough: 14, marketingSpend: 19500, excludedFromMarketing: false },
+  { name: "Relaxed Fit Chinos", forecastSellThrough: 9, marketingSpend: 4100, excludedFromMarketing: true },
+  { name: "Oversized Blazer", forecastSellThrough: 32, marketingSpend: 26800, excludedFromMarketing: false },
+  { name: "Merino Turtleneck", forecastSellThrough: 20, marketingSpend: 7400, excludedFromMarketing: false },
+  { name: "Printed Scarf", forecastSellThrough: 5, marketingSpend: 1200, excludedFromMarketing: true },
+  { name: "Leather Belt", forecastSellThrough: 42, marketingSpend: 2800, excludedFromMarketing: true },
+  { name: "Tailored Trousers", forecastSellThrough: 16, marketingSpend: 15600, excludedFromMarketing: false },
+  { name: "Knitted Beanie", forecastSellThrough: 38, marketingSpend: 3500, excludedFromMarketing: false },
+  { name: "Suede Ankle Boots", forecastSellThrough: 25, marketingSpend: 21000, excludedFromMarketing: false },
+  { name: "Striped T-Shirt", forecastSellThrough: 11, marketingSpend: 6200, excludedFromMarketing: true },
+  { name: "Puffer Vest", forecastSellThrough: 30, marketingSpend: 18900, excludedFromMarketing: false },
+];
+
 export const atRiskProducts: AtRiskProduct[] = [
   { name: "Cropped Denim Jacket", sku: "CDJ-891", daysOfStock: 8, sellThroughRate: 78.2, risk: "high" },
   { name: "Belted Wrap Cardigan", sku: "BWC-758", daysOfStock: 14, sellThroughRate: 62.5, risk: "medium" },

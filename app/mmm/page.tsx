@@ -29,7 +29,6 @@ import {
   channelRecommendations,
   saturationChannels,
 } from "@/lib/dashboard/mock-mmm-saturation";
-import { PageWithRecommendations } from "@/components/dashboard/ai-recommendations-panel";
 import {
   Select,
   SelectContent,
@@ -609,7 +608,6 @@ export default function MMMPage() {
   };
 
   return (
-    <PageWithRecommendations>
       <div className="min-w-0 space-y-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap items-center gap-2">
@@ -684,6 +682,5 @@ export default function MMMPage() {
         </CardContent>
       </Card>
       </div>
-    </PageWithRecommendations>
   );
 }

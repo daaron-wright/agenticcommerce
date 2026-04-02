@@ -45,7 +45,6 @@ import {
   visualizationTooltipStyle,
 } from "@/lib/visualization-theme";
 import { attributionModelRows } from "@/lib/dashboard/mock-incrementality-summary";
-import { PageWithRecommendations } from "@/components/dashboard/ai-recommendations-panel";
 
 function ChangeBadge({ value }: { value: string }) {
   return (
@@ -102,7 +101,6 @@ export default function ReportsPage() {
   }, [sortDir]);
 
   return (
-    <PageWithRecommendations>
       <div className="space-y-4 min-w-0">
         <Sheet open={showFilters} onOpenChange={setShowFilters}>
         <SheetContent side="right" className="w-80">
@@ -531,6 +529,5 @@ export default function ReportsPage() {
       </Card>
 
       </div>
-    </PageWithRecommendations>
   );
 }
