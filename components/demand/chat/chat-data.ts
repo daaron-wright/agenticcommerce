@@ -52,24 +52,24 @@ export const SCENARIO_META: Record<
   { label: string; description: string; risk: string; outcome: string; budget: string }
 > = {
   "waste-reduction": {
-    label: "Reduce Perishable Waste",
-    description: "Tighten forecasts at the SKU-store-day level to cut spoilage on dairy, bakery, and produce.",
-    risk: "Low",
-    outcome: "-25% Waste",
+    label: "Cold-Chain Protection",
+    description: "Verify cold-chain integrity for frozen and chilled goods across storm-impacted DCs and in-transit shipments.",
+    risk: "Medium",
+    outcome: "-60% Spoilage",
     budget: "No Change",
   },
   "stockout-prevention": {
-    label: "Prevent Stock-Outs",
-    description: "Improve fill rates during high-demand periods with better demand sensing and safety stock optimization.",
-    risk: "Medium",
-    outcome: "97.5% Fill Rate",
-    budget: "+8% Safety Stock",
+    label: "Emergency Stockout Prevention",
+    description: "Approve emergency reorders for storm-critical SKUs before the pre-storm delivery window closes.",
+    risk: "High",
+    outcome: "Protect $820K",
+    budget: "+Emergency Budget",
   },
   "promotion-planning": {
-    label: "Optimize Promotion Planning",
-    description: "Model promotional lift to right-size inventory and capture full revenue upside on promotions.",
+    label: "Storm Recovery Planning",
+    description: "Pre-position recovery inventory and adjust demand forecasts for post-lockdown store reopening.",
     risk: "Medium",
-    outcome: "+18% Promo Revenue",
+    outcome: "+$340K Recovery",
     budget: "+12% Inventory",
   },
 };
@@ -86,80 +86,80 @@ export interface SuggestedPromptCard {
 export const WELCOME_PROMPT_CARDS: SuggestedPromptCard[] = [
   {
     icon: "TrendingUp",
-    label: "Why is our perishable waste so high this quarter?",
-    boldWords: ["perishable waste"],
-    prompt: "Why is our perishable waste so high?",
+    label: "What is the storm impact on my supply chain?",
+    boldWords: ["storm impact", "supply chain"],
+    prompt: "What is the storm impact on my supply chain?",
   },
   {
     icon: "CloudSun",
-    label: "We're over-ordering perishables and don't know why.",
-    boldWords: ["over-ordering perishables"],
-    prompt: "We're over-ordering perishables and don't know why",
+    label: "Which SKUs are at critical stockout risk from the blizzard?",
+    boldWords: ["critical stockout", "blizzard"],
+    prompt: "Which SKUs are at critical stockout risk from the blizzard?",
   },
   {
     icon: "Zap",
-    label: "Our planners are overwhelmed reviewing every SKU manually.",
-    boldWords: ["planners are overwhelmed"],
-    prompt: "Our planners are overwhelmed reviewing every SKU manually",
+    label: "Show me the emergency reorder plan status.",
+    boldWords: ["emergency reorder"],
+    prompt: "Show me the emergency reorder plan status",
   },
   {
     icon: "BarChart3",
-    label: "We're losing $2.3M a year in spoilage — what can we do?",
-    boldWords: ["$2.3M", "spoilage"],
-    prompt: "We're losing $2.3M a year in spoilage — what can we do?",
+    label: "What is the cold-chain status across our DCs?",
+    boldWords: ["cold-chain", "DCs"],
+    prompt: "What is the cold-chain status across our DCs?",
   },
   {
     icon: "AiRecommend",
-    label: "Stock-outs spike during promotions and we can't keep up.",
-    boldWords: ["Stock-outs", "promotions"],
-    prompt: "Stock-outs spike during promotions and we can't keep up",
+    label: "How should we plan for post-storm recovery?",
+    boldWords: ["post-storm", "recovery"],
+    prompt: "How should we plan for post-storm recovery?",
   },
   {
     icon: "Workflow",
-    label: "Our fill rate is dropping and we're missing sales targets.",
-    boldWords: ["fill rate", "sales targets"],
-    prompt: "Our fill rate is dropping and we're missing sales targets",
+    label: "Which delivery routes are blocked by road closures?",
+    boldWords: ["delivery routes", "road closures"],
+    prompt: "Which delivery routes are blocked by road closures?",
   },
 ];
 
-export const WELCOME_HEADING = "What would you like to plan?";
+export const WELCOME_HEADING = "Storm Response — What do you need?";
 
 // ── Next Best Actions ───────────────────────────────────────────────────────
 
 export const ALL_NBA_ACTIONS: NBAAction[] = [
   {
     id: "adjust-forecast-dairy",
-    title: "Adjust Dairy Forecast +15%",
-    segment: "Dairy — Yoghurt, Milk, Ice Cream",
-    action: "Increase dairy forecast by 15% for the next 7 days",
-    expectedLift: "-40% dairy waste risk",
-    confidence: 92,
-    agentReason: "7-day weather model shows 34°C heatwave arriving Thursday. Historical pattern shows +15% dairy demand (yoghurt, milk, ice cream) during heatwaves >30°C. Current forecast does not reflect this signal.",
+    title: "Emergency Reorder — Storm-Critical SKUs",
+    segment: "Water, Batteries, First Aid, Ready Meals, Pet Food",
+    action: "Approve emergency reorder for 6 storm-critical SKUs at Northeast DC",
+    expectedLift: "Protects $820K revenue",
+    confidence: 94,
+    agentReason: "Severe blizzard with 72-hour lockdown driving panic buying. 47 SKUs below minimum cover. Demand surge 200-320% above baseline. Pre-storm delivery window closes at 2:00 PM today.",
   },
   {
     id: "reduce-bakery-order",
-    title: "Reduce Bakery Tue/Wed Orders -20%",
-    segment: "Bakery — Artisan Bread, Pastries",
-    action: "Reduce bakery replenishment orders by 20% on Tuesday and Wednesday",
-    expectedLift: "-22% bakery waste",
-    confidence: 88,
-    agentReason: "Last 8 weeks show consistent 18-22% waste on Tue/Wed for artisan bread and pastries. Demand sensing model confirms mid-week trough is structural, not seasonal.",
+    title: "Approve Cold-Chain Transport",
+    segment: "Chilled Ready Meals, Frozen Desserts",
+    action: "Approve sub-4°C conditional transport for frozen and chilled goods to Northeast DC",
+    expectedLift: "-60% spoilage risk",
+    confidence: 91,
+    agentReason: "Power outage risk at Northeast DC threatening cold-chain integrity. 3 trucks en route require temperature verification. Generator has 18 hours fuel — resupply dispatched.",
   },
   {
     id: "trigger-promo-restock",
-    title: "Pre-Position Promo Inventory",
-    segment: "Fresh Produce — Strawberries, Salad Kits",
-    action: "Pre-position additional stock by Friday for Monday BOGO launch",
-    expectedLift: "+$180K promo revenue",
-    confidence: 95,
-    agentReason: "Upcoming BOGO on strawberries and salad kits projects 2.1x demand lift based on similar promotions. Current DC allocation covers only 1.3x. Recommend pre-positioning additional stock by Friday.",
+    title: "Activate Emergency Suppliers",
+    segment: "Water, Batteries, First Aid, Pet Food",
+    action: "Activate 4 backup suppliers for storm-critical categories",
+    expectedLift: "-35% stockout risk",
+    confidence: 88,
+    agentReason: "Primary supply chain disrupted by storm. Backup suppliers have confirmed capacity and can deliver via cleared highway corridors within 24 hours.",
   },
 ];
 
 export const SCENARIO_NBAS: Record<ScenarioId, NBAActionId[]> = {
-  "waste-reduction": ["adjust-forecast-dairy", "reduce-bakery-order"],
+  "waste-reduction": ["reduce-bakery-order", "adjust-forecast-dairy"],
   "stockout-prevention": ["adjust-forecast-dairy", "trigger-promo-restock"],
-  "promotion-planning": ["trigger-promo-restock", "reduce-bakery-order"],
+  "promotion-planning": ["trigger-promo-restock", "adjust-forecast-dairy"],
 };
 
 export const EXECUTION_FLOWS: Record<NBAActionId, ChatFlow> = {
