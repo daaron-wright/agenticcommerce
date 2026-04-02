@@ -691,6 +691,9 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
           )}
 
           <div className="flex items-center gap-4">
+            {pathname.startsWith("/chat") && bannerControls && (
+              <div className="flex items-center gap-2">{bannerControls}</div>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
