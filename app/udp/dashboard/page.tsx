@@ -35,9 +35,24 @@ import {
   visualizationSmallTick,
   visualizationTooltipStyle,
 } from "@/lib/visualization-theme";
-import { Check, TrendingUp, TrendingDown, FlaskConical, Megaphone, X, AlertTriangle } from "lucide-react";
+import { Check, TrendingUp, TrendingDown, FlaskConical, Megaphone, X, AlertTriangle, Shirt, Gem, ShoppingBag, Wind, Scissors } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+
+/* ── Category → Icon mapping ───────────────────────────────────────────── */
+
+const categoryIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  Knitwear: Shirt,
+  Dresses: Gem,
+  Outerwear: Wind,
+  Trousers: Scissors,
+  Tops: ShoppingBag,
+};
+
+function CategoryIcon({ category, className }: { category: string; className?: string }) {
+  const Icon = categoryIcons[category] ?? ShoppingBag;
+  return <Icon className={className} />;
+}
 import Link from "next/link";
 import { buildIncrementalityHref } from "@/lib/incrementality-data";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -204,31 +219,29 @@ function ProductCard({ product, onClick }: { product: ProductProfitabilityCard; 
 
   return (
     <Card
-      className={cn("rounded-2xl border-stone-200 bg-white shadow-none cursor-pointer hover:border-stone-300 transition-colors group", isAtRisk && "border-amber-200")}
+      className={cn("rounded-none border-stone-200 bg-stone-50 shadow-none cursor-pointer hover:bg-stone-100 transition-colors group", isAtRisk && "border-amber-200")}
       onClick={onClick}
     >
-      <CardContent className="p-4 space-y-3">
-        {/* Image */}
-        <div className="relative aspect-square rounded-xl overflow-hidden bg-stone-100">
-          <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
-          {isAtRisk && (
-            <div className="absolute top-2 right-2">
-              <Badge variant="outline" className="border-red-200 bg-red-50 text-red-700 text-[9px]">
-                <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />
-                At risk
-              </Badge>
-            </div>
-          )}
-        </div>
-
-        {/* Header */}
-        <div>
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-[#3d3c3c] truncate">{product.name}</h3>
+      <CardContent className="p-3 space-y-2">
+        {/* Header with icon */}
+        <div className="flex items-start gap-2">
+          <div className="h-8 w-8 rounded-lg bg-stone-200/60 flex items-center justify-center flex-shrink-0">
+            <CategoryIcon category={product.category} className="h-4 w-4 text-stone-500" />
           </div>
-          <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-[10px] text-stone-400">{product.category}</span>
-            <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-stone-200 text-stone-500">{product.market}</Badge>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center justify-between gap-1">
+              <h3 className="text-xs font-semibold text-[#3d3c3c] truncate">{product.name}</h3>
+              {isAtRisk && (
+                <Badge variant="outline" className="border-red-200 bg-red-50 text-red-700 text-[9px] flex-shrink-0">
+                  <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />
+                  At risk
+                </Badge>
+              )}
+            </div>
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-[10px] text-stone-400">{product.category}</span>
+              <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-stone-200 text-stone-500">{product.market}</Badge>
+            </div>
           </div>
         </div>
 
@@ -264,7 +277,7 @@ function ProductCard({ product, onClick }: { product: ProductProfitabilityCard; 
           </div>
         </div>
 
-        <button className="text-[10px] text-stone-400 hover:text-stone-600 font-medium">▸ View all</button>
+        <button className="text-[10px] text-stone-400 hover:text-stone-600 font-medium">▸ Details</button>
       </CardContent>
     </Card>
   );
@@ -311,8 +324,8 @@ function ProductDetailPanel({
           <SheetTitle className="sr-only">{product.name}</SheetTitle>
           <SheetDescription className="sr-only">Product profitability details for {product.name}</SheetDescription>
           <div className="flex items-start gap-4">
-            <div className="h-16 w-16 rounded-xl overflow-hidden bg-stone-100 flex-shrink-0">
-              <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover" />
+            <div className="h-12 w-12 rounded-lg bg-stone-100 flex items-center justify-center flex-shrink-0">
+              <CategoryIcon category={product.category} className="h-5 w-5 text-stone-500" />
             </div>
             <div className="min-w-0">
               <h3 className="text-base font-semibold text-[#3d3c3c]">{product.name}</h3>
@@ -470,7 +483,7 @@ export default function UdpDashboardPage() {
           <h2 className="text-lg font-semibold text-[#3d3c3c]">Product Profitability</h2>
           <p className="text-sm text-stone-500">Click a product to drill down into profitability and launch experiments</p>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {productProfitabilityCards.map((product) => (
             <ProductCard key={product.id} product={product} onClick={() => handleProductClick(product)} />
           ))}
