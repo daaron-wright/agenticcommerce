@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState, useMemo, useCallback, useRef, useEffect, type ReactNode } from "react";
+import { Fragment, useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { getNavigation, getPermissions, hasPermissionForUser } from "@/lib/permissions/roles";
@@ -31,7 +31,7 @@ import {
   Network, MessageSquare, X, CheckCircle2,
   Loader2, ChevronRight, ChevronDown, Monitor,
   AlertTriangle, Zap, FlaskConical, Database, Sparkles,
-  Shield, Truck, ShoppingCart, Radio, MapPin, Package, Thermometer, User,
+  MapPin, User,
 } from "lucide-react";
 import { AiGovernanceLifecycle, DataEnrichment } from "@carbon/icons-react";
 import { AIRecommendationsPanel } from "@/components/dashboard/ai-recommendations-panel";
@@ -40,7 +40,6 @@ import {
   CONTROL_TOWER_ACTIONS,
   CONTROL_TOWER_SUMMARY,
   type ControlTowerAlert,
-  type ControlTowerAction,
   type ControlTowerSeverity,
 } from "@/lib/control-tower-data";
 import { buildKnowledgeGraphHref } from "@/lib/knowledge-graph-data";
