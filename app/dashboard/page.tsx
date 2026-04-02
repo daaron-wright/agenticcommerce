@@ -634,7 +634,12 @@ function TabNBASection({ metricId }: { metricId: string }) {
                         size="sm"
                         variant="outline"
                         className="h-7 text-[11px]"
-                        onClick={() => router.push("/chat")}
+                        onClick={() => {
+                          const prompt = encodeURIComponent(
+                            `Investigate: ${action.title}. ${action.description} What are my options and next best actions?`
+                          );
+                          router.push(`/chat?prompt=${prompt}`);
+                        }}
                       >
                         Investigate
                       </Button>
@@ -1015,7 +1020,13 @@ function JourneySignalSheet({
                             size="sm"
                             variant="outline"
                             className="h-7 text-[11px]"
-                            onClick={() => { onOpenChange(false); router.push("/chat"); }}
+                            onClick={() => {
+                              onOpenChange(false);
+                              const prompt = encodeURIComponent(
+                                `Investigate: ${action.title}. ${action.description} What actions should I take?`
+                              );
+                              router.push(`/chat?prompt=${prompt}`);
+                            }}
                           >
                             Investigate in Chat
                           </Button>
