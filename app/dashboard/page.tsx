@@ -2550,7 +2550,7 @@ function ControlTowerOverview() {
 
   return (
     <>
-      <div className="mx-auto max-w-[1560px] space-y-5 pb-44">
+      <div className="space-y-5 pb-44">
         <div className="px-1 py-2">
           {/* Row 1 — Header */}
           <div>
