@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import {
   CONTROL_TOWER_ACTIONS,
   CONTROL_TOWER_ALERTS,
@@ -319,30 +320,335 @@ const METRIC_SHORT_LABELS: Record<string, string> = {
 
 const METRIC_ACTIONS: Record<string, { label: string; href: string }[]> = {
   "platform-health": [
-    { label: "View merge exceptions", href: "#" },
-    { label: "Enrichment pipeline", href: "#" },
+    { label: "View merge exceptions", href: "/demand/dashboard" },
+    { label: "Enrichment pipeline", href: "/reports" },
   ],
   "active-alerts": [
-    { label: "Triage alerts", href: "#" },
-    { label: "Alert history", href: "#" },
+    { label: "Triage alerts", href: "/risk/audit" },
+    { label: "Alert history", href: "/reports" },
   ],
   "pending-actions": [
-    { label: "Review approvals", href: "#" },
-    { label: "Escalation queue", href: "#" },
+    { label: "Review approvals", href: "/reports" },
+    { label: "Escalation queue", href: "/risk/audit" },
   ],
   "udp-readiness": [
-    { label: "Consent audit", href: "#" },
-    { label: "Identity resolution", href: "#" },
+    { label: "Consent audit", href: "/reports" },
+    { label: "Identity resolution", href: "/demand/dashboard" },
   ],
   "forecast-accuracy": [
-    { label: "Regional breakdown", href: "#" },
-    { label: "Signal sources", href: "#" },
+    { label: "Regional breakdown", href: "/demand/dashboard" },
+    { label: "Signal sources", href: "/demand/reports" },
   ],
   "activation-readiness": [
-    { label: "Active campaigns", href: "#" },
-    { label: "Audience health", href: "#" },
+    { label: "Active campaigns", href: "/campaigns" },
+    { label: "Audience health", href: "/reports" },
   ],
 };
+
+/* ── Next Best Actions per tab ──────────────────────────────────────────────── */
+
+interface TabNBAAction {
+  id: string;
+  title: string;
+  description: string;
+  impact: string;
+  confidence: number;
+  actionType: "resolve_alert" | "approve_action" | "apply_recommendation" | "activate_redirect" | "submit_reorder" | "apply_campaign";
+  actionPayload: { id: string; type?: string };
+}
+
+const TAB_NBA_ACTIONS: Record<string, TabNBAAction[]> = {
+  "platform-health": [
+    {
+      id: "nba-profile-1",
+      title: "Approve demand surge forecast",
+      description: "AI detected +340% demand surge for essentials. Approving updates forecast models across 14 DCs.",
+      impact: "+6pp forecast accuracy",
+      confidence: 94,
+      actionType: "approve_action",
+      actionPayload: { id: "action-demand-surge", type: "approved" },
+    },
+    {
+      id: "nba-profile-2",
+      title: "Apply smart substitution recommendation",
+      description: "Substitute 23 out-of-stock SKUs with available alternatives to maintain fill rate.",
+      impact: "+3pp fill rate",
+      confidence: 88,
+      actionType: "apply_recommendation",
+      actionPayload: { id: "rec-inventory" },
+    },
+  ],
+  "active-alerts": [
+    {
+      id: "nba-alerts-1",
+      title: "Resolve Emergency Demand Surge alert",
+      description: "Stock-out risk across 482 stores. Emergency reorder window closing at 2:00 PM EST.",
+      impact: "-15 SKUs at risk, +4pp accuracy",
+      confidence: 96,
+      actionType: "resolve_alert",
+      actionPayload: { id: "alert-demand-stockout", type: "approved" },
+    },
+    {
+      id: "nba-alerts-2",
+      title: "Resolve Cold-Chain Integrity Risk alert",
+      description: "Frozen & dairy products at risk across DC-Newark, DC-Pittsburgh, DC-Cleveland corridors.",
+      impact: "+2pp forecast accuracy",
+      confidence: 91,
+      actionType: "resolve_alert",
+      actionPayload: { id: "alert-coldchain-risk", type: "approved" },
+    },
+    {
+      id: "nba-alerts-3",
+      title: "Resolve Last-Mile Delivery Constraint alert",
+      description: "2,340 orders pending reroute or deferral in 6 metro zones.",
+      impact: "+6pp on-time delivery",
+      confidence: 89,
+      actionType: "resolve_alert",
+      actionPayload: { id: "alert-lastmile-constraint", type: "approved" },
+    },
+  ],
+  "pending-actions": [
+    {
+      id: "nba-approvals-1",
+      title: "Approve emergency reorder",
+      description: "$820K emergency PO for 127 critical SKUs across Northeast DCs.",
+      impact: "-12 SKUs at risk, +4pp DC in-stock",
+      confidence: 95,
+      actionType: "approve_action",
+      actionPayload: { id: "action-emergency-reorder", type: "approved" },
+    },
+    {
+      id: "nba-approvals-2",
+      title: "Approve cold-chain transport",
+      description: "$76K for refrigerated transport rerouting from compromised DC-Newark hub.",
+      impact: "+2pp forecast accuracy",
+      confidence: 92,
+      actionType: "approve_action",
+      actionPayload: { id: "action-coldchain-transport", type: "approved" },
+    },
+    {
+      id: "nba-approvals-3",
+      title: "Approve last-mile rerouting",
+      description: "$145K to reroute 2,340 orders to alternate fulfillment centers.",
+      impact: "+5pp on-time delivery",
+      confidence: 90,
+      actionType: "approve_action",
+      actionPayload: { id: "action-lastmile-reroute", type: "approved" },
+    },
+  ],
+  "udp-readiness": [
+    {
+      id: "nba-reach-1",
+      title: "Approve emergency supplier activation",
+      description: "Activate 3 backup suppliers to cover Northeast DC shortfall.",
+      impact: "+3pp DC in-stock, -8 SKUs at risk",
+      confidence: 93,
+      actionType: "approve_action",
+      actionPayload: { id: "action-emergency-supplier", type: "approved" },
+    },
+    {
+      id: "nba-reach-2",
+      title: "Apply inventory rebalance",
+      description: "Redistribute 34 high-velocity SKUs from overstocked Southern DCs to Northeast.",
+      impact: "+3pp DC in-stock, -7 SKUs at risk",
+      confidence: 87,
+      actionType: "apply_recommendation",
+      actionPayload: { id: "rec-inventory" },
+    },
+    {
+      id: "nba-reach-3",
+      title: "Activate in-store pickup redirect",
+      description: "Redirect 3,400 e-commerce orders to click-and-collect at nearby stores.",
+      impact: "+3pp on-time delivery",
+      confidence: 85,
+      actionType: "activate_redirect",
+      actionPayload: { id: "reach-redirect" },
+    },
+  ],
+  "forecast-accuracy": [
+    {
+      id: "nba-demand-1",
+      title: "Approve emergency reorder for critical SKUs",
+      description: "Submit PO for 127 critical SKUs before 2:00 PM ordering cutoff.",
+      impact: "-12 SKUs at risk, +6pp fill rate",
+      confidence: 96,
+      actionType: "approve_action",
+      actionPayload: { id: "action-emergency-reorder", type: "approved" },
+    },
+    {
+      id: "nba-demand-2",
+      title: "Submit emergency reorder via demand planning",
+      description: "Fast-track reorder through demand planning channel to bypass standard approval.",
+      impact: "-5 SKUs at risk",
+      confidence: 91,
+      actionType: "submit_reorder",
+      actionPayload: { id: "demand-reorder" },
+    },
+    {
+      id: "nba-demand-3",
+      title: "Apply inventory rebalance to NE DCs",
+      description: "Move excess inventory from Southeast to cover Northeast DC gaps.",
+      impact: "+3pp DC in-stock, -7 SKUs at risk",
+      confidence: 88,
+      actionType: "apply_recommendation",
+      actionPayload: { id: "rec-inventory" },
+    },
+  ],
+  "activation-readiness": [
+    {
+      id: "nba-campaign-1",
+      title: "Approve last-mile rerouting plan",
+      description: "Reroute 2,340 orders to alternate fulfillment for storm-impacted zones.",
+      impact: "+5pp on-time delivery",
+      confidence: 90,
+      actionType: "approve_action",
+      actionPayload: { id: "action-lastmile-reroute", type: "approved" },
+    },
+    {
+      id: "nba-campaign-2",
+      title: "Activate reach redirect for 3,400 orders",
+      description: "Switch affected e-commerce orders to click-and-collect fulfillment.",
+      impact: "+3pp on-time delivery",
+      confidence: 85,
+      actionType: "activate_redirect",
+      actionPayload: { id: "reach-redirect" },
+    },
+    {
+      id: "nba-campaign-3",
+      title: "Apply emergency push notification",
+      description: "Suppress storm-region paid ads and redirect budget to push notifications for order updates.",
+      impact: "+1pp forecast accuracy",
+      confidence: 82,
+      actionType: "apply_recommendation",
+      actionPayload: { id: "rec-suppress-fb" },
+    },
+  ],
+};
+
+function TabNBASection({ metricId }: { metricId: string }) {
+  const effects = useActionEffects();
+  const router = useRouter();
+  const actions = TAB_NBA_ACTIONS[metricId] ?? [];
+  const [executedActions, setExecutedActions] = useState<Record<string, boolean>>({});
+
+  const isAlreadyDone = useCallback(
+    (action: TabNBAAction) => {
+      if (action.actionType === "resolve_alert") return !!effects.resolvedAlerts[action.actionPayload.id];
+      if (action.actionType === "approve_action") return !!effects.approvedActions[action.actionPayload.id];
+      if (action.actionType === "apply_recommendation") return !!effects.appliedRecommendations[action.actionPayload.id];
+      if (action.actionType === "activate_redirect") return effects.reachRedirectActive;
+      if (action.actionType === "submit_reorder") return effects.demandReorderSubmitted;
+      if (action.actionType === "apply_campaign") return effects.campaignApplied;
+      return false;
+    },
+    [effects]
+  );
+
+  const executeAction = useCallback(
+    (action: TabNBAAction) => {
+      switch (action.actionType) {
+        case "resolve_alert":
+          effects.resolveAlert(action.actionPayload.id, (action.actionPayload.type as "approved") ?? "approved");
+          break;
+        case "approve_action":
+          effects.approveAction(action.actionPayload.id, (action.actionPayload.type as "approved") ?? "approved");
+          break;
+        case "apply_recommendation":
+          effects.applyRecommendation(action.actionPayload.id);
+          break;
+        case "activate_redirect":
+          effects.activateReachRedirect();
+          break;
+        case "submit_reorder":
+          effects.submitDemandReorder();
+          break;
+        case "apply_campaign":
+          effects.applyCampaign();
+          break;
+      }
+      setExecutedActions((prev) => ({ ...prev, [action.id]: true }));
+      toast.success(action.title, { description: `Impact: ${action.impact}` });
+    },
+    [effects]
+  );
+
+  if (actions.length === 0) return null;
+
+  return (
+    <div className="mt-4">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-400 mb-2">
+        AI Next Best Actions
+      </p>
+      <div className="space-y-2">
+        {actions.map((action) => {
+          const done = isAlreadyDone(action) || executedActions[action.id];
+          return (
+            <div
+              key={action.id}
+              className={cn(
+                "rounded-lg border p-3 transition-all",
+                done
+                  ? "border-emerald-200 bg-emerald-50/50"
+                  : "border-stone-200 bg-white hover:border-stone-300"
+              )}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="text-[12px] font-semibold text-[#3d3c3c]">
+                      {action.title}
+                    </p>
+                    <Badge variant="outline" className="text-[9px] shrink-0 border-[#29707a]/30 bg-[#29707a]/10 text-[#29707a]">
+                      {action.impact}
+                    </Badge>
+                  </div>
+                  <p className="text-[11px] text-stone-500 leading-relaxed">
+                    {action.description}
+                  </p>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className="text-[10px] text-stone-400">AI Confidence</span>
+                    <div className="h-1.5 w-16 rounded-full bg-stone-100 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-[#29707a]"
+                        style={{ width: `${action.confidence}%` }}
+                      />
+                    </div>
+                    <span className="text-[10px] font-medium text-[#29707a]">{action.confidence}%</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {done ? (
+                    <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-[10px]">
+                      <Check className="h-3 w-3 mr-1" /> Done
+                    </Badge>
+                  ) : (
+                    <>
+                      <Button
+                        size="sm"
+                        className="h-7 text-[11px] bg-[#29707a] hover:bg-[#1e5960] text-white"
+                        onClick={() => executeAction(action)}
+                      >
+                        {action.actionType === "resolve_alert" ? "Resolve" : action.actionType === "approve_action" ? "Approve" : "Apply"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-[11px]"
+                        onClick={() => router.push("/chat")}
+                      >
+                        Investigate
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 function MetricNavigator() {
   const effects = useActionEffects();
@@ -397,13 +703,13 @@ function MetricNavigator() {
             </Badge>
             <div className="space-y-2">
               {actions.map((a) => (
-                <a
+                <Link
                   key={a.label}
                   href={a.href}
                   className="block text-[12px] font-medium text-stone-500 transition-colors hover:text-[#3d3c3c]"
                 >
                   {a.label} →
-                </a>
+                </Link>
               ))}
               {signal && (
                 <button
@@ -475,6 +781,9 @@ function MetricNavigator() {
             </div>
             <p className="mt-2 text-[12px] text-stone-500">{metric.detail}</p>
 
+            {/* Next Best Actions */}
+            <TabNBASection metricId={metric.id} />
+
             {/* Journey signal insight card */}
             {signal && (
               <div className="mt-4 rounded-xl border border-stone-200 bg-white p-4" style={{ borderLeft: `3px solid ${sparkColor}` }}>
@@ -536,6 +845,55 @@ function JourneySignalSheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const effects = useActionEffects();
+  const router = useRouter();
+  const [sheetExecuted, setSheetExecuted] = useState<Record<string, boolean>>({});
+
+  // Map signal's metricId to get related NBA actions
+  const relatedNBAs = (TAB_NBA_ACTIONS[signal.metricId] ?? []).slice(0, 2);
+
+  const executeSheetAction = useCallback(
+    (action: TabNBAAction) => {
+      switch (action.actionType) {
+        case "resolve_alert":
+          effects.resolveAlert(action.actionPayload.id, (action.actionPayload.type as "approved") ?? "approved");
+          break;
+        case "approve_action":
+          effects.approveAction(action.actionPayload.id, (action.actionPayload.type as "approved") ?? "approved");
+          break;
+        case "apply_recommendation":
+          effects.applyRecommendation(action.actionPayload.id);
+          break;
+        case "activate_redirect":
+          effects.activateReachRedirect();
+          break;
+        case "submit_reorder":
+          effects.submitDemandReorder();
+          break;
+        case "apply_campaign":
+          effects.applyCampaign();
+          break;
+      }
+      setSheetExecuted((prev) => ({ ...prev, [action.id]: true }));
+      toast.success(action.title, { description: `Impact: ${action.impact}` });
+    },
+    [effects]
+  );
+
+  const isSheetActionDone = useCallback(
+    (action: TabNBAAction) => {
+      if (sheetExecuted[action.id]) return true;
+      if (action.actionType === "resolve_alert") return !!effects.resolvedAlerts[action.actionPayload.id];
+      if (action.actionType === "approve_action") return !!effects.approvedActions[action.actionPayload.id];
+      if (action.actionType === "apply_recommendation") return !!effects.appliedRecommendations[action.actionPayload.id];
+      if (action.actionType === "activate_redirect") return effects.reachRedirectActive;
+      if (action.actionType === "submit_reorder") return effects.demandReorderSubmitted;
+      if (action.actionType === "apply_campaign") return effects.campaignApplied;
+      return false;
+    },
+    [effects, sheetExecuted]
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[480px] max-h-[85vh] overflow-y-auto p-6">
@@ -617,6 +975,58 @@ function JourneySignalSheet({
               ))}
             </div>
           </div>
+
+          {/* Take Action section */}
+          {relatedNBAs.length > 0 && (
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#29707a] mb-2">Take Action</p>
+              <div className="space-y-2">
+                {relatedNBAs.map((action) => {
+                  const done = isSheetActionDone(action);
+                  return (
+                    <div
+                      key={action.id}
+                      className={cn(
+                        "rounded-lg border p-3 transition-all",
+                        done ? "border-emerald-200 bg-emerald-50/50" : "border-[#29707a]/20 bg-[#29707a]/5"
+                      )}
+                    >
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <p className="text-[12px] font-semibold text-[#3d3c3c]">{action.title}</p>
+                        <Badge variant="outline" className="text-[9px] shrink-0 border-[#29707a]/30 bg-[#29707a]/10 text-[#29707a]">
+                          {action.impact}
+                        </Badge>
+                      </div>
+                      <p className="text-[11px] text-stone-500 mb-2">{action.description}</p>
+                      {done ? (
+                        <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-[10px]">
+                          <Check className="h-3 w-3 mr-1" /> Completed
+                        </Badge>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            className="h-7 text-[11px] bg-[#29707a] hover:bg-[#1e5960] text-white"
+                            onClick={() => executeSheetAction(action)}
+                          >
+                            {action.actionType === "resolve_alert" ? "Resolve" : action.actionType === "approve_action" ? "Approve" : "Apply"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-[11px]"
+                            onClick={() => { onOpenChange(false); router.push("/chat"); }}
+                          >
+                            Investigate in Chat
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
