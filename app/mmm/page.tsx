@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowDownRight, ArrowUpRight, BarChart2, Info, TrendingDown, TrendingUp, Zap } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, BarChart2, Info, TrendingDown, TrendingUp } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -590,7 +590,27 @@ function SaturationCurvesTab() {
   );
 }
 
-type ViewTab = "weekly" | "overview" | "future" | "scenario" | "saturation";
+type ViewTab = "weekly" | "overview" | "scenario" | "saturation";
+
+function ScenarioPlannerTab() {
+  const [showResults, setShowResults] = useState(false);
+
+  if (showResults) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold">Scenario Results</h2>
+          <Button variant="outline" size="sm" className="text-xs" onClick={() => setShowResults(false)}>
+            Build New Scenario
+          </Button>
+        </div>
+        <FutureScenarioTab />
+      </div>
+    );
+  }
+
+  return <ScenarioBuilderTab onModelApplied={() => setShowResults(true)} />;
+}
 
 export default function MMMPage() {
   const [viewTab, setViewTab] = useState<ViewTab>("weekly");
@@ -644,8 +664,7 @@ export default function MMMPage() {
               ["weekly", "Weekly review"],
               ["overview", "Market overview"],
               ["saturation", "Saturation & Recs"],
-              ["future", "Future scenario"],
-              ["scenario", "Scenario Builder"],
+              ["scenario", "Scenario Planner"],
             ] as const).map(([tab, label]) => (
               <button
                 key={tab}
@@ -659,9 +678,6 @@ export default function MMMPage() {
               </button>
             ))}
           </div>
-          <Button size="sm" className="h-8 gap-1.5 text-xs">
-            <Zap className="h-3.5 w-3.5" /> New Copilot Report
-          </Button>
         </div>
       </div>
 
@@ -674,8 +690,7 @@ export default function MMMPage() {
           {viewTab === "weekly" && <WeeklyCommercialPanel />}
           {viewTab === "overview" && <MarketOverviewPanel selectedMarket={market} />}
           {viewTab === "saturation" && <SaturationCurvesTab />}
-          {viewTab === "future" && <FutureScenarioTab />}
-          {viewTab === "scenario" && <ScenarioBuilderTab onModelApplied={() => setViewTab("future")} />}
+          {viewTab === "scenario" && <ScenarioPlannerTab />}
         </CardContent>
       </Card>
       </div>
