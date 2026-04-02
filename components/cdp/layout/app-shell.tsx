@@ -704,7 +704,6 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-6 relative">
-          <BreadcrumbBar pathname={pathname} searchParams={searchParams} />
           {children}
         </main>
       </div>
