@@ -1,4 +1,4 @@
-/* MMM & Saturation mock data — DEMA-inspired */
+/* MMM & Saturation mock data — Winter Weather Hazard Simulation */
 
 export type MMMOverviewKpi = {
   label: string;
@@ -61,67 +61,67 @@ export type ProfitAnalysisWeek = {
 };
 
 export const mmmOverviewKpis: MMMOverviewKpi[] = [
-  { label: "Actual spend (SEK)", value: "982.6K", change: "-11.77%", positive: false },
-  { label: "Proposed spend (SEK)", value: "866.9K", change: "-11.77%", positive: false },
-  { label: "Actual sales (SEK)", value: "6.0M", change: "", positive: true },
-  { label: "Predicted sales (SEK)", value: "6.0M", change: "-0.41%", positive: false },
-  { label: "Actual profit (SEK)", value: "1.4M", change: "", positive: true },
-  { label: "Predicted profit (SEK)", value: "1.5M", change: "8.73%", positive: true },
+  { label: "Actual spend (USD)", value: "$108.0K", change: "+124.6%", positive: true },
+  { label: "Proposed spend (USD)", value: "$142.0K", change: "+31.5%", positive: true },
+  { label: "Actual sales (USD)", value: "$2.76M", change: "+142.8%", positive: true },
+  { label: "Predicted sales (USD)", value: "$3.12M", change: "+13.0%", positive: true },
+  { label: "Actual profit (USD)", value: "$820K", change: "+186.4%", positive: true },
+  { label: "Predicted profit (USD)", value: "$948K", change: "+15.6%", positive: true },
 ];
 
 export const missedPotentialData: MissedPotentialData = {
-  actualProfit: 1400168,
-  missedPotential: 122228,
-  predictedProfit: 1522396,
+  actualProfit: 820000,
+  missedPotential: 128000,
+  predictedProfit: 948000,
 };
 
 export const marketOverview: MarketOverviewRow[] = [
-  { market: "Finland", spendChange: "-9.56%", positive: false, potential: "20.5K" },
-  { market: "Germany", spendChange: "-27.45%", positive: false, potential: "36.2K" },
-  { market: "Norway", spendChange: "-20.06%", positive: false, potential: "30.1K" },
-  { market: "Sweden", spendChange: "+4.25%", positive: true, potential: "35.4K" },
+  { market: "Northeast US (Storm Zone)", spendChange: "+186.4%", positive: true, potential: "$248K" },
+  { market: "Midwest US", spendChange: "+124.2%", positive: true, potential: "$142K" },
+  { market: "Southeast US", spendChange: "+86.4%", positive: true, potential: "$98K" },
+  { market: "West US", spendChange: "+42.8%", positive: true, potential: "$64K" },
 ];
 
 export const channelRecommendations: ChannelRecommendation[] = [
-  { channel: "Google Generic", lastWeekSpend: 6557, proposedSpend: 7205, changePercent: "+10%", positive: true, grossSalesPredicted: 49189, profitPredicted: 13376, roas: "682.70%", epRoas: "285.65%", recommendation: "Increase spend" },
-  { channel: "Google PMAX", lastWeekSpend: 16671, proposedSpend: 54142, changePercent: "+225%", positive: true, grossSalesPredicted: 382276, profitPredicted: 105806, roas: "706.06%", epRoas: "295.42%", recommendation: "Increase spend" },
-  { channel: "Facebook Awareness", lastWeekSpend: 11899, proposedSpend: 0, changePercent: "-100%", positive: false, grossSalesPredicted: 0, profitPredicted: 0, roas: "N/A", epRoas: "N/A", recommendation: "Decrease spend" },
-  { channel: "Facebook Sale", lastWeekSpend: 69663, proposedSpend: 76899, changePercent: "+10%", positive: true, grossSalesPredicted: 580794, profitPredicted: 166111, roas: "755.27%", epRoas: "316.01%", recommendation: "Increase spend" },
-  { channel: "Snapchat Sale", lastWeekSpend: 7008, proposedSpend: 0, changePercent: "-100%", positive: false, grossSalesPredicted: 0, profitPredicted: 0, roas: "N/A", epRoas: "N/A", recommendation: "Pause" },
-  { channel: "TikTok Awareness", lastWeekSpend: 9212, proposedSpend: 2610, changePercent: "-72%", positive: false, grossSalesPredicted: 9813, profitPredicted: 1496, roas: "375.99%", epRoas: "157.32%", recommendation: "Decrease spend" },
-  { channel: "TikTok Sale", lastWeekSpend: 29023, proposedSpend: 4692, changePercent: "-84%", positive: false, grossSalesPredicted: 20320, profitPredicted: 3810, roas: "433.07%", epRoas: "181.20%", recommendation: "Decrease spend" },
+  { channel: "Push Notifications", lastWeekSpend: 42000, proposedSpend: 68000, changePercent: "+62%", positive: true, grossSalesPredicted: 1_240_000, profitPredicted: 386_000, roas: "1823.5%", epRoas: "762.4%", recommendation: "Increase spend" },
+  { channel: "App Alerts", lastWeekSpend: 28000, proposedSpend: 42000, changePercent: "+50%", positive: true, grossSalesPredicted: 980_000, profitPredicted: 298_000, roas: "2333.3%", epRoas: "976.2%", recommendation: "Increase spend" },
+  { channel: "Email / CRM", lastWeekSpend: 18000, proposedSpend: 22000, changePercent: "+22%", positive: true, grossSalesPredicted: 580_000, profitPredicted: 168_000, roas: "2636.4%", epRoas: "1103.6%", recommendation: "Efficient spend" },
+  { channel: "SMS Alerts", lastWeekSpend: 12000, proposedSpend: 18000, changePercent: "+50%", positive: true, grossSalesPredicted: 420_000, profitPredicted: 124_000, roas: "2333.3%", epRoas: "976.2%", recommendation: "Increase spend" },
+  { channel: "In-Store Signage", lastWeekSpend: 8000, proposedSpend: 6000, changePercent: "-25%", positive: false, grossSalesPredicted: 186_000, profitPredicted: 48_000, roas: "3100.0%", epRoas: "1296.8%", recommendation: "Decrease spend" },
+  { channel: "Social Media (Brand)", lastWeekSpend: 14000, proposedSpend: 0, changePercent: "-100%", positive: false, grossSalesPredicted: 0, profitPredicted: 0, roas: "N/A", epRoas: "N/A", recommendation: "Pause" },
+  { channel: "Display Awareness", lastWeekSpend: 8000, proposedSpend: 0, changePercent: "-100%", positive: false, grossSalesPredicted: 0, profitPredicted: 0, roas: "N/A", epRoas: "N/A", recommendation: "Pause" },
 ];
 
 export const saturationChannels: SaturationChannelData[] = [
   {
-    channel: "Google PMAX",
-    curveData: Array.from({ length: 60 }, (_, i) => {
-      const spend = i * 1100;
-      return { spend, profit: 32000 * (1 - Math.exp(-spend / 28000)) };
-    }),
-    actualSpend: 16671,
-    actualProfit: 18200,
-    proposedSpend: 22502,
-    proposedProfit: 24046,
-    saturationSpend: 45000,
-    saturationProfit: 30800,
-  },
-  {
-    channel: "Facebook Sale",
+    channel: "Push Notifications",
     curveData: Array.from({ length: 60 }, (_, i) => {
       const spend = i * 1500;
-      return { spend, profit: 42000 * (1 - Math.exp(-spend / 35000)) };
+      return { spend, profit: 420000 * (1 - Math.exp(-spend / 38000)) };
     }),
-    actualSpend: 69663,
-    actualProfit: 36500,
-    proposedSpend: 76899,
-    proposedProfit: 38200,
-    saturationSpend: 85000,
-    saturationProfit: 41200,
+    actualSpend: 42000,
+    actualProfit: 286000,
+    proposedSpend: 68000,
+    proposedProfit: 348000,
+    saturationSpend: 95000,
+    saturationProfit: 396000,
+  },
+  {
+    channel: "App Alerts",
+    curveData: Array.from({ length: 60 }, (_, i) => {
+      const spend = i * 1200;
+      return { spend, profit: 340000 * (1 - Math.exp(-spend / 32000)) };
+    }),
+    actualSpend: 28000,
+    actualProfit: 198000,
+    proposedSpend: 42000,
+    proposedProfit: 262000,
+    saturationSpend: 72000,
+    saturationProfit: 318000,
   },
 ];
 
 export const profitAnalysisWeeks: ProfitAnalysisWeek[] = [
-  { week: "09 jun – 15 jun, 2025", spend: 94684, proposedSpend: 105932, proposedChange: "+12%", sales: 644488, missedSales: 61085, profit: 179541, missedProfit: "7.97%" },
-  { week: "02 jun – 08 jun, 2025", spend: 208704, proposedSpend: 166840, proposedChange: "-20%", sales: 970482, missedSales: -25341, profit: 245183, missedProfit: "12.29%" },
+  { week: "09 Mar – 15 Mar, 2026", spend: 108000, proposedSpend: 142000, proposedChange: "+31%", sales: 2_760_000, missedSales: 360_000, profit: 820_000, missedProfit: "15.6%" },
+  { week: "02 Mar – 08 Mar, 2026", spend: 86000, proposedSpend: 108000, proposedChange: "+26%", sales: 1_842_000, missedSales: 248_000, profit: 548_000, missedProfit: "12.8%" },
 ];

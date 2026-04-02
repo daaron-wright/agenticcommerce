@@ -1,7 +1,8 @@
 /**
- * 13-Week Historical Performance Data
+ * 13-Week Historical Performance Data — Winter Weather Hazard Simulation
  * W1 = week ending 2025-12-21 → W13 = week ending 2026-03-15
- * All revenue figures in GBP.
+ * All revenue figures in USD.
+ * Pattern: Normal → uptick → massive surge as storm approaches in W12-W13
  */
 
 export interface WeeklyMetrics {
@@ -12,16 +13,16 @@ export interface WeeklyMetrics {
   orders: number;
   conversionRate: number; // %
   newCustomers: number;
-  cac: number; // £
+  cac: number; // $
   roas: number; // ratio e.g. 3.8
   returnRate: number; // %
-  adSpend: number; // £
+  adSpend: number; // $
   channels: {
-    google: number; // gross sales £
-    facebook: number;
-    tiktok: number;
-    snapchat: number;
+    pushNotifications: number; // gross sales $
+    appAlerts: number;
     email: number;
+    sms: number;
+    inStore: number;
     organic: number;
     direct: number;
   };
@@ -39,10 +40,10 @@ export const WEEKLY_PERFORMANCE: WeeklyMetrics[] = [
     newCustomers: 390,
     cac: 28.4,
     roas: 3.2,
-    returnRate: 8.1,
+    returnRate: 4.1,
     adSpend: 42_000,
-    channels: { google: 68_200, facebook: 36_100, tiktok: 22_400, snapchat: 9_800, email: 21_300, organic: 14_200, direct: 10_400 },
-    context: "Pre-Christmas surge begins. Gift category (bags, accessories) drives +18% WoW. TikTok gifting content performing above average.",
+    channels: { pushNotifications: 28_200, appAlerts: 32_100, email: 42_400, sms: 18_800, inStore: 31_300, organic: 18_200, direct: 11_400 },
+    context: "Pre-Christmas baseline. Normal seasonal demand for essentials and warm clothing. Steady in-store traffic.",
   },
   {
     week: 2,
@@ -54,10 +55,10 @@ export const WEEKLY_PERFORMANCE: WeeklyMetrics[] = [
     newCustomers: 540,
     cac: 26.1,
     roas: 3.9,
-    returnRate: 7.4,
+    returnRate: 3.8,
     adSpend: 46_200,
-    channels: { google: 89_600, facebook: 44_200, tiktok: 28_100, snapchat: 12_400, email: 28_600, organic: 12_800, direct: 9_100 },
-    context: "Christmas week peak. PMAX budget increased +10%. Outerwear and Fitness Electronics spike on gifting demand. New customer acquisition record for Q4.",
+    channels: { pushNotifications: 36_600, appAlerts: 42_200, email: 52_100, sms: 22_400, inStore: 38_600, organic: 20_800, direct: 12_100 },
+    context: "Christmas week peak. Strong warm clothing and emergency supply gifting. Water and batteries see seasonal uplift.",
   },
   {
     week: 3,
@@ -69,10 +70,10 @@ export const WEEKLY_PERFORMANCE: WeeklyMetrics[] = [
     newCustomers: 460,
     cac: 27.8,
     roas: 3.6,
-    returnRate: 11.2,
+    returnRate: 5.2,
     adSpend: 43_800,
-    channels: { google: 74_400, facebook: 38_600, tiktok: 24_200, snapchat: 10_200, email: 26_400, organic: 14_600, direct: 9_700 },
-    context: "Boxing Day and New Year sales. Return rate spike (+4pp) from Christmas gift returns — expected seasonal pattern. Email reactivation campaign boosted repeat buyers.",
+    channels: { pushNotifications: 30_400, appAlerts: 36_600, email: 46_400, sms: 20_200, inStore: 34_600, organic: 18_600, direct: 11_300 },
+    context: "Post-Christmas normalisation. Return rate up slightly from gift returns. Shelf-stable food steady.",
   },
   {
     week: 4,
@@ -84,10 +85,10 @@ export const WEEKLY_PERFORMANCE: WeeklyMetrics[] = [
     newCustomers: 280,
     cac: 34.2,
     roas: 3.1,
-    returnRate: 9.6,
+    returnRate: 4.6,
     adSpend: 38_400,
-    channels: { google: 58_100, facebook: 30_200, tiktok: 18_600, snapchat: 8_100, email: 18_400, organic: 13_800, direct: 9_100 },
-    context: "Post-holiday demand trough. January slump — consumers pulling back after Christmas spend. Ad efficiency drops; CAC rises to seasonal high. Began Activewear 'New Year' push.",
+    channels: { pushNotifications: 22_100, appAlerts: 28_200, email: 38_400, sms: 16_100, inStore: 28_800, organic: 13_800, direct: 8_900 },
+    context: "January demand trough. Consumers pulling back post-holiday. Emergency supplies at baseline levels.",
   },
   {
     week: 5,
@@ -99,10 +100,10 @@ export const WEEKLY_PERFORMANCE: WeeklyMetrics[] = [
     newCustomers: 310,
     cac: 32.9,
     roas: 3.2,
-    returnRate: 8.8,
+    returnRate: 4.2,
     adSpend: 39_600,
-    channels: { google: 62_400, facebook: 31_800, tiktok: 21_200, snapchat: 7_900, email: 17_800, organic: 12_600, direct: 8_100 },
-    context: "New Year resolution uplift in Activewear and Fitness Electronics. TikTok 'January fitness' content performs well. Gradual recovery from holiday trough.",
+    channels: { pushNotifications: 24_400, appAlerts: 30_800, email: 39_800, sms: 17_900, inStore: 26_600, organic: 13_600, direct: 8_700 },
+    context: "Gradual January recovery. First aid and prescription items see modest winter uplift.",
   },
   {
     week: 6,
@@ -114,10 +115,10 @@ export const WEEKLY_PERFORMANCE: WeeklyMetrics[] = [
     newCustomers: 330,
     cac: 31.4,
     roas: 3.3,
-    returnRate: 8.4,
+    returnRate: 4.0,
     adSpend: 40_200,
-    channels: { google: 64_800, facebook: 33_600, tiktok: 22_800, snapchat: 8_200, email: 18_200, organic: 12_400, direct: 8_200 },
-    context: "Steady January recovery. Loyalty programme reactivation drives email channel gains. Facebook audience expansion test begins targeting lapsed customers 90d+.",
+    channels: { pushNotifications: 26_800, appAlerts: 32_600, email: 40_200, sms: 18_200, inStore: 28_400, organic: 13_400, direct: 8_600 },
+    context: "Steady recovery continues. Pet food and ready meals showing slight uptick from cold snap forecast.",
   },
   {
     week: 7,
@@ -129,10 +130,10 @@ export const WEEKLY_PERFORMANCE: WeeklyMetrics[] = [
     newCustomers: 340,
     cac: 30.8,
     roas: 3.4,
-    returnRate: 8.2,
+    returnRate: 3.8,
     adSpend: 40_800,
-    channels: { google: 67_100, facebook: 34_600, tiktok: 22_400, snapchat: 8_400, email: 18_900, organic: 12_800, direct: 8_400 },
-    context: "February begins solidly. Outerwear end-of-season clearance adds incremental revenue. Supply chain alert on Travel Pro Backpack — stock tightening.",
+    channels: { pushNotifications: 28_100, appAlerts: 33_600, email: 41_400, sms: 18_400, inStore: 28_800, organic: 13_600, direct: 8_700 },
+    context: "February begins. Cold weather driving warm clothing demand. First weather advisories for late-season storm activity.",
   },
   {
     week: 8,
@@ -144,85 +145,85 @@ export const WEEKLY_PERFORMANCE: WeeklyMetrics[] = [
     newCustomers: 360,
     cac: 29.6,
     roas: 3.5,
-    returnRate: 7.9,
+    returnRate: 3.6,
     adSpend: 41_400,
-    channels: { google: 69_400, facebook: 35_800, tiktok: 23_600, snapchat: 8_600, email: 19_400, organic: 12_900, direct: 9_200 },
-    context: "Valentine's Day build-up. Accessories and Footwear gifting push. TikTok creative refresh improves CTR by +12%. CDP audience activation for 'gifters' segment launched.",
+    channels: { pushNotifications: 30_400, appAlerts: 35_800, email: 42_600, sms: 19_600, inStore: 28_900, organic: 12_800, direct: 9_000 },
+    context: "Normal February demand. Water and batteries see small uptick. First storm watch issued for Northeast corridor.",
   },
   {
     week: 9,
     weekLabel: "W9",
     periodEnd: "2026-02-15",
-    grossSales: 186_400,
-    orders: 2_290,
-    conversionRate: 3.6,
-    newCustomers: 370,
-    cac: 28.9,
-    roas: 3.7,
-    returnRate: 7.6,
-    adSpend: 41_800,
-    channels: { google: 72_600, facebook: 37_200, tiktok: 24_800, snapchat: 9_000, email: 20_100, organic: 13_200, direct: 9_500 },
-    context: "Valentine's week peak. Accessories strongest week of Q1. Snapchat experiment delivers 2.1x ROAS vs 1.6x benchmark — scaling budget next week.",
+    grossSales: 196_400,
+    orders: 2_490,
+    conversionRate: 3.8,
+    newCustomers: 420,
+    cac: 28.2,
+    roas: 3.9,
+    returnRate: 3.2,
+    adSpend: 42_800,
+    channels: { pushNotifications: 36_600, appAlerts: 40_200, email: 44_100, sms: 22_000, inStore: 30_200, organic: 14_200, direct: 9_100 },
+    context: "Early storm signals. Weather models show potential blizzard in 3-4 weeks. Smart consumers begin pre-positioning essentials.",
   },
   {
     week: 10,
     weekLabel: "W10",
     periodEnd: "2026-02-22",
-    grossSales: 175_200,
-    orders: 2_160,
-    conversionRate: 3.4,
-    newCustomers: 345,
-    cac: 30.2,
-    roas: 3.5,
-    returnRate: 8.0,
-    adSpend: 41_200,
-    channels: { google: 68_100, facebook: 34_800, tiktok: 23_200, snapchat: 9_400, email: 19_200, organic: 12_400, direct: 8_100 },
-    context: "Post-Valentine's normalisation. Snapchat budget scaled +15% on strong prior week results. Travel Pro Backpack stockout begins impacting conversion in Bags & Luggage.",
+    grossSales: 228_600,
+    orders: 3_120,
+    conversionRate: 4.2,
+    newCustomers: 580,
+    cac: 24.6,
+    roas: 4.4,
+    returnRate: 2.8,
+    adSpend: 44_200,
+    channels: { pushNotifications: 48_100, appAlerts: 46_800, email: 46_200, sms: 28_400, inStore: 32_400, organic: 16_400, direct: 10_300 },
+    context: "Storm prep acceleration. Weather models converge on severe blizzard forecast. Water and batteries +32% WoW. Push notifications driving engagement.",
   },
   {
     week: 11,
     weekLabel: "W11",
     periodEnd: "2026-03-01",
-    grossSales: 179_800,
-    orders: 2_200,
-    conversionRate: 3.5,
-    newCustomers: 352,
-    cac: 29.8,
-    roas: 3.6,
-    returnRate: 7.8,
-    adSpend: 41_600,
-    channels: { google: 70_200, facebook: 35_400, tiktok: 23_800, snapchat: 9_200, email: 19_600, organic: 12_800, direct: 8_800 },
-    context: "Spring transition collection launches. Lighter Outerwear and Activewear shift upward. Email campaign for 'Spring Drop' achieves 28% open rate — highest of quarter.",
+    grossSales: 486_200,
+    orders: 6_840,
+    conversionRate: 5.8,
+    newCustomers: 1_420,
+    cac: 18.4,
+    roas: 8.2,
+    returnRate: 1.8,
+    adSpend: 52_600,
+    channels: { pushNotifications: 112_000, appAlerts: 98_400, email: 82_600, sms: 68_200, inStore: 62_800, organic: 38_800, direct: 23_400 },
+    context: "Storm confirmed — NOAA issues blizzard warning. Panic buying begins. Water, batteries, first aid +180% WoW. App downloads surge 340%. Cold-chain products in demand.",
   },
   {
     week: 12,
     weekLabel: "W12",
     periodEnd: "2026-03-08",
-    grossSales: 183_600,
-    orders: 2_260,
-    conversionRate: 3.6,
-    newCustomers: 362,
-    cac: 29.4,
-    roas: 3.7,
-    returnRate: 7.7,
-    adSpend: 41_800,
-    channels: { google: 71_800, facebook: 36_200, tiktok: 24_400, snapchat: 9_400, email: 19_800, organic: 13_000, direct: 9_000 },
-    context: "International Women's Day uplift. Activewear and Accessories perform well. PMAX broad match expansion contributing to new customer acquisition gains. Demand sensing flags Mother's Day opportunity in W16–W17.",
+    grossSales: 1_842_000,
+    orders: 28_600,
+    conversionRate: 7.6,
+    newCustomers: 6_200,
+    cac: 12.40,
+    roas: 18.6,
+    returnRate: 0.8,
+    adSpend: 86_000,
+    channels: { pushNotifications: 486_000, appAlerts: 382_000, email: 298_000, sms: 248_000, inStore: 224_000, organic: 118_000, direct: 86_000 },
+    context: "Peak storm-prep week. 72-hour lockdown announced. Emergency reorders activated. 47 SKUs at critical stockout risk. Northeast DC under extreme pressure. Cold-chain integrity at risk.",
   },
   {
     week: 13,
     weekLabel: "W13",
     periodEnd: "2026-03-15",
-    grossSales: 187_200,
-    orders: 2_310,
-    conversionRate: 3.7,
-    newCustomers: 371,
-    cac: 28.6,
-    roas: 3.8,
-    returnRate: 7.5,
-    adSpend: 42_200,
-    channels: { google: 73_200, facebook: 37_000, tiktok: 25_200, snapchat: 9_600, email: 20_200, organic: 13_400, direct: 8_600 },
-    context: "Mid-March steady growth. Forecast accuracy improving to 76% as spring demand signals strengthen. Travel Pro Backpack restock expected W15. YTD gross sales tracking £180K/week average.",
+    grossSales: 2_760_000,
+    orders: 48_200,
+    conversionRate: 8.4,
+    newCustomers: 8_400,
+    cac: 8.60,
+    roas: 22.4,
+    returnRate: 0.4,
+    adSpend: 108_000,
+    channels: { pushNotifications: 892_000, appAlerts: 684_000, email: 412_000, sms: 298_000, inStore: 186_000, organic: 168_000, direct: 120_000 },
+    context: "Storm week. Record demand — $2.76M gross sales. On-time delivery dropped to 68.2%. DC in-stock at 84.6%. Fill rate at 78.4%. Emergency supplier activation in progress. Post-storm recovery planning underway.",
   },
 ];
 
@@ -282,7 +283,7 @@ export const MONTHLY_ROLLUPS: MonthlyRollup[] = [
 ];
 
 export function getQtdSummary() {
-  const q1Weeks = WEEKLY_PERFORMANCE; // all 13 weeks span Q4-25 tail + Q1-26
+  const q1Weeks = WEEKLY_PERFORMANCE;
   const totalSales = q1Weeks.reduce((s, w) => s + w.grossSales, 0);
   const totalOrders = q1Weeks.reduce((s, w) => s + w.orders, 0);
   const totalNewCustomers = q1Weeks.reduce((s, w) => s + w.newCustomers, 0);
