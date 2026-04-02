@@ -396,7 +396,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
     if (hasPermissionForUser(user, "action_approve_review")) {
       if (!groups.platform) groups.platform = [];
       if (!groups.platform.some((i) => i.href === "/analytics/pending-review")) {
-        groups.platform.push({ label: "Action Queue", href: "/analytics/pending-review" });
+        groups.platform.push({ label: "Quick Actions", href: "/analytics/pending-review" });
       }
     }
 
@@ -651,7 +651,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                 </Button>
                 <h1 className="text-xl font-semibold">
                   {pathname === "/analytics/pending-review"
-                    ? "Action Queue"
+                    ? "Quick Actions"
                     : pathname === "/analytics/confirmed-actions"
                       ? "Confirmed Actions"
                       : dashboardContext.title !== "Dashboard"
