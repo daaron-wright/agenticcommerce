@@ -1036,7 +1036,7 @@ export function ChatInterface({
   }, [bannerNode, setBannerControls]);
 
   return (
-    <div className="relative flex flex-col h-[calc(100vh-4rem)] -m-6 bg-background">
+    <div className="relative flex flex-col h-[calc(100vh-6rem)] -m-6 bg-background">
       {/* Full-panel background */}
       <SubwayMapBackground />
       {/* Agent activity bar – only visible when processing */}

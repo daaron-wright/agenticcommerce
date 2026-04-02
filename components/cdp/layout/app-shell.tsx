@@ -740,8 +740,8 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        {/* Connection status bar – hidden on chat to let chat fill the space */}
-        {!pathname.startsWith("/chat") && <ConnectionStatusBar pathname={pathname} />}
+        {/* Connection status bar */}
+        <ConnectionStatusBar pathname={pathname} />
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-6 relative">
