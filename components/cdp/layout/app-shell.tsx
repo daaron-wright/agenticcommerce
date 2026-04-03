@@ -254,7 +254,7 @@ function ConnectionStatusBar({ pathname }: { pathname: string }) {
       <span className="text-stone-300">·</span>
       <span className="text-stone-400">{source.module}</span>
       <div className="ml-auto flex items-center gap-2 shrink-0">
-        {bannerControls}
+        {pathname.startsWith("/chat") && bannerControls}
         <ConnectionStatusBadges />
       </div>
     </div>
