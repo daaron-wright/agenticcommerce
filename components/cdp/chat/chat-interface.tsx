@@ -61,6 +61,7 @@ import {
 } from "./chat-data";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useBannerControls } from "@/lib/banner-controls-context";
+import { ChatMessagesContext } from "@/lib/chat-messages-context";
 
 
 let messageCounter = 0;
@@ -1284,7 +1285,15 @@ export function ChatInterface({
     return () => setBannerControls(null);
   }, [bannerNode, setBannerControls]);
 
+  const chatMessagesCtx = useMemo(() => ({
+    messages,
+    currentPhase: phase as "idle" | "thinking" | "tool_call" | "streaming" | "complete" | "awaiting_approval",
+    currentStep,
+    completedSteps,
+  }), [messages, phase, currentStep, completedSteps]);
+
   return (
+    <ChatMessagesContext.Provider value={chatMessagesCtx}>
     <div className="relative flex flex-col h-[calc(100vh-6rem)] -m-6 bg-background">
       {/* Full-panel background */}
       <SubwayMapBackground />
@@ -1631,6 +1640,7 @@ export function ChatInterface({
         }}
       />
     </div>
+    </ChatMessagesContext.Provider>
   );
 }
 

@@ -260,7 +260,7 @@ function FeedbackRow() {
 
 // ── Tool Call Card ───────────────────────────────────────────────────────────
 
-function ToolCallCard({ toolCall }: { toolCall: ToolCall }) {
+export function ToolCallCard({ toolCall }: { toolCall: ToolCall }) {
   const [expanded, setExpanded] = useState(false);
   const isRunning = toolCall.status === "running";
 
@@ -329,7 +329,7 @@ const ACTIVITY_TYPE_COLORS: Record<ActivityCard["type"], { bg: string; text: str
   SYNC:    { bg: "bg-sky-50",     text: "text-sky-700",     icon: "text-sky-500" },
 };
 
-function ActivityCardView({ card }: { card: ActivityCard }) {
+export function ActivityCardView({ card }: { card: ActivityCard }) {
   const style = ACTIVITY_TYPE_COLORS[card.type];
 
   return (
@@ -446,15 +446,6 @@ export function ChatMessage({ message }: { message: Message }) {
             isUser ? "items-end" : "items-start"
           )}
         >
-          {/* Inline tool call cards (before the message bubble) */}
-          {!isUser && message.toolCalls && message.toolCalls.length > 0 && (
-            <div className="space-y-1.5 w-full">
-              {message.toolCalls.map((tc) => (
-                <ToolCallCard key={tc.id} toolCall={tc} />
-              ))}
-            </div>
-          )}
-
           {/* Message bubble */}
           <div
             className={cn(
@@ -473,11 +464,6 @@ export function ChatMessage({ message }: { message: Message }) {
               )}
             </p>
           </div>
-
-          {/* Activity card */}
-          {!isUser && message.activityCard && isComplete && (
-            <ActivityCardView card={message.activityCard} />
-          )}
 
           {/* State sync events */}
           {!isUser && message.stateSyncEvents && message.stateSyncEvents.length > 0 && isComplete && (

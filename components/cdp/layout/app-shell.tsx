@@ -47,6 +47,8 @@ import { buildKnowledgeGraphHref } from "@/lib/knowledge-graph-data";
 import { useArtifacts, type ArtifactCategory } from "@/lib/artifact-store";
 import { cn } from "@/lib/utils";
 import { BannerControlsContext, useBannerControls } from "@/lib/banner-controls-context";
+import { useChatMessages } from "@/lib/chat-messages-context";
+import { ToolCallCard, ActivityCardView } from "@/components/cdp/chat/chat-message";
 import { DAGVisualization } from "@/components/dag";
 import { getUserJourneyState } from "@/lib/journey-state";
 import { useWorkflowEvents } from "@/lib/workflow-event-context";
@@ -1579,6 +1581,18 @@ function CampaignTab({ applied, onApply }: { applied: boolean; onApply: () => vo
 
 function ExplainabilityPanel() {
   const [expandedExec, setExpandedExec] = useState<string | null>(ACTIVE_EXECUTIONS[0].id);
+  const [expandedMsgId, setExpandedMsgId] = useState<string | null>(null);
+  const { messages, currentPhase, currentStep, completedSteps } = useChatMessages();
+
+  // Gather assistant messages that have toolCalls or activityCard (most recent first)
+  const messagesWithSteps = useMemo(() => {
+    return [...messages]
+      .filter((m) => m.role === "assistant" && (m.toolCalls?.length || m.activityCard))
+      .reverse();
+  }, [messages]);
+
+  const isAgentWorking = currentPhase !== "idle" && currentPhase !== "complete";
+  const activeProcessCount = ACTIVE_EXECUTIONS.filter((e) => e.status === "running").length + (isAgentWorking ? 1 : 0);
 
   return (
     <>
@@ -1593,8 +1607,95 @@ function ExplainabilityPanel() {
         </div>
       </div>
 
-      {/* Execution list */}
       <div className="flex-1 overflow-y-auto">
+        {/* Live agent progress */}
+        {isAgentWorking && (
+          <div className="border-b">
+            <div className="px-4 py-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-7 w-7 rounded-md flex items-center justify-center shrink-0 bg-amber-100">
+                  <Loader2 className="h-3.5 w-3.5 text-amber-600 animate-spin" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-[#3d3c3c]">Agent Processing</span>
+                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                      {currentPhase === "thinking" ? "Thinking" :
+                       currentPhase === "tool_call" ? "Running Tool" :
+                       currentPhase === "streaming" ? "Streaming" :
+                       currentPhase === "awaiting_approval" ? "Awaiting Approval" : "Active"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-1 ml-1">
+                <p className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider mb-2">Live Pipeline</p>
+                {completedSteps.map((step, i) => (
+                  <div key={i} className="flex items-center gap-2 text-xs py-0.5">
+                    <CheckCircle2 className="h-3 w-3 text-emerald-500 shrink-0" />
+                    <span className="text-stone-700">{step}</span>
+                  </div>
+                ))}
+                {currentStep && currentPhase === "tool_call" && (
+                  <div className="flex items-center gap-2 text-xs py-0.5">
+                    <Loader2 className="h-3 w-3 text-amber-500 animate-spin shrink-0" />
+                    <span className="text-stone-700 font-medium">{currentStep}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Historical chat agent steps */}
+        {messagesWithSteps.length > 0 && (
+          <div className="border-b">
+            <div className="px-4 py-2">
+              <p className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Chat Agent History</p>
+            </div>
+            {messagesWithSteps.map((msg) => {
+              const isExpanded = expandedMsgId === msg.id;
+              const stepCount = (msg.toolCalls?.length ?? 0) + (msg.activityCard?.items.length ?? 0);
+              const preview = msg.content.slice(0, 60) + (msg.content.length > 60 ? "..." : "");
+              return (
+                <div key={msg.id} className="border-t border-stone-100">
+                  <button
+                    onClick={() => setExpandedMsgId(isExpanded ? null : msg.id)}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-stone-50 transition-colors text-left"
+                  >
+                    <div className="h-6 w-6 rounded-md flex items-center justify-center shrink-0 bg-emerald-100">
+                      <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-[11px] text-stone-700 truncate block">{preview}</span>
+                      <span className="text-[10px] text-muted-foreground">{stepCount} step{stepCount !== 1 ? "s" : ""}</span>
+                    </div>
+                    <ChevronRight className={cn(
+                      "h-3.5 w-3.5 text-stone-400 transition-transform shrink-0",
+                      isExpanded && "rotate-90"
+                    )} />
+                  </button>
+                  {isExpanded && (
+                    <div className="px-4 pb-3 space-y-2">
+                      {msg.activityCard && (
+                        <ActivityCardView card={msg.activityCard} />
+                      )}
+                      {msg.toolCalls && msg.toolCalls.length > 0 && (
+                        <div className="space-y-1.5">
+                          {msg.toolCalls.map((tc) => (
+                            <ToolCallCard key={tc.id} toolCall={tc} />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Static executions */}
         {ACTIVE_EXECUTIONS.map((exec) => {
           const isExpanded = expandedExec === exec.id;
           const doneSteps = exec.steps.filter((s) => s.status === "done").length;
@@ -1724,7 +1825,7 @@ function ExplainabilityPanel() {
       <div className="flex items-center gap-2 px-4 py-3 border-t bg-stone-50/80 shrink-0">
         <Activity className="h-3 w-3 text-amber-500" />
         <span className="text-[10px] text-stone-600 font-medium">
-          2 active agent processes | Last updated: just now
+          {activeProcessCount} active agent process{activeProcessCount !== 1 ? "es" : ""} | Last updated: just now
         </span>
       </div>
     </>
