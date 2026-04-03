@@ -3,7 +3,14 @@
 import Link from "next/link";
 import { createContext, useContext, useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
-import { User, ThumbsUp, ThumbsDown, Wrench, ChevronDown, ChevronRight, Check, Loader2, ArrowRight, Activity } from "lucide-react";
+import { User, ThumbsUp, ThumbsDown, Wrench, ChevronDown, ChevronRight, Check, Loader2, ArrowRight, Activity, X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Ai } from "@carbon/icons-react";
 import { SnapshotCard } from "./snapshot-card";
 import { CommercialReviewCard } from "./commercial-review-card";
@@ -189,9 +196,18 @@ function renderMarkdownInteractive(text: string) {
 
 function FeedbackRow() {
   const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
-  const [showInput, setShowInput] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [feedbackText, setFeedbackText] = useState("");
+  const [feedbackCategory, setFeedbackCategory] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+
+  const CATEGORIES = [
+    "Inaccurate data",
+    "Wrong recommendation",
+    "Missing context",
+    "Poor formatting",
+    "Other",
+  ];
 
   if (submitted) {
     return (
@@ -203,12 +219,12 @@ function FeedbackRow() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 mt-1">
-      <div className="flex items-center gap-1">
+    <>
+      <div className="flex items-center gap-1 mt-1">
         <button
           onClick={() => {
             setFeedback("up");
-            if (!showInput) setSubmitted(true);
+            setSubmitted(true);
           }}
           className={cn(
             "p-1 rounded transition-colors",
@@ -223,7 +239,7 @@ function FeedbackRow() {
         <button
           onClick={() => {
             setFeedback("down");
-            setShowInput(true);
+            setModalOpen(true);
           }}
           className={cn(
             "p-1 rounded transition-colors",
@@ -236,25 +252,73 @@ function FeedbackRow() {
           <ThumbsDown className="h-3 w-3" />
         </button>
       </div>
-      {showInput && (
-        <div className="flex items-center gap-1.5">
-          <input
-            type="text"
-            value={feedbackText}
-            onChange={(e) => setFeedbackText(e.target.value)}
-            placeholder="What could be improved?"
-            className="flex-1 text-[10px] rounded border border-stone-200 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-stone-300"
-            autoFocus
-          />
-          <button
-            onClick={() => setSubmitted(true)}
-            className="text-[10px] px-2 py-1 rounded bg-stone-700 text-white hover:bg-stone-800 transition-colors"
-          >
-            Send
-          </button>
-        </div>
-      )}
-    </div>
+
+      <Dialog open={modalOpen} onOpenChange={(open) => {
+        if (!open) {
+          setModalOpen(false);
+          if (!submitted) setFeedback(null);
+        }
+      }}>
+        <DialogContent className="sm:max-w-[420px]">
+          <DialogHeader>
+            <DialogTitle className="text-sm">Share your feedback</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Help us improve. What went wrong with this response?
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 pt-2">
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setFeedbackCategory(feedbackCategory === cat ? null : cat)}
+                  className={cn(
+                    "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                    feedbackCategory === cat
+                      ? "border-red-300 bg-red-50 text-red-700"
+                      : "border-stone-200 bg-white text-stone-600 hover:border-stone-300"
+                  )}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            <textarea
+              value={feedbackText}
+              onChange={(e) => setFeedbackText(e.target.value)}
+              placeholder="Describe what could be improved..."
+              rows={3}
+              className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-stone-300 resize-none"
+              autoFocus
+            />
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setModalOpen(false);
+                  setFeedback(null);
+                }}
+                className="rounded-lg px-3 py-1.5 text-xs font-medium text-stone-500 hover:text-stone-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setSubmitted(true);
+                  setModalOpen(false);
+                }}
+                disabled={!feedbackText.trim() && !feedbackCategory}
+                className="rounded-lg bg-stone-800 px-4 py-1.5 text-xs font-medium text-white hover:bg-stone-900 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Submit feedback
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
