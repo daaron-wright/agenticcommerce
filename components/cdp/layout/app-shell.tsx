@@ -48,6 +48,7 @@ import { useArtifacts, type ArtifactCategory } from "@/lib/artifact-store";
 import { cn } from "@/lib/utils";
 import { BannerControlsContext, useBannerControls } from "@/lib/banner-controls-context";
 import { useChatMessages } from "@/lib/chat-messages-context";
+import { DemoNarratorProvider } from "@/components/demo/demo-narrator";
 import { ToolCallCard, ActivityCardView } from "@/components/cdp/chat/chat-message";
 import { DAGVisualization } from "@/components/dag";
 import { getUserJourneyState } from "@/lib/journey-state";
@@ -342,6 +343,16 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
     setActiveUtilityTab(tab);
     setUtilityPanelOpen(true);
   }, []);
+
+  // Demo narrator event listeners
+  useEffect(() => {
+    const handleOpenUtility = (e: Event) => {
+      const tab = (e as CustomEvent).detail as "notifications" | "explainability" | "recommendations";
+      openUtilityPanel(tab);
+    };
+    window.addEventListener("demo:open-utility", handleOpenUtility);
+    return () => window.removeEventListener("demo:open-utility", handleOpenUtility);
+  }, [openUtilityPanel]);
 
   useEffect(() => {
     const openDAGPanel = () => setRightSidebarOpen(true);
@@ -943,6 +954,16 @@ function NotificationsPanel() {
   const { resolvedAlerts, approvedActions, reachRedirectActive, demandReorderSubmitted, campaignApplied } = effects;
   const [channelTab, setChannelTab] = useState<ChannelTab>("alerts");
   const [expandedAlertId, setExpandedAlertId] = useState<string | null>(null);
+
+  // Demo narrator event listener for switching channel tabs
+  useEffect(() => {
+    const handleSwitch = (e: Event) => {
+      const tab = (e as CustomEvent).detail as ChannelTab;
+      setChannelTab(tab);
+    };
+    window.addEventListener("demo:switch-channel", handleSwitch);
+    return () => window.removeEventListener("demo:switch-channel", handleSwitch);
+  }, []);
 
   const unresolvedAlertCount = CONTROL_TOWER_ALERTS.length - Object.keys(resolvedAlerts).length;
   const pendingApprovalCount = CONTROL_TOWER_ACTIONS.length - Object.keys(approvedActions).length;
@@ -1917,5 +1938,9 @@ function UtilityPanel({
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  return <AppShellContent>{children}</AppShellContent>;
+  return (
+    <DemoNarratorProvider>
+      <AppShellContent>{children}</AppShellContent>
+    </DemoNarratorProvider>
+  );
 }
