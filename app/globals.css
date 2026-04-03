@@ -77,6 +77,21 @@
     color: hsl(var(--kd-darkstone-60));
   }
 
+  /* Icons inside white-text containers inherit white */
+  .text-white .lucide,
+  .text-white > .lucide,
+  [class*="bg-stone-700"] .lucide,
+  [class*="bg-stone-800"] .lucide,
+  [class*="bg-stone-900"] .lucide,
+  [class*="bg-\["] .lucide {
+    color: inherit;
+  }
+
+  /* Icons with explicit text color classes should use that color */
+  .lucide[class*="text-"] {
+    color: currentColor;
+  }
+
   .font-noto-naskh-arabic {
     font-family: var(--font-noto-naskh-arabic);
   }

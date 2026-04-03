@@ -157,8 +157,8 @@ const STATUS_META: Record<
     label: "Healthy",
   },
   attention: {
-    badge: "border-amber-200 bg-amber-50 text-amber-700",
-    dot: "bg-amber-500",
+    badge: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    dot: "bg-emerald-500",
     label: "Attention",
   },
   critical: {
@@ -178,7 +178,7 @@ const SEVERITY_META: Record<
     icon: AlertCircle,
   },
   high: {
-    badge: "border-amber-200 bg-amber-50 text-amber-700",
+    badge: "border-emerald-200 bg-emerald-50 text-emerald-700",
     label: "High Priority",
     icon: AlertTriangle,
   },
@@ -208,7 +208,7 @@ const ACTION_STATE_META: Record<
   },
   in_review: {
     label: "In review",
-    className: "border-amber-200 bg-amber-50 text-amber-700",
+    className: "border-emerald-200 bg-emerald-50 text-emerald-700",
   },
   dismissed: {
     label: "Dismissed",
@@ -1105,13 +1105,13 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
               row.status === "critical"
                 ? "bg-rose-500"
                 : row.status === "attention"
-                  ? "bg-amber-500"
+                  ? "bg-emerald-500"
                   : "bg-emerald-500";
             const barTextColor =
               row.status === "critical"
                 ? "text-rose-700"
                 : row.status === "attention"
-                  ? "text-amber-700"
+                  ? "text-emerald-700"
                   : "text-emerald-700";
             return (
               <div
@@ -1154,7 +1154,7 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
             row.status === "critical"
               ? "bg-rose-400"
               : row.status === "attention"
-                ? "bg-amber-400"
+                ? "bg-emerald-400"
                 : "bg-emerald-400";
 
           return (
@@ -1256,7 +1256,7 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
                 row.status === "critical"
                   ? "bg-rose-300"
                   : row.status === "attention"
-                    ? "bg-amber-300"
+                    ? "bg-emerald-300"
                     : "bg-emerald-300";
 
               return (
@@ -1394,7 +1394,7 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
                     row.status === "critical"
                       ? "bg-rose-500"
                       : row.status === "attention"
-                        ? "bg-amber-500"
+                        ? "bg-emerald-500"
                         : "bg-emerald-500",
                   )}
                   style={{ width: `${row.progress}%` }}
@@ -1684,7 +1684,7 @@ function DecisionItemCard({
             </Badge>
           ) : null}
           {decision.state === "conditional" ? (
-            <Badge variant="outline" className="border-amber-200 bg-amber-50 text-[9px] text-amber-700">
+            <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-[9px] text-emerald-700">
               Conditional
             </Badge>
           ) : null}
@@ -1783,7 +1783,7 @@ function DecisionItemCard({
 
 function AgentFlowCards({ cards }: { cards: ControlTowerAgentFlowCard[] }) {
   const toneStyles = {
-    amber: "border-amber-200 bg-amber-50/70",
+    emerald: "border-emerald-200 bg-emerald-50/70",
     blue: "border-sky-200 bg-sky-50/70",
     violet: "border-violet-200 bg-violet-50/70",
     emerald: "border-emerald-200 bg-emerald-50/70",
@@ -2325,7 +2325,7 @@ function CustomWidgetContent({ widgetId }: { widgetId: CustomWidgetId }) {
               </div>
               <div className="text-right shrink-0 ml-3">
                 <p className="font-semibold text-[#3d3c3c]">£{(p.revenue / 1000).toFixed(1)}K</p>
-                <Badge variant="outline" className={cn("text-[9px]", p.stockStatus === "Healthy" ? "border-emerald-200 text-emerald-700" : p.stockStatus === "Low" ? "border-amber-200 text-amber-700" : "border-red-200 text-red-700")}>
+                <Badge variant="outline" className={cn("text-[9px]", p.stockStatus === "Healthy" ? "border-emerald-200 text-emerald-700" : p.stockStatus === "Low" ? "border-emerald-200 text-emerald-700" : "border-red-200 text-red-700")}>
                   {p.stockStatus}
                 </Badge>
               </div>
@@ -2394,7 +2394,7 @@ function CustomWidgetContent({ widgetId }: { widgetId: CustomWidgetId }) {
                 <p className="text-[10px] text-stone-400">{p.sku}</p>
               </div>
               <div className="text-right">
-                <p className={cn("text-[11px] font-semibold", p.risk === "high" ? "text-red-600" : "text-amber-600")}>{p.daysOfStock} days</p>
+                <p className={cn("text-[11px] font-semibold", p.risk === "high" ? "text-red-600" : "text-emerald-600")}>{p.daysOfStock} days</p>
                 <p className="text-[10px] text-stone-400">{p.sellThroughRate}% sell-through</p>
               </div>
             </div>
@@ -2621,12 +2621,12 @@ function ControlTowerOverview() {
             )}
 
             {pendingActions.length > 0 && (
-              <div className="flex min-w-[220px] flex-1 items-center gap-3 rounded-xl border border-amber-200 bg-amber-50/60 px-3.5 py-2.5">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-100">
-                  <Clock className="h-4 w-4 text-amber-700" />
+              <div className="flex min-w-[220px] flex-1 items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/60 px-3.5 py-2.5">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100">
+                  <Clock className="h-4 w-4 text-emerald-700" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[11px] font-semibold text-amber-800">
+                  <p className="text-[11px] font-semibold text-emerald-800">
                     {pendingActions.length} approvals pending
                   </p>
                   <p className="truncate text-[11px] text-stone-600">

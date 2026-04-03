@@ -232,7 +232,7 @@ function ConnectionStatusBadges() {
       <span className="inline-flex items-center gap-1 rounded-full bg-[#ff462d]/10 px-2 py-0.5 text-[10px] font-semibold text-[#ff462d]">
         {summary.criticalAlerts} critical
       </span>
-      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-600">
+      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-600">
         {summary.highAlerts} high
       </span>
       <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-500">
@@ -1894,7 +1894,7 @@ function UtilityPanel({
             className={cn(
               "rounded-full px-3 py-1.5 text-xs font-medium transition",
               activeTab === "recommendations"
-                ? "bg-amber-100 text-amber-800"
+                ? "bg-emerald-100 text-emerald-800"
                 : "text-stone-500 hover:bg-stone-100 hover:text-stone-800",
             )}
           >
