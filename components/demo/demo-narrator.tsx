@@ -238,7 +238,7 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
       {children}
 
       {/* ── Floating Demo Icon ─────────────────────────────────────────── */}
-      <div className="fixed z-[210] bottom-6 left-6 flex flex-col items-center gap-3">
+      <div className="fixed z-[210] bottom-[5.5rem] right-3 flex flex-col items-center gap-3">
         {/* Narrator panel (shown when active) */}
         {isActive && panelVisible && stage && (
           <div
@@ -364,21 +364,21 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
         <button
           onClick={isActive ? togglePlayPause : startDemo}
           className={cn(
-            "relative h-12 w-12 rounded-full shadow-lg flex items-center justify-center transition-all",
+            "relative h-10 w-10 rounded-full shadow-lg flex items-center justify-center transition-all",
             isActive
-              ? "bg-emerald-700 hover:bg-emerald-600 text-white"
-              : "bg-[#0a2e2a] hover:bg-[#0f3d37] text-emerald-400 border border-[#1a4a44]",
+              ? "bg-red-200 hover:bg-red-300 text-black"
+              : "bg-red-100 hover:bg-red-200 text-black border border-red-200",
           )}
           title={isActive ? "Demo in progress" : "Start narrated demo"}
         >
-          <Headphones className="h-5 w-5" />
+          <Headphones className="h-4 w-4" />
           {/* Pulse ring when idle */}
           {!isActive && (
-            <span className="absolute inset-0 rounded-full border-2 border-emerald-400/40 animate-ping" />
+            <span className="absolute inset-0 rounded-full border-2 border-red-300/40 animate-ping" />
           )}
           {/* Stage badge */}
           {isActive && (
-            <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-[9px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
               {currentStage + 1}
             </span>
           )}
