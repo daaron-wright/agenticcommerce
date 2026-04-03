@@ -1136,7 +1136,7 @@ function AlertsTab({ resolvedAlerts, expandedAlertId, onToggleExpand, onResolve 
   onResolve: (id: string, type: "approved" | "conditional" | "rejected") => void;
 }) {
   return (
-    <div className="space-y-3 px-4 py-4">
+    <div className="space-y-3 px-4 py-4" data-demo="alerts-panel">
       {CONTROL_TOWER_ALERTS.map((alert) => {
         const isResolved = !!resolvedAlerts[alert.id];
         const isExpanded = expandedAlertId === alert.id;
@@ -1302,7 +1302,7 @@ function ApprovalsTab({ approvedActions, onAction }: {
   onAction: (id: string, type: "approved" | "rejected") => void;
 }) {
   return (
-    <div className="space-y-3 px-4 py-4">
+    <div className="space-y-3 px-4 py-4" data-demo="approvals-panel">
       {CONTROL_TOWER_ACTIONS.map((action) => {
         const isDone = !!approvedActions[action.id];
         const severity = CONTROL_TOWER_ALERT_BADGE_STYLES[action.severity];
@@ -1393,7 +1393,7 @@ function ApprovalsTab({ approvedActions, onAction }: {
 
 function ReachTab({ redirectActive, onApproveRedirect }: { redirectActive: boolean; onApproveRedirect: () => void }) {
   return (
-    <div className="space-y-3 px-4 py-4">
+    <div className="space-y-3 px-4 py-4" data-demo="reach-panel">
       {/* Store Coverage */}
       <div className="rounded-xl border border-stone-200 bg-white p-4">
         <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 mb-3">Store Coverage Summary</p>
@@ -1552,7 +1552,7 @@ const CAMPAIGN_CHANNELS_OPTIMIZED = [
 function CampaignTab({ applied, onApply }: { applied: boolean; onApply: () => void }) {
   const channels = applied ? CAMPAIGN_CHANNELS_OPTIMIZED : CAMPAIGN_CHANNELS_DEFAULT;
   return (
-    <div className="space-y-3 px-4 py-4">
+    <div className="space-y-3 px-4 py-4" data-demo="campaign-panel">
       {/* Channel Mix */}
       <div className="rounded-xl border border-stone-200 bg-white p-4">
         <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 mb-3">Active Storm Communications</p>

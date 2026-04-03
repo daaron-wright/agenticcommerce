@@ -356,3 +356,14 @@
   background-color: rgb(var(--gold)) !important;
   color: white !important;
 }
+
+/* Demo / Tour spotlight highlight */
+[data-tour-active="true"] {
+  outline: 2px solid rgba(52, 211, 153, 0.6);
+  outline-offset: 4px;
+  border-radius: 8px;
+  box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.25);
+  position: relative;
+  z-index: 50;
+  transition: outline 0.3s ease, box-shadow 0.3s ease;
+}

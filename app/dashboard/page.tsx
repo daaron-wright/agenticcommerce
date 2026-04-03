@@ -673,7 +673,7 @@ function MetricNavigator() {
   const signal = CONTROL_TOWER_JOURNEY_SIGNALS.find((s) => s.metricId === metric.id);
 
   return (
-    <div className="space-y-0">
+    <div className="space-y-0" data-demo="kpi-metrics">
       {/* Tab bar */}
       <div className="flex items-center gap-1 border-b border-stone-200 overflow-x-auto">
         {heroMetrics.map((m, i) => {
@@ -2569,7 +2569,7 @@ function ControlTowerOverview() {
   return (
     <>
       <div className="space-y-5 pb-44">
-        <div className="px-1 py-2">
+        <div className="px-1 py-2" data-demo="hero-banner">
           {/* Row 1 — Header */}
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-stone-500">
@@ -2600,7 +2600,7 @@ function ControlTowerOverview() {
           </div>
 
           {/* Needs Attention action strip */}
-          <div className="mt-4 flex flex-wrap items-stretch gap-3">
+          <div className="mt-4 flex flex-wrap items-stretch gap-3" data-demo="needs-attention">
             {criticalAlert && (
               <div className="flex min-w-[220px] flex-1 items-center gap-3 rounded-xl border border-[#cc1800]/20 bg-[#cc1800]/5 px-3.5 py-2.5">
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#cc1800]/10">
@@ -2827,7 +2827,7 @@ function ControlTowerOverview() {
             Add widget
           </button>
 
-          <div id="action-board">
+          <div id="action-board" data-demo="action-board">
             <ActionBoard
               actions={visibleActions}
               onAction={updateActionState}
