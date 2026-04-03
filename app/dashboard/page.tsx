@@ -157,8 +157,8 @@ const STATUS_META: Record<
     label: "Healthy",
   },
   attention: {
-    badge: "border-emerald-200 bg-emerald-50 text-emerald-700",
-    dot: "bg-emerald-500",
+    badge: "border-sky-200 bg-sky-50 text-sky-700",
+    dot: "bg-sky-500",
     label: "Attention",
   },
   critical: {
@@ -178,7 +178,7 @@ const SEVERITY_META: Record<
     icon: AlertCircle,
   },
   high: {
-    badge: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    badge: "border-sky-200 bg-sky-50 text-sky-700",
     label: "High Priority",
     icon: AlertTriangle,
   },
@@ -699,13 +699,37 @@ function MetricNavigator() {
       <div className="rounded-none bg-stone-50">
         <div className="flex flex-col md:flex-row">
           {/* Left sidebar */}
-          <div className="flex flex-col gap-4 border-b border-stone-100 px-5 py-5 md:w-48 md:border-b-0 md:border-r">
+          <div className="flex flex-col gap-3 border-b border-stone-100 px-5 py-5 md:w-48 md:border-b-0 md:border-r">
+            {/* Signal badge + link (top) */}
+            {signal && (
+              <button
+                onClick={() => setSignalSheetOpen(true)}
+                className="flex flex-col items-start gap-1 text-left"
+              >
+                <Badge
+                  variant="outline"
+                  className={cn("text-[9px] shrink-0", signal.badgeColor)}
+                >
+                  {signal.badgeLabel}
+                </Badge>
+                <span className="text-[11px] font-medium text-stone-500 hover:text-[#3d3c3c] transition-colors">
+                  {signal.sidebarLabel} →
+                </span>
+              </button>
+            )}
+
+            {/* Divider */}
+            {signal && <div className="border-t border-stone-100" />}
+
+            {/* Severity badge */}
             <Badge
               variant="outline"
               className={cn("w-fit text-[11px]", status.badge)}
             >
               {status.label}
             </Badge>
+
+            {/* Action links */}
             <div className="space-y-2">
               {actions.map((a) => (
                 <Link
@@ -716,22 +740,6 @@ function MetricNavigator() {
                   {a.label} →
                 </Link>
               ))}
-              {signal && (
-                <button
-                  onClick={() => setSignalSheetOpen(true)}
-                  className="mt-2 flex flex-col items-start gap-1 text-left"
-                >
-                  <Badge
-                    variant="outline"
-                    className={cn("text-[9px] shrink-0", signal.badgeColor)}
-                  >
-                    {signal.badgeLabel}
-                  </Badge>
-                  <span className="text-[11px] font-medium text-stone-500 hover:text-[#3d3c3c] transition-colors">
-                    {signal.sidebarLabel} →
-                  </span>
-                </button>
-              )}
             </div>
           </div>
 
@@ -1786,8 +1794,7 @@ function AgentFlowCards({ cards }: { cards: ControlTowerAgentFlowCard[] }) {
     emerald: "border-emerald-200 bg-emerald-50/70",
     blue: "border-sky-200 bg-sky-50/70",
     violet: "border-violet-200 bg-violet-50/70",
-    emerald: "border-emerald-200 bg-emerald-50/70",
-    stone: "border-stone-200 bg-stone-50/70",
+    slate: "border-stone-200 bg-stone-50/70",
   } as const;
 
   return (

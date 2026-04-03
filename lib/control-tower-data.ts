@@ -167,7 +167,7 @@ export interface ControlTowerAgentFlowCard {
   output: string;
   priority: string;
   processingTime: string;
-  tone: "amber" | "blue" | "violet" | "emerald" | "slate";
+  tone: "emerald" | "blue" | "violet" | "emerald" | "slate";
 }
 
 export interface ControlTowerDrilldown {
@@ -738,7 +738,7 @@ export const CONTROL_TOWER_ALERTS: ControlTowerAlert[] = [
           output: "storm_advisory",
           priority: "Critical",
           processingTime: "1 min",
-          tone: "amber",
+          tone: "emerald",
         },
         {
           id: "inventory-analysis",
@@ -866,7 +866,7 @@ export const CONTROL_TOWER_ALERTS: ControlTowerAlert[] = [
           output: "coldchain_alert",
           priority: "High",
           processingTime: "25 sec",
-          tone: "amber",
+          tone: "emerald",
         },
         {
           id: "logistics-agent",
@@ -1107,7 +1107,7 @@ export const CONTROL_TOWER_JOURNEY_SIGNALS: ControlTowerJourneySignal[] = [
     metricId: "pending-actions",
     signalType: "delivery_adaptation",
     badgeLabel: "Delivery Update",
-    badgeColor: "border-amber-200 bg-amber-50 text-amber-700",
+    badgeColor: "border-sky-200 bg-sky-50 text-sky-700",
     title: "Delivery adaptation triggered",
     description:
       "System warns Sarah about delivery delays due to road closures. Offers in-store pickup at nearest open location or expedited pre-storm delivery slot.",

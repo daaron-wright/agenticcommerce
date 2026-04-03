@@ -722,7 +722,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                         className={
                           item.allowed
                             ? "text-emerald-600 bg-emerald-50 border border-emerald-200 rounded px-1.5"
-                            : "text-amber-700 bg-amber-50 border border-amber-200 rounded px-1.5"
+                            : "text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-1.5"
                         }
                       >
                         {item.allowed ? "allowed" : "denied"}
@@ -885,7 +885,7 @@ const CONTROL_TOWER_ALERT_BADGE_STYLES: Record<
     label: "Critical",
   },
   high: {
-    className: "border-amber-200 bg-amber-50 text-amber-700",
+    className: "border-sky-200 bg-sky-50 text-sky-700",
     label: "High Priority",
   },
   medium: {
@@ -932,7 +932,7 @@ const PROJECTED_OUTCOMES: Record<string, { label: string; before: string; after:
 
 const SEVERITY_DOT: Record<ControlTowerSeverity, string> = {
   critical: "bg-[#ff462d]",
-  high: "bg-amber-500",
+  high: "bg-emerald-500",
   medium: "bg-stone-400",
   info: "bg-stone-300",
 };
@@ -1062,10 +1062,10 @@ function ProfileTab({ user, onNavigate, unresolvedAlerts, pendingApprovals }: {
       </div>
 
       {/* AI Situation Summary */}
-      <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4">
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
         <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="h-4 w-4 text-amber-600" />
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-800">Your Situation Summary</p>
+          <Sparkles className="h-4 w-4 text-emerald-600" />
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-800">Your Situation Summary</p>
         </div>
         <ul className="space-y-2">
           <li className="flex gap-2 text-[11px] text-stone-700">
@@ -1073,7 +1073,7 @@ function ProfileTab({ user, onNavigate, unresolvedAlerts, pendingApprovals }: {
             <span>{unresolvedAlerts} alerts assigned — {CONTROL_TOWER_ALERTS.filter(a => a.severity === "critical").length} critical, {CONTROL_TOWER_ALERTS.filter(a => a.severity === "high").length} high, {CONTROL_TOWER_ALERTS.filter(a => a.severity === "medium").length} medium</span>
           </li>
           <li className="flex gap-2 text-[11px] text-stone-700">
-            <span className="mt-1 h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />
+            <span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
             <span>{pendingApprovals} approvals pending — {CONTROL_TOWER_ACTIONS.filter(a => a.severity === "critical").length} due within 2 hours</span>
           </li>
           <li className="flex gap-2 text-[11px] text-stone-700">
@@ -1081,7 +1081,7 @@ function ProfileTab({ user, onNavigate, unresolvedAlerts, pendingApprovals }: {
             <span>Revenue exposure: $2.4M if no action by 2:00 PM</span>
           </li>
         </ul>
-        <div className="mt-3 flex items-center gap-1.5 text-[10px] text-amber-700">
+        <div className="mt-3 flex items-center gap-1.5 text-[10px] text-emerald-700">
           <Sparkles className="h-3 w-3" />
           <span>AI Agent has pre-triaged alerts and ranked approvals by urgency</span>
         </div>
@@ -1151,7 +1151,7 @@ function AlertsTab({ resolvedAlerts, expandedAlertId, onToggleExpand, onResolve 
         return (
           <div key={alert.id} className="rounded-xl border border-stone-200 bg-white overflow-hidden">
             {/* Alert header */}
-            <div className={cn("px-4 py-3", alert.severity === "critical" ? "bg-[#ff462d] text-white" : alert.severity === "high" ? "bg-amber-500 text-white" : "bg-stone-100")}>
+            <div className={cn("px-4 py-3", alert.severity === "critical" ? "bg-[#ff462d] text-white" : alert.severity === "high" ? "bg-emerald-500 text-white" : "bg-stone-100")}>
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <p className="text-sm font-semibold">{alert.title}</p>
@@ -1206,11 +1206,11 @@ function AlertsTab({ resolvedAlerts, expandedAlertId, onToggleExpand, onResolve 
               {isExpanded && (
                 <div className="space-y-3 pt-1">
                   {/* AI recommendation */}
-                  <div className="rounded-lg border border-amber-200 bg-amber-50/60 p-3">
+                  <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-3">
                     <div className="flex items-center gap-2 mb-1">
-                      <Sparkles className="h-3.5 w-3.5 text-amber-600" />
-                      <span className="text-[10px] font-semibold text-amber-800">AI Agent Recommendation</span>
-                      <Badge variant="outline" className="ml-auto text-[9px] border-amber-300 bg-amber-100 text-amber-700">94% confidence</Badge>
+                      <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+                      <span className="text-[10px] font-semibold text-emerald-800">AI Agent Recommendation</span>
+                      <Badge variant="outline" className="ml-auto text-[9px] border-emerald-300 bg-emerald-100 text-emerald-700">94% confidence</Badge>
                     </div>
                     <p className="text-[11px] text-stone-700">
                       {alert.severity === "critical"
@@ -1323,7 +1323,7 @@ function ApprovalsTab({ approvedActions, onAction }: {
                   <Badge variant="outline" className={cn("text-[9px]", severity.className)}>{severity.label}</Badge>
                   <span className={cn(
                     "flex items-center gap-1 text-[9px] font-semibold",
-                    action.severity === "critical" ? "text-[#ff462d]" : "text-amber-600",
+                    action.severity === "critical" ? "text-[#ff462d]" : "text-emerald-600",
                   )}>
                     {action.severity === "critical" && <span className="h-1.5 w-1.5 rounded-full bg-[#ff462d] animate-pulse" />}
                     {action.dueLabel}
@@ -1341,8 +1341,8 @@ function ApprovalsTab({ approvedActions, onAction }: {
               </div>
               <span className="text-[10px] font-semibold text-stone-500">{aiConfidence}% confidence</span>
             </div>
-            <div className="flex items-center gap-1.5 text-[10px] text-amber-700 bg-amber-50 rounded-md px-2 py-1">
-              <Sparkles className="h-3 w-3 text-amber-500" />
+            <div className="flex items-center gap-1.5 text-[10px] text-emerald-700 bg-emerald-50 rounded-md px-2 py-1">
+              <Sparkles className="h-3 w-3 text-emerald-500" />
               <span>{aiReasoning}</span>
             </div>
 
@@ -1379,7 +1379,7 @@ function ReachTab({ redirectActive, onApproveRedirect }: { redirectActive: boole
         <div className="space-y-2">
           {[
             { zone: "Zone A — Closing", count: 8, color: "bg-[#ff462d]", pct: 6 },
-            { zone: "Zone B — Reduced Hours", count: 15, color: "bg-amber-500", pct: 11 },
+            { zone: "Zone B — Reduced Hours", count: 15, color: "bg-emerald-500", pct: 11 },
             { zone: "Zone C — Normal", count: 119, color: "bg-emerald-500", pct: 83 },
           ].map((z) => (
             <div key={z.zone}>
@@ -1407,8 +1407,8 @@ function ReachTab({ redirectActive, onApproveRedirect }: { redirectActive: boole
             <p className="text-lg font-bold text-emerald-600">2</p>
             <p className="text-[9px] text-stone-500">Clear</p>
           </div>
-          <div className="rounded-lg bg-amber-50 p-2">
-            <p className="text-lg font-bold text-amber-600">4</p>
+          <div className="rounded-lg bg-emerald-50 p-2">
+            <p className="text-lg font-bold text-emerald-600">4</p>
             <p className="text-[9px] text-stone-500">Restricted</p>
           </div>
         </div>
@@ -1419,10 +1419,10 @@ function ReachTab({ redirectActive, onApproveRedirect }: { redirectActive: boole
       </div>
 
       {/* AI Recommendation */}
-      <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4">
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
         <div className="flex items-center gap-2 mb-2">
-          <Sparkles className="h-3.5 w-3.5 text-amber-600" />
-          <p className="text-[10px] font-semibold text-amber-800">AI Agent Recommendation</p>
+          <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+          <p className="text-[10px] font-semibold text-emerald-800">AI Agent Recommendation</p>
         </div>
         <p className="text-[11px] text-stone-700 mb-1">Redirect 3,400 orders to in-store pickup at 26 open Zone B stores</p>
         <p className="text-[10px] text-stone-500 mb-3">Estimated 60% customer acceptance rate</p>
@@ -1448,9 +1448,9 @@ function ReachTab({ redirectActive, onApproveRedirect }: { redirectActive: boole
 const DEMAND_SURGE_ITEMS = [
   { category: "Water", velocity: "4.2x", hoursToZero: 8, color: "bg-[#ff462d]" },
   { category: "Batteries", velocity: "3.8x", hoursToZero: 12, color: "bg-[#ff462d]" },
-  { category: "First Aid", velocity: "2.6x", hoursToZero: 14, color: "bg-amber-500" },
-  { category: "Ready Meals", velocity: "2.4x", hoursToZero: 18, color: "bg-amber-500" },
-  { category: "Pet Food", velocity: "1.9x", hoursToZero: 22, color: "bg-yellow-500" },
+  { category: "First Aid", velocity: "2.6x", hoursToZero: 14, color: "bg-emerald-500" },
+  { category: "Ready Meals", velocity: "2.4x", hoursToZero: 18, color: "bg-emerald-500" },
+  { category: "Pet Food", velocity: "1.9x", hoursToZero: 22, color: "bg-emerald-400" },
 ];
 
 function DemandTab({ reorderSubmitted, onTriggerReorder }: { reorderSubmitted: boolean; onTriggerReorder: () => void }) {
@@ -1468,7 +1468,7 @@ function DemandTab({ reorderSubmitted, onTriggerReorder }: { reorderSubmitted: b
               <span className="text-[10px] text-stone-400">baseline</span>
               <span className={cn(
                 "text-[10px] font-semibold",
-                item.hoursToZero <= 12 ? "text-[#ff462d]" : item.hoursToZero <= 18 ? "text-amber-600" : "text-yellow-600",
+                item.hoursToZero <= 12 ? "text-[#ff462d]" : item.hoursToZero <= 18 ? "text-emerald-600" : "text-yellow-600",
               )}>
                 {item.hoursToZero}h to zero
               </span>
@@ -1478,15 +1478,15 @@ function DemandTab({ reorderSubmitted, onTriggerReorder }: { reorderSubmitted: b
       </div>
 
       {/* AI Threshold Alert */}
-      <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4">
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
         <div className="flex items-center gap-2 mb-2">
-          <Sparkles className="h-3.5 w-3.5 text-amber-600" />
-          <p className="text-[10px] font-semibold text-amber-800">AI Agent Threshold Alert</p>
+          <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+          <p className="text-[10px] font-semibold text-emerald-800">AI Agent Threshold Alert</p>
         </div>
         <ul className="space-y-1.5">
           <li className="text-[11px] text-stone-700 flex gap-2"><span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#ff462d] shrink-0" />47 SKUs crossed emergency reorder threshold</li>
-          <li className="text-[11px] text-stone-700 flex gap-2"><span className="mt-1 h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />Demand accelerating 8-12% per hour — peak in 4-6 hours</li>
-          <li className="text-[11px] text-stone-700 flex gap-2"><span className="mt-1 h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />Fill rate: 78.4% and declining</li>
+          <li className="text-[11px] text-stone-700 flex gap-2"><span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />Demand accelerating 8-12% per hour — peak in 4-6 hours</li>
+          <li className="text-[11px] text-stone-700 flex gap-2"><span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />Fill rate: 78.4% and declining</li>
         </ul>
       </div>
 
@@ -1554,10 +1554,10 @@ function CampaignTab({ applied, onApply }: { applied: boolean; onApply: () => vo
       </div>
 
       {/* AI Recommendation */}
-      <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4">
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
         <div className="flex items-center gap-2 mb-2">
-          <Sparkles className="h-3.5 w-3.5 text-amber-600" />
-          <p className="text-[10px] font-semibold text-amber-800">AI Agent Recommendation</p>
+          <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+          <p className="text-[10px] font-semibold text-emerald-800">AI Agent Recommendation</p>
         </div>
         <p className="text-[11px] text-stone-700 mb-1">Shift 8% from In-Store Signage to Push Notifications</p>
         <p className="text-[10px] text-stone-500 mb-1">Reason: 8 stores closing — signage reach drops to zero in storm zone</p>
@@ -1613,13 +1613,13 @@ function ExplainabilityPanel() {
           <div className="border-b">
             <div className="px-4 py-3">
               <div className="flex items-center gap-2 mb-2">
-                <div className="h-7 w-7 rounded-md flex items-center justify-center shrink-0 bg-amber-100">
-                  <Loader2 className="h-3.5 w-3.5 text-amber-600 animate-spin" />
+                <div className="h-7 w-7 rounded-md flex items-center justify-center shrink-0 bg-emerald-100">
+                  <Loader2 className="h-3.5 w-3.5 text-emerald-600 animate-spin" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-semibold text-[#3d3c3c]">Agent Processing</span>
-                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
                       {currentPhase === "thinking" ? "Thinking" :
                        currentPhase === "tool_call" ? "Running Tool" :
                        currentPhase === "streaming" ? "Streaming" :
@@ -1638,7 +1638,7 @@ function ExplainabilityPanel() {
                 ))}
                 {currentStep && currentPhase === "tool_call" && (
                   <div className="flex items-center gap-2 text-xs py-0.5">
-                    <Loader2 className="h-3 w-3 text-amber-500 animate-spin shrink-0" />
+                    <Loader2 className="h-3 w-3 text-emerald-500 animate-spin shrink-0" />
                     <span className="text-stone-700 font-medium">{currentStep}</span>
                   </div>
                 )}
@@ -1711,10 +1711,10 @@ function ExplainabilityPanel() {
               >
                 <div className={cn(
                   "h-7 w-7 rounded-md flex items-center justify-center shrink-0",
-                  exec.status === "running" ? "bg-amber-100" : "bg-emerald-100"
+                  exec.status === "running" ? "bg-emerald-100" : "bg-emerald-100"
                 )}>
                   {exec.status === "running" ? (
-                    <Loader2 className="h-3.5 w-3.5 text-amber-600 animate-spin" />
+                    <Loader2 className="h-3.5 w-3.5 text-emerald-600 animate-spin" />
                   ) : (
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
                   )}
@@ -1725,7 +1725,7 @@ function ExplainabilityPanel() {
                     <span className={cn(
                       "text-[9px] font-semibold px-1.5 py-0.5 rounded-full",
                       exec.status === "running"
-                        ? "bg-amber-100 text-amber-700"
+                        ? "bg-emerald-100 text-emerald-700"
                         : "bg-emerald-100 text-emerald-700"
                     )}>
                       {exec.status === "running" ? "Running" : "Complete"}
@@ -1736,7 +1736,7 @@ function ExplainabilityPanel() {
                       <div
                         className={cn(
                           "h-full rounded-full transition-all",
-                          exec.status === "running" ? "bg-amber-500" : "bg-emerald-500"
+                          exec.status === "running" ? "bg-emerald-500" : "bg-emerald-500"
                         )}
                         style={{ width: `${progressPct}%` }}
                       />
@@ -1761,7 +1761,7 @@ function ExplainabilityPanel() {
                       <div key={i} className="flex items-center gap-2 text-xs py-1">
                         <div className="shrink-0">
                           {step.status === "done" && <CheckCircle2 className="h-3 w-3 text-emerald-500" />}
-                          {step.status === "running" && <Loader2 className="h-3 w-3 text-amber-500 animate-spin" />}
+                          {step.status === "running" && <Loader2 className="h-3 w-3 text-emerald-500 animate-spin" />}
                           {step.status === "pending" && <div className="h-3 w-3 rounded-full border border-stone-300" />}
                         </div>
                         <span className={cn(
@@ -1823,7 +1823,7 @@ function ExplainabilityPanel() {
 
       {/* Footer */}
       <div className="flex items-center gap-2 px-4 py-3 border-t bg-stone-50/80 shrink-0">
-        <Activity className="h-3 w-3 text-amber-500" />
+        <Activity className="h-3 w-3 text-emerald-500" />
         <span className="text-[10px] text-stone-600 font-medium">
           {activeProcessCount} active agent process{activeProcessCount !== 1 ? "es" : ""} | Last updated: just now
         </span>
@@ -1837,7 +1837,7 @@ function RecommendationsTabPanel() {
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between px-4 py-3 border-b bg-stone-50/80 shrink-0">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-amber-600" />
+          <Sparkles className="h-4 w-4 text-emerald-600" />
           <div>
             <h2 className="text-sm font-semibold text-[#3d3c3c]">AI Recommendations</h2>
             <p className="text-[10px] text-muted-foreground">Actionable insights from your data</p>
