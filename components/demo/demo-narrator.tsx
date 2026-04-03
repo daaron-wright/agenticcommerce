@@ -244,7 +244,7 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
           <div
             key={currentStage}
             className={cn(
-              "w-[340px] bg-[#0a2e2a] border border-[#1a4a44] rounded-xl shadow-2xl",
+              "w-[340px] bg-white border border-stone-200 rounded-xl shadow-xl",
               "animate-in slide-in-from-bottom-4 fade-in duration-300 mb-2",
             )}
           >
@@ -253,27 +253,27 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1">
                   {hasApiKey ? (
-                    <Volume2 className="h-3 w-3 text-emerald-400" />
+                    <Volume2 className="h-3 w-3 text-emerald-600" />
                   ) : (
-                    <VolumeX className="h-3 w-3 text-stone-500" />
+                    <VolumeX className="h-3 w-3 text-stone-400" />
                   )}
-                  <span className="text-[10px] text-stone-400 font-medium uppercase tracking-widest">
+                  <span className="text-[10px] text-stone-500 font-medium uppercase tracking-widest">
                     Stage {currentStage + 1} / {DEMO_STAGES.length}
                   </span>
                 </div>
                 {isPlaying && (
                   <span className="flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-[10px] text-emerald-400">Playing</span>
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[10px] text-emerald-600">Playing</span>
                   </span>
                 )}
                 {isLoading && !isPlaying && (
-                  <span className="text-[10px] text-amber-400">Loading...</span>
+                  <span className="text-[10px] text-amber-600">Loading...</span>
                 )}
               </div>
               <button
                 onClick={stopDemo}
-                className="text-stone-500 hover:text-stone-300 transition-colors"
+                className="text-stone-400 hover:text-stone-600 transition-colors"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -281,14 +281,14 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
 
             {/* Content */}
             <div className="px-4 pt-2 pb-3">
-              <h3 className="text-sm font-semibold text-stone-100 mb-1">
+              <h3 className="text-sm font-semibold text-stone-800 mb-1">
                 {stage.title}
               </h3>
-              <p className="text-xs text-stone-400 leading-relaxed line-clamp-3">
+              <p className="text-xs text-stone-600 leading-relaxed line-clamp-3">
                 {stage.narration}
               </p>
               {!hasApiKey && (
-                <p className="text-[10px] text-stone-500 mt-2 italic">
+                <p className="text-[10px] text-stone-400 mt-2 italic">
                   Set NEXT_PUBLIC_ELEVENLABS_API_KEY for voice narration
                 </p>
               )}
@@ -304,10 +304,10 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
                     className={cn(
                       "h-1.5 rounded-full transition-all",
                       i === currentStage
-                        ? "w-5 bg-emerald-400"
+                        ? "w-5 bg-stone-700"
                         : i < currentStage
-                          ? "w-1.5 bg-emerald-700 hover:bg-emerald-600"
-                          : "w-1.5 bg-stone-700 hover:bg-stone-600",
+                          ? "w-1.5 bg-stone-400 hover:bg-stone-500"
+                          : "w-1.5 bg-stone-200 hover:bg-stone-300",
                     )}
                   />
                 ))}
@@ -315,19 +315,19 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
             </div>
 
             {/* Controls */}
-            <div className="flex items-center justify-between border-t border-[#1a4a44] px-4 py-2.5">
+            <div className="flex items-center justify-between border-t border-stone-100 px-4 py-2.5">
               <div className="flex items-center gap-1">
                 <button
                   onClick={prev}
                   disabled={currentStage === 0}
-                  className="flex items-center gap-0.5 text-xs text-stone-400 hover:text-stone-200 px-2 py-1 rounded-md hover:bg-white/5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="flex items-center gap-0.5 text-xs text-stone-500 hover:text-stone-700 px-2 py-1 rounded-md hover:bg-stone-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   <ChevronLeft className="h-3 w-3" /> Back
                 </button>
                 {hasApiKey && (
                   <button
                     onClick={togglePlayPause}
-                    className="flex items-center gap-1 text-xs text-stone-400 hover:text-stone-200 px-2 py-1 rounded-md hover:bg-white/5 transition-colors"
+                    className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-700 px-2 py-1 rounded-md hover:bg-stone-100 transition-colors"
                   >
                     {isPlaying ? (
                       <>
@@ -344,14 +344,14 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
               {currentStage < DEMO_STAGES.length - 1 ? (
                 <button
                   onClick={next}
-                  className="flex items-center gap-1 text-xs font-medium text-white bg-emerald-700 hover:bg-emerald-600 px-3 py-1.5 rounded-md transition-colors"
+                  className="flex items-center gap-1 text-xs font-medium text-white bg-stone-700 hover:bg-stone-800 px-3 py-1.5 rounded-md transition-colors"
                 >
                   Next <ChevronRight className="h-3 w-3" />
                 </button>
               ) : (
                 <button
                   onClick={stopDemo}
-                  className="text-xs font-medium text-white bg-emerald-700 hover:bg-emerald-600 px-3 py-1.5 rounded-md transition-colors"
+                  className="text-xs font-medium text-white bg-stone-700 hover:bg-stone-800 px-3 py-1.5 rounded-md transition-colors"
                 >
                   Finish
                 </button>
@@ -364,14 +364,16 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
         <button
           onClick={isActive ? togglePlayPause : startDemo}
           className={cn(
-            "relative h-10 w-10 rounded-full shadow-lg flex items-center justify-center transition-all",
+            "relative h-10 w-10 rounded-full shadow-lg flex items-center justify-center",
+            "transform-none active:transform-none",
             isActive
-              ? "bg-red-200 hover:bg-red-300 text-black"
-              : "bg-red-100 hover:bg-red-200 text-black border border-red-200",
+              ? "bg-red-200 text-black"
+              : "bg-red-100 text-black border border-red-200",
           )}
+          style={{ transform: "none" }}
           title={isActive ? "Demo in progress" : "Start narrated demo"}
         >
-          <Headphones className="h-4 w-4" />
+          <Headphones className="h-4 w-4" style={{ transform: "none" }} />
           {/* Pulse ring when idle */}
           {!isActive && (
             <span className="absolute inset-0 rounded-full border-2 border-red-300/40 animate-ping" />
