@@ -107,6 +107,7 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
   const router = useRouter();
   const pathname = usePathname();
   const abortRef = useRef(false);
+  const narratorRef = useRef<HTMLDivElement>(null);
 
   const stage = DEMO_STAGES[currentStage];
   const hasApiKey = isElevenLabsConfigured();
@@ -220,6 +221,19 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
     }
   }, [isPlaying, stage, playStage]);
 
+  // ── Click outside to dismiss ───────────────────────────────────────────
+
+  useEffect(() => {
+    if (!isActive) return;
+    const handler = (e: MouseEvent) => {
+      if (narratorRef.current && !narratorRef.current.contains(e.target as Node)) {
+        stopDemo();
+      }
+    };
+    window.addEventListener("mousedown", handler);
+    return () => window.removeEventListener("mousedown", handler);
+  }, [isActive, stopDemo]);
+
   // ── Keyboard shortcuts ─────────────────────────────────────────────────
 
   useEffect(() => {
@@ -238,7 +252,7 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
       {children}
 
       {/* ── Floating Demo Icon ─────────────────────────────────────────── */}
-      <div className="fixed z-[210] bottom-[5.5rem] right-3 flex flex-col items-center gap-3">
+      <div className="fixed z-[210] bottom-[5.5rem] right-3 flex flex-col items-center gap-3" data-demo-narrator ref={narratorRef}>
         {/* Narrator panel (shown when active) */}
         {isActive && panelVisible && stage && (
           <div

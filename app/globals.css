@@ -364,8 +364,8 @@
   transition: filter 0.3s ease;
 }
 
-[data-tour-active="true"] ~ *,
-*:has([data-tour-active="true"]) > *:not(:has([data-tour-active="true"])):not([data-tour-active="true"]) {
+[data-tour-active="true"] ~ *:not([data-demo-narrator]),
+*:has([data-tour-active="true"]) > *:not(:has([data-tour-active="true"])):not([data-tour-active="true"]):not([data-demo-narrator]) {
   filter: blur(3px);
   pointer-events: none;
   transition: filter 0.3s ease;
