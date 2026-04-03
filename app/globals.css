@@ -357,13 +357,16 @@
   color: white !important;
 }
 
-/* Demo / Tour spotlight highlight */
+/* Demo / Tour spotlight highlight — blur everything except the target */
 [data-tour-active="true"] {
-  outline: 2px solid rgba(52, 211, 153, 0.6);
-  outline-offset: 4px;
-  border-radius: 8px;
-  box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.25);
   position: relative;
   z-index: 50;
-  transition: outline 0.3s ease, box-shadow 0.3s ease;
+  transition: filter 0.3s ease;
+}
+
+[data-tour-active="true"] ~ *,
+*:has([data-tour-active="true"]) > *:not(:has([data-tour-active="true"])):not([data-tour-active="true"]) {
+  filter: blur(3px);
+  pointer-events: none;
+  transition: filter 0.3s ease;
 }
