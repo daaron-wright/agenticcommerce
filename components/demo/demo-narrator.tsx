@@ -245,7 +245,14 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
       const clickedInside =
         Array.from(narratorEls).some((el) => el.contains(target)) ||
         Array.from(tourActiveEls).some((el) => el.contains(target));
-      if (!clickedInside) {
+
+      // Allow clicks on nav links that lead to demo-stage routes
+      const clickedNavLink = (target as HTMLElement).closest?.("a[href]");
+      const stageRoutes = new Set(DEMO_STAGES.map((s) => s.route));
+      const isStageRoute =
+        clickedNavLink && stageRoutes.has(clickedNavLink.getAttribute("href") || "");
+
+      if (!clickedInside && !isStageRoute) {
         stopDemo();
       }
     };
