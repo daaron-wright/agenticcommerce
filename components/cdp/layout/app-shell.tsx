@@ -350,8 +350,13 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
       const tab = (e as CustomEvent).detail as "notifications" | "explainability" | "recommendations";
       openUtilityPanel(tab);
     };
+    const handleCloseUtility = () => setUtilityPanelOpen(false);
     window.addEventListener("demo:open-utility", handleOpenUtility);
-    return () => window.removeEventListener("demo:open-utility", handleOpenUtility);
+    window.addEventListener("demo:close-utility", handleCloseUtility);
+    return () => {
+      window.removeEventListener("demo:open-utility", handleOpenUtility);
+      window.removeEventListener("demo:close-utility", handleCloseUtility);
+    };
   }, [openUtilityPanel]);
 
   useEffect(() => {

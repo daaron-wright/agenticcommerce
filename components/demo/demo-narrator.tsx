@@ -108,6 +108,12 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
   const pathname = usePathname();
   const abortRef = useRef(false);
   const narratorRef = useRef<HTMLDivElement>(null);
+  const pathnameRef = useRef(pathname);
+
+  // Keep pathname ref in sync so playStage always sees current value
+  useEffect(() => {
+    pathnameRef.current = pathname;
+  }, [pathname]);
 
   const stage = DEMO_STAGES[currentStage];
   const hasApiKey = isElevenLabsConfigured();
@@ -118,22 +124,29 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
     async (s: DemoStage) => {
       abortRef.current = false;
 
-      // Navigate if needed
-      if (s.route !== pathname) {
+      const currentPath = pathnameRef.current;
+      const needsNavigation = s.route !== currentPath;
+
+      // Close utility panel when leaving dashboard
+      if (needsNavigation) {
+        window.dispatchEvent(new CustomEvent("demo:close-utility"));
+        await new Promise((r) => setTimeout(r, 200));
         router.push(s.route);
-        await new Promise((r) => setTimeout(r, 1200));
+        await new Promise((r) => setTimeout(r, 1500));
       }
 
       if (abortRef.current) return;
 
-      // Highlight target
-      setTimeout(() => highlightTarget(s.target), 300);
-      setTimeout(() => highlightTarget(s.target), 800);
-
-      // Dispatch UI action
+      // Dispatch UI action first so panels open before highlight
       if (s.uiAction) {
-        setTimeout(() => dispatchUIAction(s.uiAction!), 500);
+        dispatchUIAction(s.uiAction);
       }
+
+      // Highlight target (with retries to catch post-render elements)
+      const tryHighlight = () => highlightTarget(s.target);
+      setTimeout(tryHighlight, s.uiAction ? 600 : 300);
+      setTimeout(tryHighlight, s.uiAction ? 1000 : 600);
+      setTimeout(tryHighlight, 1400);
 
       // Play TTS
       if (hasApiKey) {
@@ -150,7 +163,7 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
         }
       }
     },
-    [pathname, router, hasApiKey],
+    [router, hasApiKey],
   );
 
   // ── Start / Stop ───────────────────────────────────────────────────────
@@ -167,13 +180,13 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
 
     // Navigate to first stage route
     const first = DEMO_STAGES[0];
-    if (pathname !== first.route) {
+    if (pathnameRef.current !== first.route) {
       router.push(first.route);
     }
 
     // Play after short delay
     setTimeout(() => playStage(first), 800);
-  }, [pathname, router, playStage]);
+  }, [router, playStage]);
 
   const stopDemo = useCallback(() => {
     abortRef.current = true;
