@@ -181,17 +181,16 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
     setCurrentStage(0);
     setIsActive(true);
     setPanelVisible(true);
+    setIsPlaying(false);
+    setIsLoading(false);
     highlightTarget(undefined);
 
-    // Navigate to first stage route
+    // Navigate to first stage route but don't auto-play
     const first = DEMO_STAGES[0];
     if (pathnameRef.current !== first.route) {
       router.push(first.route);
     }
-
-    // Play after short delay
-    setTimeout(() => playStage(first), 800);
-  }, [router, playStage]);
+  }, [router]);
 
   const stopDemo = useCallback(() => {
     abortRef.current = true;

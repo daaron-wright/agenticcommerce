@@ -267,18 +267,17 @@ function ConnectionStatusBar({ pathname }: { pathname: string }) {
 }
 
 function BannerDemoToggle() {
-  const { isActive, showButton, startDemo, stopDemo, toggleDemoButton } = useDemoNarrator();
-  const isDemoMode = showButton && isActive;
+  const { isActive, showButton, stopDemo, toggleDemoButton } = useDemoNarrator();
   return (
     <div className="flex items-center gap-1 rounded-full border border-stone-200 bg-white p-0.5">
       <button
         onClick={() => {
-          if (isDemoMode) stopDemo();
-          if (!showButton) toggleDemoButton();
+          if (isActive) stopDemo();
+          if (showButton) toggleDemoButton();
         }}
         className={cn(
           "rounded-full px-2.5 py-0.5 text-[10px] font-semibold transition-colors",
-          !isDemoMode
+          !showButton
             ? "bg-stone-700 text-white"
             : "text-stone-400 hover:text-stone-600",
         )}
@@ -288,11 +287,10 @@ function BannerDemoToggle() {
       <button
         onClick={() => {
           if (!showButton) toggleDemoButton();
-          if (!isActive) startDemo();
         }}
         className={cn(
           "rounded-full px-2.5 py-0.5 text-[10px] font-semibold transition-colors",
-          isDemoMode
+          showButton
             ? "bg-stone-700 text-white"
             : "text-stone-400 hover:text-stone-600",
         )}
