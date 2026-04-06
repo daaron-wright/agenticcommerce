@@ -31,7 +31,7 @@ import {
   Network, MessageSquare, X, CheckCircle2,
   Loader2, ChevronRight, ChevronDown, Monitor,
   AlertTriangle, Zap, FlaskConical, Database, Sparkles,
-  MapPin, User,
+  MapPin, User, Headphones,
 } from "lucide-react";
 import { AiGovernanceLifecycle, DataEnrichment } from "@carbon/icons-react";
 import { AIRecommendationsPanel } from "@/components/dashboard/ai-recommendations-panel";
@@ -48,7 +48,7 @@ import { useArtifacts, type ArtifactCategory } from "@/lib/artifact-store";
 import { cn } from "@/lib/utils";
 import { BannerControlsContext, useBannerControls } from "@/lib/banner-controls-context";
 import { useChatMessages } from "@/lib/chat-messages-context";
-import { DemoNarratorProvider } from "@/components/demo/demo-narrator";
+import { DemoNarratorProvider, useDemoNarrator } from "@/components/demo/demo-narrator";
 import { ToolCallCard, ActivityCardView } from "@/components/cdp/chat/chat-message";
 import { DAGVisualization } from "@/components/dag";
 import { getUserJourneyState } from "@/lib/journey-state";
@@ -261,6 +261,25 @@ function ConnectionStatusBar({ pathname }: { pathname: string }) {
         <ConnectionStatusBadges />
       </div>
     </div>
+  );
+}
+
+function DemoToggleButton() {
+  const { showButton, toggleDemoButton } = useDemoNarrator();
+  return (
+    <button
+      onClick={toggleDemoButton}
+      className={cn(
+        "flex items-center gap-3 w-full rounded-md px-3 py-2 text-sm font-medium transition-colors",
+        showButton
+          ? "text-foreground bg-secondary/50"
+          : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground",
+      )}
+      title={showButton ? "Hide demo narrator" : "Show demo narrator"}
+    >
+      <Headphones className="h-4 w-4 shrink-0" />
+      <span>{showButton ? "Demo On" : "Demo Off"}</span>
+    </button>
   );
 }
 
@@ -635,6 +654,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="pt-2 border-t flex flex-col gap-1">
+            <DemoToggleButton />
             <button
               onClick={() => setSidebarOpen(false)}
               className="flex items-center gap-3 w-full rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary/50 hover:text-foreground transition-colors"

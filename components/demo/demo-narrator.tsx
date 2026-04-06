@@ -27,14 +27,18 @@ import { speak, stop as stopTTS, isElevenLabsConfigured } from "@/lib/elevenlabs
 
 interface DemoNarratorContextValue {
   isActive: boolean;
+  showButton: boolean;
   startDemo: () => void;
   stopDemo: () => void;
+  toggleDemoButton: () => void;
 }
 
 const DemoNarratorContext = createContext<DemoNarratorContextValue>({
   isActive: false,
+  showButton: true,
   startDemo: () => {},
   stopDemo: () => {},
+  toggleDemoButton: () => {},
 });
 
 export const useDemoNarrator = () => useContext(DemoNarratorContext);
@@ -104,6 +108,7 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [panelVisible, setPanelVisible] = useState(false);
+  const [showButton, setShowButton] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
   const abortRef = useRef(false);
@@ -199,6 +204,16 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
     highlightTarget(undefined);
   }, []);
 
+  const toggleDemoButton = useCallback(() => {
+    setShowButton((prev) => {
+      if (prev && isActive) {
+        // Hiding while active — also stop demo
+        stopDemo();
+      }
+      return !prev;
+    });
+  }, [isActive, stopDemo]);
+
   // ── Navigation ─────────────────────────────────────────────────────────
 
   const goTo = useCallback(
@@ -274,7 +289,7 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
   }, [isActive, next, prev, stopDemo]);
 
   return (
-    <DemoNarratorContext.Provider value={{ isActive, startDemo, stopDemo }}>
+    <DemoNarratorContext.Provider value={{ isActive, showButton, startDemo, stopDemo, toggleDemoButton }}>
       {children}
 
       {/* ── Narrator panel (independent fixed position) ─────────────── */}
@@ -402,7 +417,7 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
       )}
 
       {/* ── Floating button (static position, never moves) ────────── */}
-      <button
+      {showButton && <button
         onClick={isActive ? togglePlayPause : startDemo}
         className={cn(
           "fixed z-[212] right-3 bottom-[5.5rem] h-10 w-10 rounded-full shadow-lg flex items-center justify-center",
@@ -424,7 +439,7 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
             {currentStage + 1}
           </span>
         )}
-      </button>
+      </button>}
     </DemoNarratorContext.Provider>
   );
 }
