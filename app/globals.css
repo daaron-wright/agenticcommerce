@@ -358,6 +358,11 @@
 }
 
 /* Demo / Tour spotlight highlight — blur everything except the target */
+[data-tour-active="true"],
+[data-tour-active="true"] * {
+  pointer-events: auto;
+}
+
 [data-tour-active="true"] {
   position: relative;
   z-index: 50;

@@ -241,7 +241,10 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
     const handler = (e: MouseEvent) => {
       const target = e.target as Node;
       const narratorEls = document.querySelectorAll("[data-demo-narrator]");
-      const clickedInside = Array.from(narratorEls).some((el) => el.contains(target));
+      const tourActiveEls = document.querySelectorAll('[data-tour-active="true"]');
+      const clickedInside =
+        Array.from(narratorEls).some((el) => el.contains(target)) ||
+        Array.from(tourActiveEls).some((el) => el.contains(target));
       if (!clickedInside) {
         stopDemo();
       }
