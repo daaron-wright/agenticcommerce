@@ -259,7 +259,46 @@ function ConnectionStatusBar({ pathname }: { pathname: string }) {
       <div className="ml-auto flex items-center gap-2 shrink-0">
         {pathname.startsWith("/chat") && bannerControls}
         <ConnectionStatusBadges />
+        <span className="text-stone-300">&middot;</span>
+        <BannerDemoToggle />
       </div>
+    </div>
+  );
+}
+
+function BannerDemoToggle() {
+  const { isActive, showButton, startDemo, stopDemo, toggleDemoButton } = useDemoNarrator();
+  const isDemoMode = showButton && isActive;
+  return (
+    <div className="flex items-center gap-1 rounded-full border border-stone-200 bg-white p-0.5">
+      <button
+        onClick={() => {
+          if (isDemoMode) stopDemo();
+          if (!showButton) toggleDemoButton();
+        }}
+        className={cn(
+          "rounded-full px-2.5 py-0.5 text-[10px] font-semibold transition-colors",
+          !isDemoMode
+            ? "bg-stone-700 text-white"
+            : "text-stone-400 hover:text-stone-600",
+        )}
+      >
+        Interactive
+      </button>
+      <button
+        onClick={() => {
+          if (!showButton) toggleDemoButton();
+          if (!isActive) startDemo();
+        }}
+        className={cn(
+          "rounded-full px-2.5 py-0.5 text-[10px] font-semibold transition-colors",
+          isDemoMode
+            ? "bg-stone-700 text-white"
+            : "text-stone-400 hover:text-stone-600",
+        )}
+      >
+        Demo
+      </button>
     </div>
   );
 }
