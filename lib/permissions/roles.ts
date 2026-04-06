@@ -215,98 +215,126 @@ export interface UserPermissionContext {
 
 export const ROLE_NAVIGATION: Record<UserRole, NavItem[]> = {
   super_admin: [
+    // Control Tower
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
-    { label: "UDP Dashboard", href: "/udp/dashboard", description: "Customer Data Platform" },
-    { label: "Demand Dashboard", href: "/demand/dashboard", description: "Demand Planning" },
     { label: "Chat", href: "/chat", description: "Unified AI Workspace" },
-    { label: "Reports", href: "/reports", description: "Performance Reports" },
-    { label: "MMM", href: "/mmm", description: "Marketing Mix Modeling" },
-    { label: "UDP Incrementality", href: "/udp/incrementality", description: "Shared Experiment Workspace" },
+
+    // Unified Data
+    { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
+    { label: "Customers", href: "/customers", description: "Customer Profiles" },
+    { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
+    { label: "Experiments", href: "/udp/incrementality", description: "All experiments across demand + commercial" },
+
+    // Commercial
     { label: "Campaigns", href: "/campaigns", description: "Campaign Management" },
     { label: "Audiences", href: "/audiences", description: "Segment & Target" },
-    { label: "Customer Insights", href: "/customers", description: "Customer Data" },
-    { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
-    { label: "Demand Reports", href: "/demand/reports", description: "Demand Reporting" },
-    { label: "Demand Analytics", href: "/demand/analytics", description: "Demand Performance" },
-    { label: "Demand Drivers", href: "/demand/mmm", description: "Demand Analysis" },
-    { label: "Demand Incrementality", href: "/demand/incrementality", description: "Demand Experiment Results" },
-    { label: "Demand Planning", href: "/demand/nba", description: "Planning Actions" },
-    { label: "Demand Campaigns", href: "/demand/campaigns", description: "Demand Activation" },
-    { label: "Demand Audiences", href: "/demand/audiences", description: "Demand Segments" },
-    { label: "Demand Customers", href: "/demand/customers", description: "Demand Customer View" },
+    { label: "Mix Modeling", href: "/mmm", description: "Marketing Mix Modeling" },
+    { label: "Reports", href: "/reports", description: "Performance Reports" },
+
+    // Demand
+    { label: "Overview", href: "/demand/dashboard", description: "Demand Planning" },
+    { label: "Campaigns", href: "/demand/campaigns", description: "Demand Activation" },
+    { label: "Audiences", href: "/demand/audiences", description: "Demand Segments" },
+    { label: "Customers", href: "/demand/customers", description: "Demand Customer View" },
+    { label: "Analytics", href: "/demand/analytics", description: "Demand Performance" },
+    { label: "Drivers", href: "/demand/mmm", description: "Demand Analysis" },
+    { label: "Reports", href: "/demand/reports", description: "Demand Reporting" },
   ],
   data_admin: [
+    // Control Tower
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
-    { label: "UDP Dashboard", href: "/udp/dashboard", description: "Customer Data Platform" },
-    { label: "Customer Insights", href: "/customers", description: "Customer Data" },
-    { label: "Reports", href: "/reports", description: "Performance Reports" },
+
+    // Unified Data
+    { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
+    { label: "Customers", href: "/customers", description: "Customer Profiles" },
     { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
-    { label: "UDP Incrementality", href: "/udp/incrementality", description: "Shared Experiment Workspace" },
-  ],
-  
-  marketing_admin: [
-    { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
-    { label: "UDP Dashboard", href: "/udp/dashboard", description: "Customer Data Platform" },
-    { label: "Chat", href: "/chat", description: "AI Marketing Assistant" },
+    { label: "Experiments", href: "/udp/incrementality", description: "All experiments across demand + commercial" },
     { label: "Reports", href: "/reports", description: "Performance Reports" },
-    { label: "MMM", href: "/mmm", description: "Marketing Mix Modeling" },
-    { label: "UDP Incrementality", href: "/udp/incrementality", description: "Shared Experiment Workspace" },
+  ],
+
+  marketing_admin: [
+    // Control Tower
+    { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
+    { label: "Chat", href: "/chat", description: "AI Marketing Assistant" },
+
+    // Unified Data
+    { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
+    { label: "Customers", href: "/customers", description: "Customer Profiles" },
+    { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
+    { label: "Experiments", href: "/udp/incrementality", description: "All experiments across demand + commercial" },
+
+    // Commercial
     { label: "Campaigns", href: "/campaigns", description: "Campaign Management" },
     { label: "Audiences", href: "/audiences", description: "Segment & Target" },
-    { label: "Customer Insights", href: "/customers", description: "Customer Data" },
-    { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
+    { label: "Mix Modeling", href: "/mmm", description: "Marketing Mix Modeling" },
+    { label: "Reports", href: "/reports", description: "Performance Reports" },
   ],
-  
+
   service_agent: [
+    // Control Tower
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
-    { label: "UDP Dashboard", href: "/udp/dashboard", description: "Customer Data Platform" },
     { label: "Chat", href: "/chat", description: "Operator Workspace" },
-    { label: "Customer Search", href: "/customers", description: "Find Customers" },
+
+    // Unified Data
+    { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
+    { label: "Customers", href: "/customers", description: "Find Customers" },
+
+    // Commercial
     { label: "Reports", href: "/reports", description: "Performance Reports" },
   ],
 
   risk_admin: [
+    // Control Tower
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
-    { label: "UDP Dashboard", href: "/udp/dashboard", description: "Customer Data Platform" },
-    { label: "Demand Dashboard", href: "/demand/dashboard", description: "Demand Planning" },
     { label: "Chat", href: "/chat", description: "Unified AI Workspace" },
-    { label: "Reports", href: "/reports", description: "Performance Reports" },
-    { label: "MMM", href: "/mmm", description: "Marketing Mix Modeling" },
-    { label: "UDP Incrementality", href: "/udp/incrementality", description: "Shared Experiment Workspace" },
+
+    // Unified Data
+    { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
+    { label: "Customers", href: "/customers", description: "Customer Profiles" },
+    { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
+    { label: "Experiments", href: "/udp/incrementality", description: "All experiments across demand + commercial" },
+
+    // Commercial
     { label: "Campaigns", href: "/campaigns", description: "Campaign Management" },
     { label: "Audiences", href: "/audiences", description: "Segment & Target" },
-    { label: "Customer Insights", href: "/customers", description: "Customer Data" },
-    { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
-    { label: "Demand Reports", href: "/demand/reports", description: "Demand Reporting" },
-    { label: "Demand Analytics", href: "/demand/analytics", description: "Demand Performance" },
-    { label: "Demand Drivers", href: "/demand/mmm", description: "Demand Analysis" },
-    { label: "Demand Incrementality", href: "/demand/incrementality", description: "Demand Experiment Results" },
-    { label: "Demand Planning", href: "/demand/nba", description: "Planning Actions" },
-    { label: "Demand Campaigns", href: "/demand/campaigns", description: "Demand Activation" },
-    { label: "Demand Audiences", href: "/demand/audiences", description: "Demand Segments" },
-    { label: "Demand Customers", href: "/demand/customers", description: "Demand Customer View" },
+    { label: "Mix Modeling", href: "/mmm", description: "Marketing Mix Modeling" },
+    { label: "Reports", href: "/reports", description: "Performance Reports" },
+
+    // Demand
+    { label: "Overview", href: "/demand/dashboard", description: "Demand Planning" },
+    { label: "Campaigns", href: "/demand/campaigns", description: "Demand Activation" },
+    { label: "Audiences", href: "/demand/audiences", description: "Demand Segments" },
+    { label: "Customers", href: "/demand/customers", description: "Demand Customer View" },
+    { label: "Analytics", href: "/demand/analytics", description: "Demand Performance" },
+    { label: "Drivers", href: "/demand/mmm", description: "Demand Analysis" },
+    { label: "Reports", href: "/demand/reports", description: "Demand Reporting" },
   ],
 
   platform_admin: [
+    // Control Tower
     { label: "Dashboard", href: "/dashboard", description: "Unified Control Tower" },
-    { label: "UDP Dashboard", href: "/udp/dashboard", description: "Customer Data Platform" },
-    { label: "Demand Dashboard", href: "/demand/dashboard", description: "Demand Planning" },
     { label: "Chat", href: "/chat", description: "Unified AI Workspace" },
-    { label: "Reports", href: "/reports", description: "Performance Reports" },
-    { label: "MMM", href: "/mmm", description: "Marketing Mix Modeling" },
-    { label: "UDP Incrementality", href: "/udp/incrementality", description: "Shared Experiment Workspace" },
+
+    // Unified Data
+    { label: "Customer Data", href: "/udp/dashboard", description: "Customer Data Platform" },
+    { label: "Customers", href: "/customers", description: "Customer Profiles" },
+    { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
+    { label: "Experiments", href: "/udp/incrementality", description: "All experiments across demand + commercial" },
+
+    // Commercial
     { label: "Campaigns", href: "/campaigns", description: "Campaign Management" },
     { label: "Audiences", href: "/audiences", description: "Segment & Target" },
-    { label: "Customer Insights", href: "/customers", description: "Customer Data" },
-    { label: "Analytics", href: "/analytics", description: "Performance Analytics" },
-    { label: "Demand Reports", href: "/demand/reports", description: "Demand Reporting" },
-    { label: "Demand Analytics", href: "/demand/analytics", description: "Demand Performance" },
-    { label: "Demand Drivers", href: "/demand/mmm", description: "Demand Analysis" },
-    { label: "Demand Incrementality", href: "/demand/incrementality", description: "Demand Experiment Results" },
-    { label: "Demand Planning", href: "/demand/nba", description: "Planning Actions" },
-    { label: "Demand Campaigns", href: "/demand/campaigns", description: "Demand Activation" },
-    { label: "Demand Audiences", href: "/demand/audiences", description: "Demand Segments" },
-    { label: "Demand Customers", href: "/demand/customers", description: "Demand Customer View" },
+    { label: "Mix Modeling", href: "/mmm", description: "Marketing Mix Modeling" },
+    { label: "Reports", href: "/reports", description: "Performance Reports" },
+
+    // Demand
+    { label: "Overview", href: "/demand/dashboard", description: "Demand Planning" },
+    { label: "Campaigns", href: "/demand/campaigns", description: "Demand Activation" },
+    { label: "Audiences", href: "/demand/audiences", description: "Demand Segments" },
+    { label: "Customers", href: "/demand/customers", description: "Demand Customer View" },
+    { label: "Analytics", href: "/demand/analytics", description: "Demand Performance" },
+    { label: "Drivers", href: "/demand/mmm", description: "Demand Analysis" },
+    { label: "Reports", href: "/demand/reports", description: "Demand Reporting" },
   ],
 };
 

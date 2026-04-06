@@ -424,7 +424,7 @@ function buildContentCards(module: DashboardModule, view: DashboardView) {
           description="Use the full planning pages for step-by-step operator execution."
           links={[
             { label: "Demand dashboard", href: "/demand/dashboard" },
-            { label: "Planning approvals", href: "/demand/nba" },
+            { label: "Action Queue", href: "/analytics/pending-review" },
             { label: "Open graph chain", href: buildKnowledgeGraphHref({ graphPreset: "demand-chain", graphScopeId: "demand-stockout-chain", graphCenterNodeId: "graph-demand-alert" }) },
           ]}
         />

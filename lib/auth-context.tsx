@@ -14,19 +14,19 @@ export const USER_ROLES = [
 ] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
-export const CHAT_PERSONAS = ["marketer", "merchandiser", "general_user"] as const;
+export const CHAT_PERSONAS = ["ecommerce", "operations", "general_user"] as const;
 export type ChatPersona = (typeof CHAT_PERSONAS)[number];
 
 export const PERMISSION_TIERS = ["full_admin", "send_for_review"] as const;
 export type PermissionTier = (typeof PERMISSION_TIERS)[number];
 
 const DISPLAY_NAMES: Record<UserRole, string> = {
-  super_admin: "Super Administrator",
-  data_admin: "Data Administrator",
-  marketing_admin: "Marketing Administrator",
-  service_agent: "Service Agent",
-  risk_admin: "Platform Operator",
-  platform_admin: "Platform Administrator",
+  super_admin: "Planning Manager",
+  data_admin: "Supply Chain Manager",
+  marketing_admin: "Director of E-commerce",
+  service_agent: "Store Inventory Manager",
+  risk_admin: "Logistics Manager",
+  platform_admin: "Pricing Manager",
 };
 
 export function isUserRole(value: unknown): value is UserRole {
@@ -48,8 +48,8 @@ export function isPermissionTier(value: unknown): value is PermissionTier {
 }
 
 function getDefaultPersonaForRole(role: UserRole): ChatPersona {
-  if (role === "marketing_admin") return "marketer";
-  if (role === "service_agent") return "merchandiser";
+  if (role === "marketing_admin") return "ecommerce";
+  if (role === "service_agent") return "operations";
   return "general_user";
 }
 

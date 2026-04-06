@@ -127,7 +127,7 @@ export function buildDraftIncrementalityExperiment(
       `${templateLabel} experiment for ${applicationLabel.toLowerCase()} created from the shared UDP experiment workspace.`,
     country: input.country ?? "United Kingdom",
     scopeLabel: input.scopeLabel ?? `${applicationLabel} · operator draft`,
-    owner: input.owner ?? "UDP Control Tower",
+    owner: input.owner ?? "Control Tower",
     primaryAudienceLabel:
       input.primaryAudienceLabel ?? `${applicationLabel} treatment audience`,
     controlAudienceLabel:
@@ -189,10 +189,10 @@ export function buildDraftIncrementalityExperiment(
       expected: 100,
     })),
     geoPoints: [
-      { label: "Manchester", x: 30, y: 24, group: "treatment" },
-      { label: "Leeds", x: 36, y: 20, group: "control" },
-      { label: "London", x: 54, y: 40, group: "treatment" },
-      { label: "Bristol", x: 24, y: 36, group: "control" },
+      { label: "Boston", x: 30, y: 24, group: "treatment" },
+      { label: "Hartford", x: 36, y: 20, group: "control" },
+      { label: "New York", x: 54, y: 40, group: "treatment" },
+      { label: "Philadelphia", x: 24, y: 36, group: "control" },
     ],
   };
 }

@@ -6,8 +6,8 @@ import { buildIncrementalityHref } from "@/lib/incrementality-data";
 export default function UdpIncrementalityPage() {
   return (
     <IncrementalityWorkspace
-      title="UDP Incrementality"
-      description="Run controlled experiments across identity, consent, audiences, campaigns, customer insights, data quality, and demand from one shared UDP workspace."
+      title="Experiments"
+      description="Run and review controlled experiments across demand, commercial, identity, consent, audiences, campaigns, and more — all in one workspace."
       breadcrumbBaseHref={buildIncrementalityHref({ entry: "udp" })}
       defaultLens="all"
       showControlTowerEntry

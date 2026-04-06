@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import {
   MdOutlineSend, MdOutlineRefresh, MdOutlineFiberManualRecord, MdOutlineTrendingUp, MdOutlineGpsFixed,
   MdOutlineShowChart, MdOutlineVerifiedUser, MdOutlineBarChart, MdOutlinePieChart, MdOutlineKeyboardArrowDown,
   MdOutlinePlayArrow, MdOutlineClose, MdOutlineMonitor, MdOutlineStorage, MdOutlinePersonSearch,
   MdOutlineGroup, MdOutlineCampaign, MdOutlineGppBad, MdOutlineWarning, MdOutlineChecklist,
-  MdOutlineAutoAwesome, MdOutlineLightbulb,
+  MdOutlineAutoAwesome, MdOutlineLightbulb, MdOutlineMenuBook,
 } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -24,7 +24,7 @@ import {
 } from "@/lib/incrementality-store";
 import { hasPermissionForUser } from "@/lib/permissions/roles";
 import { buildExecutionPreviewSrc } from "./execution-preview-data";
-import { ChatMessage, type Message } from "./chat-message";
+import { ChatMessage, type Message, type ToolCall, type ActivityCard, type StateSyncEvent } from "./chat-message";
 import { SubwayMapBackground } from "./subway-map-bg";
 import {
   CHAT_PERSONA_OPTIONS,
@@ -60,6 +60,8 @@ import {
   type ReportCardType,
 } from "./chat-data";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useBannerControls } from "@/lib/banner-controls-context";
+import { ChatMessagesContext } from "@/lib/chat-messages-context";
 
 
 let messageCounter = 0;
@@ -94,6 +96,9 @@ interface SerializedMessage {
   linkedControlLabel?: string;
   linkedScopeLabel?: string;
   executionPreview?: Message["executionPreview"];
+  toolCalls?: ToolCall[];
+  activityCard?: ActivityCard;
+  stateSyncEvents?: StateSyncEvent[];
 }
 
 function saveMessages(storageKey: string, messages: Message[]) {
@@ -112,6 +117,9 @@ function saveMessages(storageKey: string, messages: Message[]) {
       linkedControlLabel: m.linkedControlLabel,
       linkedScopeLabel: m.linkedScopeLabel,
       executionPreview: m.executionPreview,
+      toolCalls: m.toolCalls,
+      activityCard: m.activityCard,
+      stateSyncEvents: m.stateSyncEvents,
     }));
     sessionStorage.setItem(storageKey, JSON.stringify(serialized));
   } catch {
@@ -138,6 +146,9 @@ function loadMessages(storageKey: string): Message[] {
       linkedControlLabel: m.linkedControlLabel,
       linkedScopeLabel: m.linkedScopeLabel,
       executionPreview: m.executionPreview,
+      toolCalls: m.toolCalls,
+      activityCard: m.activityCard,
+      stateSyncEvents: m.stateSyncEvents,
     }));
   } catch {
     return [];
@@ -189,7 +200,7 @@ function migrateStorageKeys(targetChatKey: string) {
   keysToDelete.forEach(key => sessionStorage.removeItem(key));
 }
 
-type AgentPhase = "idle" | "thinking" | "tool_call" | "streaming" | "complete";
+type AgentPhase = "idle" | "thinking" | "tool_call" | "streaming" | "complete" | "awaiting_approval";
 
 const SCENARIO_ICONS: Record<ScenarioId, React.ElementType> = {
   profit: MdOutlineTrendingUp,
@@ -257,12 +268,22 @@ export function ChatInterface({
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [showScenarioPicker, setShowScenarioPicker] = useState(false);
   const [showMorePrompts, setShowMorePrompts] = useState(false);
+  const [promptLibraryOpen, setPromptLibraryOpen] = useState(false);
+  const [promptLibrarySearch, setPromptLibrarySearch] = useState("");
   const [promptDomainFilter, setPromptDomainFilter] = useState<SuggestedPromptDomain | "all">("all");
   const [isGraphDialogOpen, setIsGraphDialogOpen] = useState(false);
   const [graphPrefill, setGraphPrefill] = useState<GraphInstancePrefill | undefined>(undefined);
   const [activeNBAs, setActiveNBAs] = useState<NBAAction[]>([]);
   const [showNBACards, setShowNBACards] = useState(false);
   const [lastCompletedFlow, setLastCompletedFlow] = useState<ChatFlow | null>(null);
+  const [pendingApproval, setPendingApproval] = useState<{
+    flow: ChatFlow;
+    assistantId: string;
+    toolName: string;
+    toolArgs: string;
+    impact: string;
+    remainingSteps: string[];
+  } | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef(false);
@@ -361,6 +382,7 @@ export function ChatInterface({
       if (abortRef.current) return;
 
       const initialNBAId = getNBAIdFromFlow(flow);
+      const isExecutionFlow = !!initialNBAId;
       if (initialNBAId && onWorkflowEvent) {
         onWorkflowEvent(`EXECUTION_STARTED:${initialNBAId}`);
       }
@@ -370,19 +392,67 @@ export function ChatInterface({
           ? (() => {
               const draftInput = buildIncrementalityDraftInputFromAction(
                 initialNBAId,
-                user?.username || "UDP Control Tower",
+                user?.username || "Control Tower",
               );
               return draftInput ? createExperiment(draftInput) : null;
             })()
           : null;
 
-      // Emit agent steps as workflow events
-      for (const step of flow.agentSteps) {
+      // Build tool call entries from agent steps
+      const toolCalls: ToolCall[] = [];
+
+      // Determine if we need HITL approval (only for execution flows)
+      const needsApproval = isExecutionFlow && flow.agentSteps.length > 1;
+      const approvalStepIdx = needsApproval ? flow.agentSteps.length - 1 : -1;
+
+      // Emit agent steps as workflow events, building tool calls
+      for (let stepIdx = 0; stepIdx < flow.agentSteps.length; stepIdx++) {
+        const step = flow.agentSteps[stepIdx];
+
+        // HITL: pause before the last step of execution flows
+        if (needsApproval && stepIdx === approvalStepIdx) {
+          // All prior tool calls are complete; add the pending one
+          const pendingToolCall: ToolCall = {
+            id: `tc-${stepIdx}`,
+            name: step,
+            args: `{ "action": "${getNBAById(initialNBAId!)?.title ?? initialNBAId}", "scope": "production" }`,
+            status: "running",
+          };
+          toolCalls.push(pendingToolCall);
+
+          setPhase("awaiting_approval");
+          setCurrentStep(step);
+
+          // We'll store info and wait; the approval handler resumes
+          const assistantIdForApproval = nextId();
+          setPendingApproval({
+            flow,
+            assistantId: assistantIdForApproval,
+            toolName: step,
+            toolArgs: `Execute: ${getNBAById(initialNBAId!)?.title ?? initialNBAId}`,
+            impact: `This will deploy changes to production systems.`,
+            remainingSteps: [step],
+          });
+          return; // Pause here — handleApproval or handleReject resumes
+        }
+
+        const tc: ToolCall = {
+          id: `tc-${stepIdx}`,
+          name: step,
+          args: `{ "step": ${stepIdx + 1}, "task": "${step}" }`,
+          status: "running",
+        };
+        toolCalls.push(tc);
+
         setPhase("tool_call");
         setCurrentStep(step);
         if (onWorkflowEvent) onWorkflowEvent(step);
         await delay(800 + Math.random() * 400);
         if (abortRef.current) return;
+
+        // Mark this tool call as complete
+        tc.status = "complete";
+        tc.result = `Completed: ${step}`;
         setCompletedSteps((prev) => [...prev, step]);
       }
 
@@ -402,6 +472,22 @@ export function ChatInterface({
         : undefined;
       const experimentHref = linkedExperiment
         ? buildIncrementalityExperimentHrefForExperiment(linkedExperiment)
+        : undefined;
+
+      // Build activity card summarizing agent steps
+      const activityCard: ActivityCard = {
+        type: isExecutionFlow ? "EXECUTE" : "ANALYZE",
+        title: isExecutionFlow ? "Execution Summary" : "Analysis Summary",
+        items: flow.agentSteps.map((s) => ({ label: s, status: "done" as const })),
+      };
+
+      // Build state sync events for execution flows
+      const stateSyncEvents: StateSyncEvent[] | undefined = isExecutionFlow
+        ? [
+            { target: "Dashboard KPIs", field: "Forecast Accuracy", before: "87.3%", after: "91.7%" },
+            { target: "Demand Forecast", field: "At-risk SKUs", before: "127", after: "112" },
+            { target: "Revenue at Risk", field: "Exposure", before: "$2.4M", after: "$1.8M" },
+          ]
         : undefined;
 
       setMessages((prev) => [
@@ -424,6 +510,9 @@ export function ChatInterface({
           linkedControlLabel: linkedExperiment?.controlAudienceLabel,
           linkedScopeLabel: linkedExperiment?.impactedCustomerScope,
           executionPreview,
+          toolCalls: toolCalls.length > 0 ? [...toolCalls] : undefined,
+          activityCard,
+          stateSyncEvents,
         },
       ]);
 
@@ -512,6 +601,170 @@ export function ChatInterface({
     },
     [onWorkflowEvent, addArtifacts, activePersona, createExperiment, user]
   );
+
+  // ── HITL Approval handlers ─────────────────────────────────────────────
+
+  const handleApproval = useCallback(async () => {
+    if (!pendingApproval) return;
+    const { flow, remainingSteps } = pendingApproval;
+    setPendingApproval(null);
+
+    // Complete the remaining step(s)
+    for (const step of remainingSteps) {
+      setPhase("tool_call");
+      setCurrentStep(step);
+      if (onWorkflowEvent) onWorkflowEvent(step);
+      await delay(800 + Math.random() * 400);
+      if (abortRef.current) return;
+      setCompletedSteps((prev) => [...prev, step]);
+    }
+
+    // Now stream the response
+    const initialNBAId = getNBAIdFromFlow(flow);
+    const linkedExperiment = initialNBAId
+      ? (() => {
+          const draftInput = buildIncrementalityDraftInputFromAction(
+            initialNBAId,
+            user?.username || "Control Tower",
+          );
+          return draftInput ? createExperiment(draftInput) : null;
+        })()
+      : null;
+
+    setPhase("streaming");
+    setCurrentStep("");
+    const assistantId = nextId();
+    const executionPreview = initialNBAId
+      ? {
+          actionId: initialNBAId,
+          title: getNBAById(initialNBAId)?.title ?? "Execution Preview",
+          iframeSrc: buildExecutionPreviewSrc(
+            initialNBAId,
+            assistantId,
+            linkedExperiment?.id,
+          ),
+        }
+      : undefined;
+    const experimentHref = linkedExperiment
+      ? buildIncrementalityExperimentHrefForExperiment(linkedExperiment)
+      : undefined;
+
+    const activityCard: ActivityCard = {
+      type: "EXECUTE",
+      title: "Execution Summary",
+      items: flow.agentSteps.map((s) => ({ label: s, status: "done" as const })),
+    };
+
+    const stateSyncEvents: StateSyncEvent[] = [
+      { target: "Dashboard KPIs", field: "Forecast Accuracy", before: "87.3%", after: "91.7%" },
+      { target: "Demand Forecast", field: "At-risk SKUs", before: "127", after: "112" },
+      { target: "Revenue at Risk", field: "Exposure", before: "$2.4M", after: "$1.8M" },
+    ];
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: assistantId,
+        role: "assistant",
+        content: "",
+        timestamp: new Date(),
+        snapshots: flow.snapshots,
+        reportCard: flow.reportCard,
+        status: "streaming",
+        agentSteps: flow.agentSteps,
+        actions: experimentHref
+          ? [{ label: "Open experiment", href: experimentHref }]
+          : undefined,
+        linkedExperimentId: linkedExperiment?.id,
+        linkedExperimentHref: experimentHref,
+        linkedAudienceLabel: linkedExperiment?.primaryAudienceLabel,
+        linkedControlLabel: linkedExperiment?.controlAudienceLabel,
+        linkedScopeLabel: linkedExperiment?.impactedCustomerScope,
+        executionPreview,
+        activityCard,
+        stateSyncEvents,
+      },
+    ]);
+
+    if (flow.snapshots && onWorkflowEvent) {
+      for (const snapshot of flow.snapshots) {
+        onWorkflowEvent(snapshot);
+      }
+    }
+
+    const text = flow.response;
+    for (let i = 0; i <= text.length; i++) {
+      if (abortRef.current) return;
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantId ? { ...m, content: text.slice(0, i) } : m
+        )
+      );
+      const char = text[i];
+      const speed = char === " " ? 8 : char === "." || char === "," ? 40 : 14;
+      await delay(speed);
+    }
+
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === assistantId ? { ...m, status: "complete" } : m
+      )
+    );
+    setPhase("complete");
+    setCompletedSteps([]);
+    await delay(300);
+    setPhase("idle");
+    setLastCompletedFlow(flow);
+
+    const nbaId = getNBAIdFromFlow(flow);
+    if (nbaId) {
+      const defs = EXECUTION_ARTIFACTS[nbaId];
+      addArtifacts(
+        defs.map((d) => ({
+          category: d.category,
+          title: d.title,
+          summary: d.summary,
+          metric: d.metric,
+          chatMessageId: assistantId,
+          chatPrompt: lastUserPromptRef.current,
+          workflowEvents: [...flow.agentSteps, ...(flow.snapshots ?? [])],
+        })),
+      );
+      if (onWorkflowEvent) {
+        onWorkflowEvent(`EXECUTION_COMPLETED:${nbaId}`);
+      }
+    }
+
+    if (flow.offerScenarios) {
+      setShowScenarioPicker(true);
+    }
+    if (flow.showNBACards) {
+      const nbas =
+        flow.showNBACards === "all"
+          ? getAllNBAsForPersona(activePersona)
+          : getNBAsByScenario(flow.showNBACards, activePersona);
+      setActiveNBAs(nbas);
+      setShowNBACards(true);
+    }
+  }, [pendingApproval, onWorkflowEvent, addArtifacts, activePersona, createExperiment, user]);
+
+  const handleRejectApproval = useCallback(() => {
+    if (!pendingApproval) return;
+    setPendingApproval(null);
+
+    const rejectMsg: Message = {
+      id: nextId(),
+      role: "assistant",
+      content: "Tool call rejected by user. The execution has been cancelled. No changes were made to production systems.",
+      timestamp: new Date(),
+      status: "complete",
+    };
+
+    setMessages((prev) => [...prev, rejectMsg]);
+    setPhase("idle");
+    setCurrentStep("");
+    setCompletedSteps([]);
+  }, [pendingApproval]);
 
   // ── LLM streaming (real API) ────────────────────────────────────────────
 
@@ -994,70 +1247,89 @@ export function ChatInterface({
     ? filteredPromptCards
     : filteredPromptCards.slice(0, 6);
 
+  // Push recommendation profile + clear chat into the connection banner
+  const { setBannerControls } = useBannerControls();
+  const bannerNode = useMemo(
+    () => (
+      <>
+        <span className="text-[10px] text-muted-foreground">Recommendation profile</span>
+        <Select value={activePersona} onValueChange={(value) => handlePersonaChange(value as ChatPersona)}>
+          <SelectTrigger className="h-6 w-[170px] text-[11px]">
+            <SelectValue placeholder="Select profile" />
+          </SelectTrigger>
+          <SelectContent>
+            {CHAT_PERSONA_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleClearChat}
+          disabled={messages.length === 0}
+          className="h-6 text-[10px] text-muted-foreground hover:text-foreground disabled:opacity-40"
+        >
+          <MdOutlineRefresh className="h-3 w-3 mr-1" />
+          Clear chat
+        </Button>
+      </>
+    ),
+    [activePersona, handlePersonaChange, handleClearChat, messages.length],
+  );
+
+  useEffect(() => {
+    setBannerControls(bannerNode);
+    return () => setBannerControls(null);
+  }, [bannerNode, setBannerControls]);
+
+  const chatMessagesCtx = useMemo(() => ({
+    messages,
+    currentPhase: phase as "idle" | "thinking" | "tool_call" | "streaming" | "complete" | "awaiting_approval",
+    currentStep,
+    completedSteps,
+  }), [messages, phase, currentStep, completedSteps]);
+
   return (
-    <div className="relative flex flex-col h-[calc(100vh-5.5rem)] -m-6 bg-background">
+    <ChatMessagesContext.Provider value={chatMessagesCtx}>
+    <div className="relative flex flex-col h-[calc(100vh-6rem)] -m-6 bg-background">
       {/* Full-panel background */}
       <SubwayMapBackground />
-      {/* Agent activity + controls bar */}
-      <div className="flex items-center gap-2 px-4 py-2 border-b bg-stone-50/60 text-xs text-muted-foreground shrink-0">
-        {!isIdle && (
-          <>
-            <MdOutlineFiberManualRecord className="h-3 w-3 text-amber-500" />
-            <span>
-              {phase === "thinking" && "Agent thinking..."}
-              {phase === "tool_call" && "Processing..."}
-              {phase === "streaming" && "Generating response..."}
-              {phase === "complete" && "Complete"}
-            </span>
-          </>
-        )}
+      {/* Agent activity bar – only visible when processing */}
+      {!isIdle && (
+        <div className="flex items-center gap-2 px-4 py-2 border-b bg-stone-50/60 text-xs text-muted-foreground shrink-0">
+          <MdOutlineFiberManualRecord className="h-3 w-3 text-amber-500" />
+          <span>
+            {phase === "thinking" && "Agent thinking..."}
+            {phase === "tool_call" && "Processing..."}
+            {phase === "streaming" && "Generating response..."}
+            {phase === "complete" && "Complete"}
+            {phase === "awaiting_approval" && "Awaiting approval..."}
+          </span>
 
-        {(phase === "tool_call" || phase === "streaming") &&
-          (completedSteps.length > 0 || currentStep) && (
-            <div className="flex items-center gap-1.5 ml-2 overflow-x-auto">
-              {completedSteps.map((step, i) => (
-                <span
-                  key={i}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-200 text-[10px] font-medium text-stone-600 whitespace-nowrap"
-                >
-                  <span className="text-emerald-500">✓</span> {step}
-                </span>
-              ))}
-              {currentStep && phase === "tool_call" && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-700 text-[10px] font-medium text-white whitespace-nowrap">
-                  <MdOutlineRefresh className="h-2.5 w-2.5 animate-spin" />
-                  {currentStep}
-                </span>
-              )}
-            </div>
-          )}
-
-        <div className="ml-auto flex items-center gap-2 shrink-0">
-          <span className="text-[10px] text-muted-foreground">Recommendation profile</span>
-          <Select value={activePersona} onValueChange={(value) => handlePersonaChange(value as ChatPersona)}>
-            <SelectTrigger className="h-7 w-[170px] text-[11px]">
-              <SelectValue placeholder="Select profile" />
-            </SelectTrigger>
-            <SelectContent>
-              {CHAT_PERSONA_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleClearChat}
-            disabled={messages.length === 0}
-            className="h-7 text-[10px] text-muted-foreground hover:text-foreground disabled:opacity-40"
-          >
-            <MdOutlineRefresh className="h-3 w-3 mr-1" />
-            Clear chat
-          </Button>
+          {(phase === "tool_call" || phase === "streaming") &&
+            (completedSteps.length > 0 || currentStep) && (
+              <div className="flex items-center gap-1.5 ml-2 overflow-x-auto">
+                {completedSteps.map((step, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-200 text-[10px] font-medium text-stone-600 whitespace-nowrap"
+                  >
+                    <span className="text-emerald-500">✓</span> {step}
+                  </span>
+                ))}
+                {currentStep && phase === "tool_call" && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-700 text-[10px] font-medium text-white whitespace-nowrap">
+                    <MdOutlineRefresh className="h-2.5 w-2.5 animate-spin" />
+                    {currentStep}
+                  </span>
+                )}
+              </div>
+            )}
         </div>
-      </div>
+      )}
 
       {/* Messages area */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6">
@@ -1096,6 +1368,51 @@ export function ChatInterface({
                       <MdOutlineSend className="h-3.5 w-3.5" />
                     </button>
                   </div>
+                </div>
+
+                {/* Prompt library button */}
+                <div className="relative w-full max-w-xl flex items-center">
+                  <button
+                    onClick={() => { setPromptLibraryOpen(!promptLibraryOpen); setPromptLibrarySearch(""); }}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-600 hover:border-stone-400 hover:text-stone-800 transition-all"
+                  >
+                    <MdOutlineMenuBook className="h-3.5 w-3.5" />
+                    Prompt library
+                  </button>
+
+                  {/* Prompt Library Popover */}
+                  {promptLibraryOpen && (
+                    <div className="absolute top-full left-0 mt-2 w-[480px] bg-white rounded-xl border border-stone-200 shadow-lg z-50 p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-sm font-semibold text-stone-800">Prompt Library</h3>
+                        <button onClick={() => setPromptLibraryOpen(false)} className="p-0.5 rounded hover:bg-stone-100 transition-colors">
+                          <MdOutlineClose className="h-4 w-4 text-stone-500" />
+                        </button>
+                      </div>
+                      <input
+                        type="text"
+                        value={promptLibrarySearch}
+                        onChange={(e) => setPromptLibrarySearch(e.target.value)}
+                        placeholder="Search library..."
+                        className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-stone-300 mb-3"
+                        autoFocus
+                      />
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-400 mb-2">Available Prompts</p>
+                      <div className="grid grid-cols-2 gap-2 max-h-[280px] overflow-y-auto">
+                        {welcomePromptCards
+                          .filter((c) => !promptLibrarySearch || c.label.toLowerCase().includes(promptLibrarySearch.toLowerCase()))
+                          .map((card) => (
+                            <button
+                              key={card.prompt}
+                              onClick={() => { handleSend(card.prompt); setPromptLibraryOpen(false); }}
+                              className="text-left text-xs text-stone-700 hover:bg-stone-50 rounded-lg px-2.5 py-2 transition-colors leading-snug"
+                            >
+                              {card.label}
+                            </button>
+                          ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Domain filter pills (cross-domain roles only) */}
@@ -1181,6 +1498,53 @@ export function ChatInterface({
               onDismiss={handleNBADismiss}
               canExecute={canExecuteAI}
             />
+          )}
+
+          {/* HITL Approval Card */}
+          {phase === "awaiting_approval" && pendingApproval && (
+            <div className="flex gap-3 ml-11">
+              <div className="w-full rounded-lg border-2 border-amber-300 bg-amber-50 p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-md bg-amber-100">
+                    <MdOutlineVerifiedUser className="h-4 w-4 text-amber-700" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-amber-800">Human Approval Required</p>
+                    <p className="text-[10px] text-amber-600">The agent needs your confirmation before proceeding</p>
+                  </div>
+                </div>
+                <div className="rounded-md bg-white border border-amber-200 px-3 py-2 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-semibold text-stone-500">Tool:</span>
+                    <span className="text-[11px] font-medium text-stone-700">{pendingApproval.toolName}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-semibold text-stone-500">Action:</span>
+                    <span className="text-[11px] text-stone-700">{pendingApproval.toolArgs}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-semibold text-stone-500">Impact:</span>
+                    <span className="text-[11px] text-stone-700">{pendingApproval.impact}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleApproval}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-emerald-600 text-white text-[11px] font-medium hover:bg-emerald-700 transition-colors"
+                  >
+                    <MdOutlinePlayArrow className="h-3.5 w-3.5" />
+                    Approve & Continue
+                  </button>
+                  <button
+                    onClick={handleRejectApproval}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md border border-red-200 bg-red-50 text-red-700 text-[11px] font-medium hover:bg-red-100 transition-colors"
+                  >
+                    <MdOutlineClose className="h-3.5 w-3.5" />
+                    Reject
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
 
           {/* Agent processing indicator */}
@@ -1276,6 +1640,7 @@ export function ChatInterface({
         }}
       />
     </div>
+    </ChatMessagesContext.Provider>
   );
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useState, useMemo, useCallback, useRef, useEffect } from "react";
+import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { getNavigation, getPermissions, hasPermissionForUser } from "@/lib/permissions/roles";
 import {
@@ -29,18 +30,26 @@ import {
   ShieldCheck, Lock, ClipboardList, Activity, Clock, UserSearch,
   Network, MessageSquare, X, CheckCircle2,
   Loader2, ChevronRight, ChevronDown, Monitor,
-  AlertTriangle, Zap, FlaskConical, Database,
+  AlertTriangle, Zap, FlaskConical, Database, Sparkles,
+  MapPin, User, Headphones,
 } from "lucide-react";
 import { AiGovernanceLifecycle, DataEnrichment } from "@carbon/icons-react";
+import { AIRecommendationsPanel } from "@/components/dashboard/ai-recommendations-panel";
 import {
   CONTROL_TOWER_ALERTS,
+  CONTROL_TOWER_ACTIONS,
   CONTROL_TOWER_SUMMARY,
   type ControlTowerAlert,
   type ControlTowerSeverity,
 } from "@/lib/control-tower-data";
+import { useActionEffects } from "@/lib/action-effects-store";
 import { buildKnowledgeGraphHref } from "@/lib/knowledge-graph-data";
 import { useArtifacts, type ArtifactCategory } from "@/lib/artifact-store";
 import { cn } from "@/lib/utils";
+import { BannerControlsContext, useBannerControls } from "@/lib/banner-controls-context";
+import { useChatMessages } from "@/lib/chat-messages-context";
+import { DemoNarratorProvider, useDemoNarrator } from "@/components/demo/demo-narrator";
+import { ToolCallCard, ActivityCardView } from "@/components/cdp/chat/chat-message";
 import { DAGVisualization } from "@/components/dag";
 import { getUserJourneyState } from "@/lib/journey-state";
 import { useWorkflowEvents } from "@/lib/workflow-event-context";
@@ -89,7 +98,6 @@ const ICON_MAP: Record<string, React.ElementType> = {
   "/demand/mmm": BarChart3,
   "/demand/analytics": PieChart,
   "/demand/incrementality": FlaskConical,
-  "/demand/nba": Zap,
   "/demand/campaigns": Megaphone,
   "/demand/audiences": Users,
   "/demand/customers": UserSearch,
@@ -97,25 +105,28 @@ const ICON_MAP: Record<string, React.ElementType> = {
 };
 
 const HREF_TO_GROUP: Record<string, string> = {
+  // Control Tower
   "/dashboard": "platform",
-  "/dashboard/graph": "platform",
-  "/dashboard/graphs": "platform",
   "/control-tower": "platform",
   "/chat": "platform",
+  "/analytics/pending-review": "platform",
+  "/analytics/confirmed-actions": "platform",
+  // Unified Data (data foundation + insights)
   "/udp/dashboard": "data",
-  "/udp/incrementality": "commercial",
   "/customers": "data",
+  "/dashboard/graph": "data",
+  "/dashboard/graphs": "data",
   "/analytics": "data",
-  "/analytics/pending-review": "data",
-  "/analytics/confirmed-actions": "data",
+  "/udp/incrementality": "data",
+  // Commercial
   "/campaigns": "commercial",
   "/audiences": "commercial",
   "/mmm": "commercial",
   "/reports": "commercial",
+  // Demand
   "/demand/dashboard": "demand",
   "/demand/mmm": "demand",
   "/demand/incrementality": "demand",
-  "/demand/nba": "demand",
   "/demand/campaigns": "demand",
   "/demand/audiences": "demand",
   "/demand/customers": "demand",
@@ -127,10 +138,10 @@ const GROUP_ORDER = ["platform", "data", "commercial", "demand"] as const;
 type NavGroupId = (typeof GROUP_ORDER)[number];
 
 const GROUP_META: Record<NavGroupId, { label: string; icon: React.ElementType }> = {
-  platform: { label: "UDP Control Tower", icon: Monitor },
-  data: { label: "Data Foundation", icon: Database },
+  platform: { label: "Control Tower", icon: Monitor },
+  data: { label: "Unified Data", icon: Database },
   commercial: { label: "Commercial", icon: Megaphone },
-  demand: { label: "Demand Signal", icon: BarChart3 },
+  demand: { label: "Demand", icon: BarChart3 },
 };
 
 function BreadcrumbBar({
@@ -191,12 +202,12 @@ function BreadcrumbBar({
 }
 
 const DATA_SOURCE_MAP: Record<string, { label: string; module: string }> = {
-  "/dashboard": { label: "UDP Control Tower", module: "Control Tower" },
-  "/chat": { label: "UDP Control Tower", module: "Conversational AI" },
+  "/dashboard": { label: "Control Tower", module: "Control Tower" },
+  "/chat": { label: "Control Tower", module: "Conversational AI" },
   "/udp": { label: "Unified Data Platform", module: "Customer Profiles" },
   "/campaigns": { label: "Campaign Management", module: "Campaigns" },
   "/demand": { label: "Demand Signal Engine", module: "Demand Planning" },
-  "/analytics": { label: "UDP Control Tower", module: "Analytics" },
+  "/analytics": { label: "Control Tower", module: "Analytics" },
 };
 
 function resolveDataSource(pathname: string) {
@@ -208,8 +219,35 @@ function resolveDataSource(pathname: string) {
   return { label: "Unified Data Platform", module: "Platform" };
 }
 
+function ConnectionStatusBadges() {
+  let summary: { criticalAlerts: number; highAlerts: number; totalAlerts: number; dataFreshness: string };
+  try {
+    const effects = useActionEffects();
+    const adj = effects.getAdjustedSummary();
+    summary = adj;
+  } catch {
+    summary = CONTROL_TOWER_SUMMARY;
+  }
+  return (
+    <>
+      <span className="inline-flex items-center gap-1 rounded-full bg-[#ff462d]/10 px-2 py-0.5 text-[10px] font-semibold text-[#ff462d]">
+        {summary.criticalAlerts} critical
+      </span>
+      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-600">
+        {summary.highAlerts} high
+      </span>
+      <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-500">
+        {summary.totalAlerts} alerts
+      </span>
+      <span className="text-stone-300">&middot;</span>
+      <span className="text-[10px] text-stone-400">{summary.dataFreshness}</span>
+    </>
+  );
+}
+
 function ConnectionStatusBar({ pathname }: { pathname: string }) {
   const source = resolveDataSource(pathname);
+  const { bannerControls } = useBannerControls();
   return (
     <div className="flex items-center gap-2 border-b bg-stone-50/60 px-6 py-1.5 text-xs text-muted-foreground shrink-0">
       <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -218,7 +256,67 @@ function ConnectionStatusBar({ pathname }: { pathname: string }) {
       <span className="text-stone-500">{source.label}</span>
       <span className="text-stone-300">·</span>
       <span className="text-stone-400">{source.module}</span>
+      <div className="ml-auto flex items-center gap-2 shrink-0">
+        {pathname.startsWith("/chat") && bannerControls}
+        <ConnectionStatusBadges />
+        <span className="text-stone-300">&middot;</span>
+        <BannerDemoToggle />
+      </div>
     </div>
+  );
+}
+
+function BannerDemoToggle() {
+  const { isActive, showButton, stopDemo, toggleDemoButton } = useDemoNarrator();
+  return (
+    <div className="flex items-center gap-1 rounded-full border border-stone-200 bg-white p-0.5">
+      <button
+        onClick={() => {
+          if (isActive) stopDemo();
+          if (showButton) toggleDemoButton();
+        }}
+        className={cn(
+          "rounded-full px-2.5 py-0.5 text-[10px] font-semibold transition-colors",
+          !showButton
+            ? "bg-stone-700 text-white"
+            : "text-stone-400 hover:text-stone-600",
+        )}
+      >
+        Interactive
+      </button>
+      <button
+        onClick={() => {
+          if (!showButton) toggleDemoButton();
+        }}
+        className={cn(
+          "rounded-full px-2.5 py-0.5 text-[10px] font-semibold transition-colors",
+          showButton
+            ? "bg-stone-700 text-white"
+            : "text-stone-400 hover:text-stone-600",
+        )}
+      >
+        Demo
+      </button>
+    </div>
+  );
+}
+
+function DemoToggleButton() {
+  const { showButton, toggleDemoButton } = useDemoNarrator();
+  return (
+    <button
+      onClick={toggleDemoButton}
+      className={cn(
+        "flex items-center gap-3 w-full rounded-md px-3 py-2 text-sm font-medium transition-colors",
+        showButton
+          ? "text-foreground bg-secondary/50"
+          : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground",
+      )}
+      title={showButton ? "Hide demo narrator" : "Show demo narrator"}
+    >
+      <Headphones className="h-4 w-4 shrink-0" />
+      <span>{showButton ? "Demo On" : "Demo Off"}</span>
+    </button>
   );
 }
 
@@ -230,7 +328,8 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
   const [utilityPanelOpen, setUtilityPanelOpen] = useState(false);
-  const [activeUtilityTab, setActiveUtilityTab] = useState<"notifications" | "explainability">("explainability");
+  const [activeUtilityTab, setActiveUtilityTab] = useState<"notifications" | "explainability" | "recommendations">("explainability");
+  const [bannerControls, setBannerControls] = useState<React.ReactNode>(null);
   const { getUnseenCount, clearArtifacts } = useArtifacts();
   const { setWorkflowEventHandler, setResetDAGHandler, clearWorkflowSession } = useWorkflowEvents();
 
@@ -296,10 +395,25 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const openUtilityPanel = useCallback((tab: "notifications" | "explainability") => {
+  const openUtilityPanel = useCallback((tab: "notifications" | "explainability" | "recommendations") => {
     setActiveUtilityTab(tab);
     setUtilityPanelOpen(true);
   }, []);
+
+  // Demo narrator event listeners
+  useEffect(() => {
+    const handleOpenUtility = (e: Event) => {
+      const tab = (e as CustomEvent).detail as "notifications" | "explainability" | "recommendations";
+      openUtilityPanel(tab);
+    };
+    const handleCloseUtility = () => setUtilityPanelOpen(false);
+    window.addEventListener("demo:open-utility", handleOpenUtility);
+    window.addEventListener("demo:close-utility", handleCloseUtility);
+    return () => {
+      window.removeEventListener("demo:open-utility", handleOpenUtility);
+      window.removeEventListener("demo:close-utility", handleCloseUtility);
+    };
+  }, [openUtilityPanel]);
 
   useEffect(() => {
     const openDAGPanel = () => setRightSidebarOpen(true);
@@ -380,15 +494,18 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
       groups[groupId]!.push({ label: item.label, href: item.href });
     }
 
-    // Inject permission-gated items into "data" group if not already present
+    // Inject permission-gated items into "platform" group (Control Tower)
     if (hasPermissionForUser(user, "action_approve_review")) {
-      if (!groups.data) groups.data = [];
-      if (!groups.data.some((i) => i.href === "/analytics/pending-review")) {
-        groups.data.push({ label: "Pending Review", href: "/analytics/pending-review" });
+      if (!groups.platform) groups.platform = [];
+      if (!groups.platform.some((i) => i.href === "/analytics/pending-review")) {
+        groups.platform.push({ label: "Quick Actions", href: "/analytics/pending-review" });
       }
-      if (!groups.data.some((i) => i.href === "/analytics/confirmed-actions")) {
-        groups.data.push({ label: "Confirmed Actions", href: "/analytics/confirmed-actions" });
-      }
+    }
+
+    // Inject Knowledge Graph into "data" group (Unified Data)
+    if (!groups.data) groups.data = [];
+    if (!groups.data.some((i) => i.href.startsWith("/dashboard/graph?"))) {
+      groups.data.push({ label: "Knowledge Graph", href: "/dashboard/graph?preset=full-graph&center=graph-control-tower" });
     }
 
     return groups;
@@ -432,6 +549,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
   };
 
   return (
+    <BannerControlsContext.Provider value={{ bannerControls, setBannerControls }}>
     <PageBreadcrumbProvider>
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Sidebar */}
@@ -537,31 +655,43 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="p-2 flex flex-col gap-1">
-          <Button
-            className="w-full justify-start gap-3 rounded-md px-3 py-2 h-auto font-medium bg-red-50 text-[#cc1800] hover:bg-red-100 hover:text-[#cc1800] border border-red-200 shadow-none"
-            variant="outline"
-            onClick={() => openUtilityPanel("notifications")}
-          >
-            <AlertTriangle className="h-4 w-4" />
-            <span className="flex-1 text-left">Notifications</span>
-            <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ff462d] px-1 text-[10px] font-bold text-white">
-              {CONTROL_TOWER_ALERTS.length}
-            </span>
-          </Button>
-
-          {hasPermissionForUser(user, "nba_view") && (
-            <Button
-              className="w-full justify-start gap-3 rounded-md px-3 py-2 h-auto font-medium mb-4 bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary border-none shadow-none"
-              variant="outline"
-              onClick={() => openUtilityPanel("explainability")}
+        <div className="p-2 flex flex-col gap-0.5">
+          <div className="flex items-center gap-1 mb-3">
+            <button
+              onClick={() => openUtilityPanel("notifications")}
+              className="relative flex-1 flex flex-col items-center gap-1 rounded-lg px-2 py-2 text-stone-500 hover:bg-stone-100 hover:text-stone-700 transition-colors"
+              title="Notifications"
             >
-              <AiGovernanceLifecycle size={16} />
-              <span>Explainability</span>
-            </Button>
-          )}
+              <AlertTriangle className="h-4 w-4" />
+              <span className="text-[10px] font-medium">Alerts</span>
+              {CONTROL_TOWER_ALERTS.length > 0 && (
+                <span className="absolute top-1 right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#ff462d] px-1 text-[8px] font-bold text-white">
+                  {CONTROL_TOWER_ALERTS.length}
+                </span>
+              )}
+            </button>
+            {hasPermissionForUser(user, "nba_view") && (
+              <button
+                onClick={() => openUtilityPanel("explainability")}
+                className="flex-1 flex flex-col items-center gap-1 rounded-lg px-2 py-2 text-stone-500 hover:bg-stone-100 hover:text-stone-700 transition-colors"
+                title="Explainability"
+              >
+                <AiGovernanceLifecycle size={16} />
+                <span className="text-[10px] font-medium">Explain</span>
+              </button>
+            )}
+            <button
+              onClick={() => openUtilityPanel("recommendations")}
+              className="flex-1 flex flex-col items-center gap-1 rounded-lg px-2 py-2 text-stone-500 hover:bg-stone-100 hover:text-stone-700 transition-colors"
+              title="AI Recommendations"
+            >
+              <Sparkles className="h-4 w-4" />
+              <span className="text-[10px] font-medium">AI Recs</span>
+            </button>
+          </div>
 
           <div className="pt-2 border-t flex flex-col gap-1">
+            <DemoToggleButton />
             <button
               onClick={() => setSidebarOpen(false)}
               className="flex items-center gap-3 w-full rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary/50 hover:text-foreground transition-colors"
@@ -597,12 +727,9 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                   <Menu className="h-5 w-5" />
                 </Button>
                 <div className="flex items-center gap-3">
-                  <div className="rounded-lg bg-[#3d3c3c] p-1.5">
-                    <Monitor className="h-4 w-4 text-white" />
-                  </div>
                   <div>
                     <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                      UDP Control Tower
+                      Control Tower
                     </p>
                     <p className="text-sm font-semibold leading-none text-foreground">
                       Business decision dashboard
@@ -626,7 +753,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                 </Button>
                 <h1 className="text-xl font-semibold">
                   {pathname === "/analytics/pending-review"
-                    ? "Pending Review"
+                    ? "Quick Actions"
                     : pathname === "/analytics/confirmed-actions"
                       ? "Confirmed Actions"
                       : dashboardContext.title !== "Dashboard"
@@ -668,7 +795,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                         className={
                           item.allowed
                             ? "text-emerald-600 bg-emerald-50 border border-emerald-200 rounded px-1.5"
-                            : "text-amber-700 bg-amber-50 border border-amber-200 rounded px-1.5"
+                            : "text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-1.5"
                         }
                       >
                         {item.allowed ? "allowed" : "denied"}
@@ -690,7 +817,6 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-6 relative">
-          <BreadcrumbBar pathname={pathname} searchParams={searchParams} />
           {children}
         </main>
       </div>
@@ -772,6 +898,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
       </div>
     </div>
     </PageBreadcrumbProvider>
+    </BannerControlsContext.Provider>
   );
 }
 
@@ -831,7 +958,7 @@ const CONTROL_TOWER_ALERT_BADGE_STYLES: Record<
     label: "Critical",
   },
   high: {
-    className: "border-amber-200 bg-amber-50 text-amber-700",
+    className: "border-sky-200 bg-sky-50 text-sky-700",
     label: "High Priority",
   },
   medium: {
@@ -844,199 +971,692 @@ const CONTROL_TOWER_ALERT_BADGE_STYLES: Record<
   },
 };
 
+// ── Notifications Panel — 6-tab channel ─────────────────────────────────────
+
+type ChannelTab = "profile" | "alerts" | "approvals" | "reach" | "demand" | "campaign";
+
+const CHANNEL_TABS: { id: ChannelTab; label: string; icon: React.ElementType }[] = [
+  { id: "profile", label: "Profile", icon: User },
+  { id: "alerts", label: "Alerts", icon: AlertTriangle },
+  { id: "approvals", label: "Approvals", icon: ClipboardList },
+  { id: "reach", label: "Reach", icon: MapPin },
+  { id: "demand", label: "Demand", icon: TrendingUp },
+  { id: "campaign", label: "Campaign", icon: Megaphone },
+];
+
+const PROJECTED_OUTCOMES: Record<string, { label: string; before: string; after: string; note?: string }[]> = {
+  "alert-demand-stockout": [
+    { label: "Ordering Cut-off Risk", before: "Critical", after: "Resolved" },
+    { label: "Revenue at Risk", before: "$847,200", after: "$106,140", note: "87% reduction in revenue exposure" },
+    { label: "Inventory Coverage (2-day)", before: "38% Below", after: "12% Above", note: "Coverage restored to target levels" },
+    { label: "Cold-Chain Compliance", before: "Moderate Risk", after: "Verified" },
+  ],
+  "alert-coldchain-risk": [
+    { label: "Cold-Chain Status", before: "At Risk", after: "Protected" },
+    { label: "Product Waste Risk", before: "$76K exposed", after: "$4K residual", note: "95% waste risk reduction" },
+    { label: "Generator Coverage", before: "18h remaining", after: "72h secured" },
+  ],
+  "alert-lastmile-constraint": [
+    { label: "On-Time Delivery", before: "68.2%", after: "82.4%" },
+    { label: "Delay Cost", before: "$145K", after: "$38K", note: "74% cost reduction" },
+    { label: "Affected Orders", before: "3,400", after: "850", note: "75% recovery via rerouting + pickup" },
+  ],
+};
+
+const SEVERITY_DOT: Record<ControlTowerSeverity, string> = {
+  critical: "bg-[#ff462d]",
+  high: "bg-emerald-500",
+  medium: "bg-stone-400",
+  info: "bg-stone-300",
+};
+
 function NotificationsPanel() {
-  const [activeAlertId, setActiveAlertId] = useState(CONTROL_TOWER_ALERTS[0]?.id ?? "");
+  const { user } = useAuth();
+  const effects = useActionEffects();
+  const { resolvedAlerts, approvedActions, reachRedirectActive, demandReorderSubmitted, campaignApplied } = effects;
+  const [channelTab, setChannelTab] = useState<ChannelTab>("alerts");
+  const [expandedAlertId, setExpandedAlertId] = useState<string | null>(null);
 
-  const activeAlert =
-    CONTROL_TOWER_ALERTS.find((alert) => alert.id === activeAlertId) ??
-    CONTROL_TOWER_ALERTS[0] ??
-    null;
-  const secondaryAlerts = CONTROL_TOWER_ALERTS.filter(
-    (alert) => alert.id !== activeAlert?.id,
-  );
+  // Demo narrator event listener for switching channel tabs
+  useEffect(() => {
+    const handleSwitch = (e: Event) => {
+      const tab = (e as CustomEvent).detail as ChannelTab;
+      setChannelTab(tab);
+    };
+    window.addEventListener("demo:switch-channel", handleSwitch);
+    return () => window.removeEventListener("demo:switch-channel", handleSwitch);
+  }, []);
 
-  if (!activeAlert) {
+  const unresolvedAlertCount = CONTROL_TOWER_ALERTS.length - Object.keys(resolvedAlerts).length;
+  const pendingApprovalCount = CONTROL_TOWER_ACTIONS.length - Object.keys(approvedActions).length;
+
+  const tabBadge = (tab: ChannelTab): number | null => {
+    if (tab === "alerts" && unresolvedAlertCount > 0) return unresolvedAlertCount;
+    if (tab === "approvals" && pendingApprovalCount > 0) return pendingApprovalCount;
     return null;
-  }
-
-  const activeSeverity = CONTROL_TOWER_ALERT_BADGE_STYLES[activeAlert.severity];
+  };
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-stone-50/80 shrink-0">
-        <div className="flex items-center gap-2">
-          <AlertTriangle className="h-4 w-4 text-[#ff462d]" />
-          <div>
-            <h2 className="text-sm font-semibold text-[#3d3c3c]">Notifications</h2>
-            <p className="text-[10px] text-muted-foreground">
-              Business alerts and decision support
-            </p>
-          </div>
-        </div>
-        <Badge variant="outline" className="text-[9px]">
-          {CONTROL_TOWER_ALERTS.length} active
-        </Badge>
+      {/* Tab strip */}
+      <div className="flex items-center gap-0.5 border-b bg-stone-50/80 px-2 py-1.5 shrink-0 overflow-x-auto">
+        {CHANNEL_TABS.map((tab) => {
+          const Icon = tab.icon;
+          const badge = tabBadge(tab.id);
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setChannelTab(tab.id)}
+              className={cn(
+                "relative flex items-center gap-1 rounded-md px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider transition whitespace-nowrap",
+                channelTab === tab.id
+                  ? "bg-[#3d3c3c] text-white"
+                  : "text-stone-500 hover:bg-stone-100 hover:text-stone-700",
+              )}
+            >
+              <Icon className="h-3 w-3" />
+              {tab.label}
+              {badge !== null && (
+                <span className="ml-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-[#ff462d] px-0.5 text-[8px] font-bold text-white">
+                  {badge}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-3 bg-stone-50/50 px-4 py-4">
-        <div className="overflow-hidden rounded-xl border border-red-200 bg-white shadow-[0_6px_24px_rgba(255,70,45,0.08)]">
-          <div className="border-b border-red-200 bg-[#ff462d] px-4 py-3 text-white">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <p className="text-sm font-semibold">{activeAlert.title}</p>
-                <p className="mt-1 text-[10px] text-white/80">{activeSeverity.label}</p>
-              </div>
-              <Badge
-                variant="outline"
-                className="border-white/30 bg-white/10 text-[9px] text-white"
-              >
-                {activeSeverity.label}
-              </Badge>
-            </div>
-          </div>
+      {/* Tab content */}
+      <div className="flex-1 overflow-y-auto bg-stone-50/50">
+        {channelTab === "profile" && <ProfileTab user={user} onNavigate={setChannelTab} unresolvedAlerts={unresolvedAlertCount} pendingApprovals={pendingApprovalCount} />}
+        {channelTab === "alerts" && (
+          <AlertsTab
+            resolvedAlerts={resolvedAlerts}
+            expandedAlertId={expandedAlertId}
+            onToggleExpand={(id) => setExpandedAlertId(expandedAlertId === id ? null : id)}
+            onResolve={(id, type) => {
+              effects.resolveAlert(id, type);
+              toast.success(`Alert resolved — ${type}`, { description: CONTROL_TOWER_ALERTS.find((a) => a.id === id)?.title });
+            }}
+          />
+        )}
+        {channelTab === "approvals" && (
+          <ApprovalsTab
+            approvedActions={approvedActions}
+            onAction={(id, type) => {
+              effects.approveAction(id, type);
+              toast.success(`Action ${type}`, { description: CONTROL_TOWER_ACTIONS.find((a) => a.id === id)?.title });
+            }}
+          />
+        )}
+        {channelTab === "reach" && (
+          <ReachTab
+            redirectActive={reachRedirectActive}
+            onApproveRedirect={() => {
+              effects.activateReachRedirect();
+              toast.success("Redirect activated", { description: "3,400 orders redirected to in-store pickup at 26 open stores" });
+            }}
+          />
+        )}
+        {channelTab === "demand" && (
+          <DemandTab
+            reorderSubmitted={demandReorderSubmitted}
+            onTriggerReorder={() => {
+              effects.submitDemandReorder();
+              toast.success("Emergency reorder submitted", { description: "47 SKUs queued for emergency replenishment" });
+            }}
+          />
+        )}
+        {channelTab === "campaign" && (
+          <CampaignTab
+            applied={campaignApplied}
+            onApply={() => {
+              effects.applyCampaign();
+              toast.success("Channel reallocation applied", { description: "8% shifted from In-Store Signage to Push Notifications" });
+            }}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
 
-          <div className="space-y-3 px-4 py-4">
-            <div className="rounded-xl border border-red-100 bg-red-50/70 p-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#cc1800]">
-                Overview
-              </p>
-              <ul className="mt-2 space-y-2">
-                {activeAlert.drilldown.summary.slice(0, 3).map((line) => (
+/* ── Profile Tab ──────────────────────────────────────────────────────────── */
+
+function ProfileTab({ user, onNavigate, unresolvedAlerts, pendingApprovals }: {
+  user: ReturnType<typeof useAuth>["user"];
+  onNavigate: (tab: ChannelTab) => void;
+  unresolvedAlerts: number;
+  pendingApprovals: number;
+}) {
+  return (
+    <div className="space-y-3 px-4 py-4">
+      {/* User card */}
+      <div className="rounded-xl border border-stone-200 bg-white p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#3d3c3c] text-xs font-bold text-white">
+            {(user?.displayName || "U").slice(0, 2).toUpperCase()}
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-[#3d3c3c]">{user?.displayName || "User"}</p>
+            <p className="text-[10px] text-stone-500">{user?.role?.replace(/_/g, " ") || "Operator"} · {user?.email || ""}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* AI Situation Summary */}
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Sparkles className="h-4 w-4 text-emerald-600" />
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-800">Your Situation Summary</p>
+        </div>
+        <ul className="space-y-2">
+          <li className="flex gap-2 text-[11px] text-stone-700">
+            <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#ff462d] shrink-0" />
+            <span>{unresolvedAlerts} alerts assigned — {CONTROL_TOWER_ALERTS.filter(a => a.severity === "critical").length} critical, {CONTROL_TOWER_ALERTS.filter(a => a.severity === "high").length} high, {CONTROL_TOWER_ALERTS.filter(a => a.severity === "medium").length} medium</span>
+          </li>
+          <li className="flex gap-2 text-[11px] text-stone-700">
+            <span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+            <span>{pendingApprovals} approvals pending — {CONTROL_TOWER_ACTIONS.filter(a => a.severity === "critical").length} due within 2 hours</span>
+          </li>
+          <li className="flex gap-2 text-[11px] text-stone-700">
+            <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#ff462d] shrink-0" />
+            <span>Revenue exposure: $2.4M if no action by 2:00 PM</span>
+          </li>
+        </ul>
+        <div className="mt-3 flex items-center gap-1.5 text-[10px] text-emerald-700">
+          <Sparkles className="h-3 w-3" />
+          <span>AI Agent has pre-triaged alerts and ranked approvals by urgency</span>
+        </div>
+      </div>
+
+      {/* Quick actions */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => onNavigate("alerts")}
+          className="flex-1 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-center text-xs font-semibold text-[#3d3c3c] hover:bg-stone-50 transition"
+        >
+          View Alerts
+        </button>
+        <button
+          onClick={() => onNavigate("approvals")}
+          className="flex-1 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-center text-xs font-semibold text-[#3d3c3c] hover:bg-stone-50 transition"
+        >
+          View Approvals
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ── Alerts Tab ───────────────────────────────────────────────────────────── */
+
+function AlertsTab({ resolvedAlerts, expandedAlertId, onToggleExpand, onResolve }: {
+  resolvedAlerts: Record<string, string>;
+  expandedAlertId: string | null;
+  onToggleExpand: (id: string) => void;
+  onResolve: (id: string, type: "approved" | "conditional" | "rejected") => void;
+}) {
+  return (
+    <div className="space-y-3 px-4 py-4" data-demo="alerts-panel">
+      {CONTROL_TOWER_ALERTS.map((alert) => {
+        const isResolved = !!resolvedAlerts[alert.id];
+        const isExpanded = expandedAlertId === alert.id;
+        const severity = CONTROL_TOWER_ALERT_BADGE_STYLES[alert.severity];
+        const outcomes = PROJECTED_OUTCOMES[alert.id] || [];
+
+        if (isResolved) {
+          return (
+            <div key={alert.id} className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-3">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                <p className="text-xs font-semibold text-emerald-800">{alert.title}</p>
+                <Badge variant="outline" className="ml-auto text-[9px] border-emerald-300 bg-emerald-100 text-emerald-700">
+                  {resolvedAlerts[alert.id]}
+                </Badge>
+              </div>
+              {outcomes.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  {outcomes.slice(0, 2).map((o) => (
+                    <div key={o.label} className="flex items-center gap-2 text-[10px] text-emerald-700">
+                      <span className="text-stone-500">{o.label}:</span>
+                      <span className="line-through text-stone-400">{o.before}</span>
+                      <ChevronRight className="h-2.5 w-2.5 text-stone-400" />
+                      <span className="font-semibold">{o.after}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        return (
+          <div key={alert.id} className="rounded-xl border border-stone-200 bg-white overflow-hidden">
+            {/* Alert header */}
+            <div className={cn("px-4 py-3", alert.severity === "critical" ? "bg-[#ff462d] text-white" : alert.severity === "high" ? "bg-emerald-500 text-white" : "bg-stone-100")}>
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <p className="text-sm font-semibold">{alert.title}</p>
+                  <p className={cn("mt-1 text-[10px]", alert.severity === "critical" || alert.severity === "high" ? "text-white/80" : "text-stone-500")}>{severity.label}</p>
+                </div>
+                <Badge variant="outline" className={cn("shrink-0 text-[9px]", alert.severity === "critical" || alert.severity === "high" ? "border-white/30 bg-white/10 text-white" : severity.className)}>
+                  {severity.label}
+                </Badge>
+              </div>
+            </div>
+
+            {/* Summary bullets */}
+            <div className="px-4 py-3 space-y-3">
+              <ul className="space-y-1.5">
+                {alert.drilldown.summary.slice(0, 2).map((line) => (
                   <li key={line} className="flex gap-2 text-[11px] text-stone-700">
-                    <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#ff6b57]" />
+                    <span className={cn("mt-1 h-1.5 w-1.5 rounded-full shrink-0", SEVERITY_DOT[alert.severity])} />
                     <span>{line}</span>
                   </li>
                 ))}
               </ul>
-            </div>
 
-            <div className="space-y-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
-                Requiring attention
-              </p>
-              {activeAlert.drilldown.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-start justify-between gap-3 rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-xs font-semibold text-[#3d3c3c]">
-                      {item.title}
-                    </p>
-                    <p className="mt-0.5 text-[10px] text-stone-500">{item.subtitle}</p>
-                  </div>
-                  <Badge
-                    variant="outline"
-                    className={cn("shrink-0 text-[9px]", activeSeverity.className)}
-                  >
-                    {activeSeverity.label}
-                  </Badge>
+              {/* Incident timeline */}
+              <div className="space-y-1">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">Timeline</p>
+                <div className="relative ml-2 border-l border-stone-200 pl-3 space-y-1.5">
+                  {alert.drilldown.auditTrail.slice(0, 3).map((entry, i) => (
+                    <div key={i} className="flex items-start gap-2 text-[10px]">
+                      <span className={cn("absolute -left-[3px] mt-1 h-1.5 w-1.5 rounded-full", i === 0 ? SEVERITY_DOT[alert.severity] : "bg-stone-300")} style={{ position: "relative", left: "-15.5px" }} />
+                      <div className="-ml-3">
+                        <span className="font-semibold text-stone-600">{entry.time}</span>
+                        <span className="text-stone-400"> · </span>
+                        <span className="text-stone-500">{entry.detail}</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
 
-            <div className="rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2 text-[11px] text-stone-500">
-              {CONTROL_TOWER_SUMMARY.dataFreshness} · {activeAlert.timestamp}
-            </div>
-
-            <Button
-              asChild
-              className="w-full rounded-full bg-[#3d3c3c] text-white hover:bg-[#161616]"
-            >
-              <Link href="/dashboard">Resolve</Link>
-            </Button>
-            {activeAlert.experimentHref ? (
-              <Button
-                asChild
-                variant="outline"
-                className="w-full rounded-full border-[#8ecfd9] bg-[#29707a]/[0.25] text-[#29707a] hover:bg-[#29707a]/[0.15] hover:text-[#163d43]"
+              {/* Resolve button */}
+              <button
+                onClick={() => onToggleExpand(alert.id)}
+                className={cn(
+                  "w-full rounded-lg px-3 py-2 text-xs font-semibold transition",
+                  isExpanded ? "bg-stone-100 text-stone-700" : "bg-[#3d3c3c] text-white hover:bg-[#161616]",
+                )}
               >
-                <Link href={activeAlert.experimentHref}>Open experiment</Link>
-              </Button>
-            ) : null}
-          </div>
-        </div>
+                {isExpanded ? "Collapse" : "Resolve"}
+              </button>
 
-        <div className="rounded-xl border border-stone-200 bg-white px-3 py-3">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
-              Other business alerts
-            </p>
-            <Badge variant="outline" className="text-[9px]">
-              {CONTROL_TOWER_ALERTS.length} active
-            </Badge>
-          </div>
-          <div className="mt-3 space-y-2">
-            {secondaryAlerts.map((alert) => {
-              const severity = CONTROL_TOWER_ALERT_BADGE_STYLES[alert.severity];
-              return (
-                <button
-                  key={alert.id}
-                  type="button"
-                  onClick={() => setActiveAlertId(alert.id)}
-                  className="flex w-full items-start justify-between gap-3 rounded-xl border border-stone-200 px-3 py-2 text-left transition hover:border-stone-300 hover:bg-stone-50"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-xs font-semibold text-[#3d3c3c]">
-                      {alert.title}
-                    </p>
-                    <p className="mt-0.5 text-[10px] text-stone-500">
-                      {alert.description}
+              {/* Expanded resolve area */}
+              {isExpanded && (
+                <div className="space-y-3 pt-1">
+                  {/* AI recommendation */}
+                  <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+                      <span className="text-[10px] font-semibold text-emerald-800">AI Agent Recommendation</span>
+                      <Badge variant="outline" className="ml-auto text-[9px] border-emerald-300 bg-emerald-100 text-emerald-700">94% confidence</Badge>
+                    </div>
+                    <p className="text-[11px] text-stone-700">
+                      {alert.severity === "critical"
+                        ? "Approve emergency reorder — projected to reduce revenue exposure by 87% and restore inventory coverage above target."
+                        : alert.severity === "high"
+                          ? "Approve with cold-chain conditions — fuel resupply confirmed, temperature monitoring elevated."
+                          : "Approve rerouting plan — recovers 40% of affected deliveries through cleared highways and in-store pickup."}
                     </p>
                   </div>
-                  <Badge
-                    variant="outline"
-                    className={cn("shrink-0 text-[9px]", severity.className)}
-                  >
-                    {severity.label}
-                  </Badge>
-                </button>
-              );
-            })}
-          </div>
-        </div>
 
-        <div className="rounded-xl border border-stone-200 bg-white px-3 py-3">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
-              Experiment shortcuts
-            </p>
-            <Badge variant="outline" className="text-[9px]">
-              Shared workspace
-            </Badge>
+                  {/* Projected outcomes */}
+                  {outcomes.length > 0 && (
+                    <div className="rounded-lg border border-stone-200 bg-stone-50/70 p-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 mb-2">Projected Outcome Improvements</p>
+                      <div className="space-y-2">
+                        {outcomes.map((o) => (
+                          <div key={o.label}>
+                            <div className="flex items-center justify-between text-[11px]">
+                              <span className="text-stone-600">{o.label}</span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-stone-400">{o.before}</span>
+                                <ChevronRight className="h-2.5 w-2.5 text-stone-400" />
+                                <span className="font-bold text-[#3d3c3c]">{o.after}</span>
+                              </div>
+                            </div>
+                            {o.note && <p className="text-[9px] text-stone-400 mt-0.5">{o.note}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Action buttons */}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => onResolve(alert.id, "approved")}
+                      className="flex-1 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700 transition"
+                    >
+                      Approve Resolution
+                    </button>
+                    <button
+                      onClick={() => onResolve(alert.id, "conditional")}
+                      className="flex-1 rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-50 transition"
+                    >
+                      Set Conditions
+                    </button>
+                    <button
+                      onClick={() => onResolve(alert.id, "rejected")}
+                      className="rounded-lg border border-stone-300 bg-white px-2 py-2 text-xs font-semibold text-stone-500 hover:bg-stone-50 transition"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-          <div className="mt-3 space-y-2">
-            <Link
-              href={buildIncrementalityHref({ entry: "udp", create: true })}
-              className="flex items-center justify-between rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2 text-xs text-stone-700 transition hover:border-stone-300 hover:bg-stone-100"
-            >
-              <span>Launch shared experiment</span>
-              <FlaskConical className="h-3.5 w-3.5 text-[#29707a]" />
-            </Link>
-            <Link
-              href={buildIncrementalityHref({
-                entry: "udp",
-                lens: "udp",
-                application: "identity",
-              })}
-              className="flex items-center justify-between rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2 text-xs text-stone-700 transition hover:border-stone-300 hover:bg-stone-100"
-            >
-              <span>Identity resolution tests</span>
-              <ChevronRight className="h-3.5 w-3.5 text-stone-400" />
-            </Link>
-            <Link
-              href={buildIncrementalityHref({
-                entry: "udp",
-                lens: "udp",
-                application: "campaigns",
-              })}
-              className="flex items-center justify-between rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2 text-xs text-stone-700 transition hover:border-stone-300 hover:bg-stone-100"
-            >
-              <span>Campaign lift experiments</span>
-              <ChevronRight className="h-3.5 w-3.5 text-stone-400" />
-            </Link>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ── Approvals Tab ────────────────────────────────────────────────────────── */
+
+function ApprovalsTab({ approvedActions, onAction }: {
+  approvedActions: Record<string, "approved" | "rejected">;
+  onAction: (id: string, type: "approved" | "rejected") => void;
+}) {
+  return (
+    <div className="space-y-3 px-4 py-4" data-demo="approvals-panel">
+      {CONTROL_TOWER_ACTIONS.map((action) => {
+        const isDone = !!approvedActions[action.id];
+        const severity = CONTROL_TOWER_ALERT_BADGE_STYLES[action.severity];
+        const aiConfidence = action.severity === "critical" ? 96 : action.severity === "high" ? 89 : 82;
+        const aiReasoning = action.severity === "critical"
+          ? "47 SKUs will stock out within 18 hours without this reorder"
+          : action.severity === "high"
+            ? "Cold-chain integrity degrades within 6 hours without conditional transport"
+            : "Rerouting through cleared highways recovers 40% of affected deliveries";
+
+        if (isDone) {
+          return (
+            <div key={action.id} className={cn(
+              "rounded-xl border p-3",
+              approvedActions[action.id] === "approved"
+                ? "border-emerald-200 bg-emerald-50/60"
+                : "border-stone-200 bg-stone-50",
+            )}>
+              <div className="flex items-center gap-2">
+                {approvedActions[action.id] === "approved" ? (
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                ) : (
+                  <X className="h-4 w-4 text-stone-400" />
+                )}
+                <p className={cn("text-xs font-semibold", approvedActions[action.id] === "approved" ? "text-emerald-800" : "text-stone-500")}>{action.title}</p>
+              </div>
+              <Badge variant="outline" className={cn("mt-1 text-[9px]", approvedActions[action.id] === "approved" ? "border-emerald-300 text-emerald-700" : "border-stone-300 text-stone-500")}>
+                {approvedActions[action.id]}
+              </Badge>
+            </div>
+          );
+        }
+
+        return (
+          <div key={action.id} className="rounded-xl border border-stone-200 bg-white p-3 space-y-2">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Badge variant="outline" className={cn("text-[9px]", severity.className)}>{severity.label}</Badge>
+                  <span className={cn(
+                    "flex items-center gap-1 text-[9px] font-semibold",
+                    action.severity === "critical" ? "text-[#ff462d]" : "text-emerald-600",
+                  )}>
+                    {action.severity === "critical" && <span className="h-1.5 w-1.5 rounded-full bg-[#ff462d] animate-pulse" />}
+                    {action.dueLabel}
+                  </span>
+                </div>
+                <p className="text-xs font-semibold text-[#3d3c3c]">{action.title}</p>
+              </div>
+            </div>
+            <p className="text-[11px] text-stone-600">{action.impact}</p>
+
+            {/* AI confidence */}
+            <div className="flex items-center gap-2">
+              <div className="flex-1 h-1 bg-stone-100 rounded-full overflow-hidden max-w-[100px]">
+                <div className="h-full bg-[#29707a] rounded-full" style={{ width: `${aiConfidence}%` }} />
+              </div>
+              <span className="text-[10px] font-semibold text-stone-500">{aiConfidence}% confidence</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-[10px] text-emerald-700 bg-emerald-50 rounded-md px-2 py-1">
+              <Sparkles className="h-3 w-3 text-emerald-500" />
+              <span>{aiReasoning}</span>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={() => onAction(action.id, "approved")}
+                className="flex-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 transition"
+              >
+                {action.primaryAction.label}
+              </button>
+              <button
+                onClick={() => onAction(action.id, "rejected")}
+                className="rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-xs font-semibold text-stone-500 hover:bg-stone-50 transition"
+              >
+                Reject
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ── Reach Tab ────────────────────────────────────────────────────────────── */
+
+function ReachTab({ redirectActive, onApproveRedirect }: { redirectActive: boolean; onApproveRedirect: () => void }) {
+  return (
+    <div className="space-y-3 px-4 py-4" data-demo="reach-panel">
+      {/* Store Coverage */}
+      <div className="rounded-xl border border-stone-200 bg-white p-4">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 mb-3">Store Coverage Summary</p>
+        <div className="space-y-2">
+          {[
+            { zone: "Zone A — Closing", count: 8, color: "bg-[#ff462d]", pct: 6 },
+            { zone: "Zone B — Reduced Hours", count: 15, color: "bg-emerald-500", pct: 11 },
+            { zone: "Zone C — Normal", count: 119, color: "bg-emerald-500", pct: 83 },
+          ].map((z) => (
+            <div key={z.zone}>
+              <div className="flex items-center justify-between text-[11px] mb-1">
+                <span className="text-stone-700 font-medium">{z.zone}</span>
+                <span className="text-stone-500">{z.count} stores</span>
+              </div>
+              <div className="h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                <div className={cn("h-full rounded-full", z.color)} style={{ width: `${z.pct}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Delivery Route Status */}
+      <div className="rounded-xl border border-stone-200 bg-white p-4">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 mb-3">Delivery Route Status</p>
+        <div className="grid grid-cols-3 gap-2 text-center">
+          <div className="rounded-lg bg-red-50 p-2">
+            <p className="text-lg font-bold text-[#ff462d]">12</p>
+            <p className="text-[9px] text-stone-500">Closed</p>
+          </div>
+          <div className="rounded-lg bg-emerald-50 p-2">
+            <p className="text-lg font-bold text-emerald-600">2</p>
+            <p className="text-[9px] text-stone-500">Clear</p>
+          </div>
+          <div className="rounded-lg bg-emerald-50 p-2">
+            <p className="text-lg font-bold text-emerald-600">4</p>
+            <p className="text-[9px] text-stone-500">Restricted</p>
           </div>
         </div>
+        <div className="mt-3 flex items-center justify-between text-[11px]">
+          <span className="text-stone-600">On-Time Delivery</span>
+          <span className="font-bold text-[#ff462d]">68.2% <TrendingUp className="inline h-3 w-3 rotate-180" /></span>
+        </div>
+      </div>
+
+      {/* AI Recommendation */}
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+          <p className="text-[10px] font-semibold text-emerald-800">AI Agent Recommendation</p>
+        </div>
+        <p className="text-[11px] text-stone-700 mb-1">Redirect 3,400 orders to in-store pickup at 26 open Zone B stores</p>
+        <p className="text-[10px] text-stone-500 mb-3">Estimated 60% customer acceptance rate</p>
+        {redirectActive ? (
+          <div className="flex items-center gap-2 text-emerald-700 text-xs font-semibold">
+            <CheckCircle2 className="h-4 w-4" /> Redirect Active
+          </div>
+        ) : (
+          <button
+            onClick={onApproveRedirect}
+            className="w-full rounded-lg bg-[#3d3c3c] px-3 py-2 text-xs font-semibold text-white hover:bg-[#161616] transition"
+          >
+            Approve Redirect
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── Demand Tab ───────────────────────────────────────────────────────────── */
+
+const DEMAND_SURGE_ITEMS = [
+  { category: "Water", velocity: "4.2x", hoursToZero: 8, color: "bg-[#ff462d]" },
+  { category: "Batteries", velocity: "3.8x", hoursToZero: 12, color: "bg-[#ff462d]" },
+  { category: "First Aid", velocity: "2.6x", hoursToZero: 14, color: "bg-emerald-500" },
+  { category: "Ready Meals", velocity: "2.4x", hoursToZero: 18, color: "bg-emerald-500" },
+  { category: "Pet Food", velocity: "1.9x", hoursToZero: 22, color: "bg-emerald-400" },
+];
+
+function DemandTab({ reorderSubmitted, onTriggerReorder }: { reorderSubmitted: boolean; onTriggerReorder: () => void }) {
+  return (
+    <div className="space-y-3 px-4 py-4">
+      {/* Surge Velocity */}
+      <div className="rounded-xl border border-stone-200 bg-white p-4">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 mb-3">Demand Surge Velocity</p>
+        <div className="space-y-2">
+          {DEMAND_SURGE_ITEMS.map((item) => (
+            <div key={item.category} className="flex items-center gap-3">
+              <span className={cn("h-2 w-2 rounded-full shrink-0", item.color)} />
+              <span className="text-xs font-medium text-stone-700 flex-1">{item.category}</span>
+              <span className="text-xs font-bold text-[#3d3c3c]">{item.velocity}</span>
+              <span className="text-[10px] text-stone-400">baseline</span>
+              <span className={cn(
+                "text-[10px] font-semibold",
+                item.hoursToZero <= 12 ? "text-[#ff462d]" : item.hoursToZero <= 18 ? "text-emerald-600" : "text-yellow-600",
+              )}>
+                {item.hoursToZero}h to zero
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* AI Threshold Alert */}
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+          <p className="text-[10px] font-semibold text-emerald-800">AI Agent Threshold Alert</p>
+        </div>
+        <ul className="space-y-1.5">
+          <li className="text-[11px] text-stone-700 flex gap-2"><span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#ff462d] shrink-0" />47 SKUs crossed emergency reorder threshold</li>
+          <li className="text-[11px] text-stone-700 flex gap-2"><span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />Demand accelerating 8-12% per hour — peak in 4-6 hours</li>
+          <li className="text-[11px] text-stone-700 flex gap-2"><span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />Fill rate: 78.4% and declining</li>
+        </ul>
+      </div>
+
+      {/* Reorder Action */}
+      <div className="rounded-xl border border-stone-200 bg-white p-4">
+        {reorderSubmitted ? (
+          <div className="flex items-center gap-2 text-emerald-700 text-xs font-semibold">
+            <CheckCircle2 className="h-4 w-4" /> Emergency Reorder Submitted
+            <Badge variant="outline" className="ml-auto text-[9px] border-emerald-300 text-emerald-700">47 SKUs queued</Badge>
+          </div>
+        ) : (
+          <button
+            onClick={onTriggerReorder}
+            className="w-full rounded-lg bg-[#ff462d] px-3 py-2.5 text-xs font-semibold text-white hover:bg-[#e63e28] transition"
+          >
+            Trigger Emergency Reorder
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── Campaign Tab ─────────────────────────────────────────────────────────── */
+
+const CAMPAIGN_CHANNELS_DEFAULT = [
+  { label: "Push Notifications", pct: 38, spend: "$190K", color: "bg-[#3f7f89]" },
+  { label: "App Alerts", pct: 24, spend: "$120K", color: "bg-[#f28c82]" },
+  { label: "Email / CRM", pct: 18, spend: "$90K", color: "bg-[#8a9bcf]" },
+  { label: "SMS Alerts", pct: 12, spend: "$60K", color: "bg-[#92c6c0]" },
+  { label: "In-Store Signage", pct: 8, spend: "$40K", color: "bg-[#d6b37a]" },
+];
+
+const CAMPAIGN_CHANNELS_OPTIMIZED = [
+  { label: "Push Notifications", pct: 46, spend: "$230K", color: "bg-[#3f7f89]" },
+  { label: "App Alerts", pct: 24, spend: "$120K", color: "bg-[#f28c82]" },
+  { label: "Email / CRM", pct: 18, spend: "$90K", color: "bg-[#8a9bcf]" },
+  { label: "SMS Alerts", pct: 12, spend: "$60K", color: "bg-[#92c6c0]" },
+  { label: "In-Store Signage", pct: 0, spend: "$0", color: "bg-[#d6b37a]" },
+];
+
+function CampaignTab({ applied, onApply }: { applied: boolean; onApply: () => void }) {
+  const channels = applied ? CAMPAIGN_CHANNELS_OPTIMIZED : CAMPAIGN_CHANNELS_DEFAULT;
+  return (
+    <div className="space-y-3 px-4 py-4" data-demo="campaign-panel">
+      {/* Channel Mix */}
+      <div className="rounded-xl border border-stone-200 bg-white p-4">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 mb-3">Active Storm Communications</p>
+        <div className="space-y-2">
+          {channels.map((ch) => (
+            <div key={ch.label}>
+              <div className="flex items-center justify-between text-[11px] mb-1">
+                <span className="text-stone-700 font-medium">{ch.label}</span>
+                <span className="text-stone-500">{ch.pct}% · {ch.spend}</span>
+              </div>
+              <div className="h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                <div className={cn("h-full rounded-full transition-all duration-700", ch.color)} style={{ width: `${ch.pct}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 pt-3 border-t border-stone-100 text-[11px] text-stone-500">
+          482 stores · 2.1M customers in notification radius
+        </div>
+      </div>
+
+      {/* AI Recommendation */}
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+          <p className="text-[10px] font-semibold text-emerald-800">AI Agent Recommendation</p>
+        </div>
+        <p className="text-[11px] text-stone-700 mb-1">Shift 8% from In-Store Signage to Push Notifications</p>
+        <p className="text-[10px] text-stone-500 mb-1">Reason: 8 stores closing — signage reach drops to zero in storm zone</p>
+        <p className="text-[10px] text-stone-500 mb-3">Projected impact: +12% message reach in storm zone</p>
+        {applied ? (
+          <div className="flex items-center gap-2 text-emerald-700 text-xs font-semibold">
+            <CheckCircle2 className="h-4 w-4" /> Recommendation Applied
+          </div>
+        ) : (
+          <button
+            onClick={onApply}
+            className="w-full rounded-lg bg-[#3d3c3c] px-3 py-2 text-xs font-semibold text-white hover:bg-[#161616] transition"
+          >
+            Apply Recommendation
+          </button>
+        )}
       </div>
     </div>
   );
@@ -1044,6 +1664,18 @@ function NotificationsPanel() {
 
 function ExplainabilityPanel() {
   const [expandedExec, setExpandedExec] = useState<string | null>(ACTIVE_EXECUTIONS[0].id);
+  const [expandedMsgId, setExpandedMsgId] = useState<string | null>(null);
+  const { messages, currentPhase, currentStep, completedSteps } = useChatMessages();
+
+  // Gather assistant messages that have toolCalls or activityCard (most recent first)
+  const messagesWithSteps = useMemo(() => {
+    return [...messages]
+      .filter((m) => m.role === "assistant" && (m.toolCalls?.length || m.activityCard))
+      .reverse();
+  }, [messages]);
+
+  const isAgentWorking = currentPhase !== "idle" && currentPhase !== "complete";
+  const activeProcessCount = ACTIVE_EXECUTIONS.filter((e) => e.status === "running").length + (isAgentWorking ? 1 : 0);
 
   return (
     <>
@@ -1058,8 +1690,95 @@ function ExplainabilityPanel() {
         </div>
       </div>
 
-      {/* Execution list */}
       <div className="flex-1 overflow-y-auto">
+        {/* Live agent progress */}
+        {isAgentWorking && (
+          <div className="border-b">
+            <div className="px-4 py-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-7 w-7 rounded-md flex items-center justify-center shrink-0 bg-emerald-100">
+                  <Loader2 className="h-3.5 w-3.5 text-emerald-600 animate-spin" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-[#3d3c3c]">Agent Processing</span>
+                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                      {currentPhase === "thinking" ? "Thinking" :
+                       currentPhase === "tool_call" ? "Running Tool" :
+                       currentPhase === "streaming" ? "Streaming" :
+                       currentPhase === "awaiting_approval" ? "Awaiting Approval" : "Active"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-1 ml-1">
+                <p className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider mb-2">Live Pipeline</p>
+                {completedSteps.map((step, i) => (
+                  <div key={i} className="flex items-center gap-2 text-xs py-0.5">
+                    <CheckCircle2 className="h-3 w-3 text-emerald-500 shrink-0" />
+                    <span className="text-stone-700">{step}</span>
+                  </div>
+                ))}
+                {currentStep && currentPhase === "tool_call" && (
+                  <div className="flex items-center gap-2 text-xs py-0.5">
+                    <Loader2 className="h-3 w-3 text-emerald-500 animate-spin shrink-0" />
+                    <span className="text-stone-700 font-medium">{currentStep}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Historical chat agent steps */}
+        {messagesWithSteps.length > 0 && (
+          <div className="border-b">
+            <div className="px-4 py-2">
+              <p className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Chat Agent History</p>
+            </div>
+            {messagesWithSteps.map((msg) => {
+              const isExpanded = expandedMsgId === msg.id;
+              const stepCount = (msg.toolCalls?.length ?? 0) + (msg.activityCard?.items.length ?? 0);
+              const preview = msg.content.slice(0, 60) + (msg.content.length > 60 ? "..." : "");
+              return (
+                <div key={msg.id} className="border-t border-stone-100">
+                  <button
+                    onClick={() => setExpandedMsgId(isExpanded ? null : msg.id)}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-stone-50 transition-colors text-left"
+                  >
+                    <div className="h-6 w-6 rounded-md flex items-center justify-center shrink-0 bg-emerald-100">
+                      <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-[11px] text-stone-700 truncate block">{preview}</span>
+                      <span className="text-[10px] text-muted-foreground">{stepCount} step{stepCount !== 1 ? "s" : ""}</span>
+                    </div>
+                    <ChevronRight className={cn(
+                      "h-3.5 w-3.5 text-stone-400 transition-transform shrink-0",
+                      isExpanded && "rotate-90"
+                    )} />
+                  </button>
+                  {isExpanded && (
+                    <div className="px-4 pb-3 space-y-2">
+                      {msg.activityCard && (
+                        <ActivityCardView card={msg.activityCard} />
+                      )}
+                      {msg.toolCalls && msg.toolCalls.length > 0 && (
+                        <div className="space-y-1.5">
+                          {msg.toolCalls.map((tc) => (
+                            <ToolCallCard key={tc.id} toolCall={tc} />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Static executions */}
         {ACTIVE_EXECUTIONS.map((exec) => {
           const isExpanded = expandedExec === exec.id;
           const doneSteps = exec.steps.filter((s) => s.status === "done").length;
@@ -1075,10 +1794,10 @@ function ExplainabilityPanel() {
               >
                 <div className={cn(
                   "h-7 w-7 rounded-md flex items-center justify-center shrink-0",
-                  exec.status === "running" ? "bg-amber-100" : "bg-emerald-100"
+                  exec.status === "running" ? "bg-emerald-100" : "bg-emerald-100"
                 )}>
                   {exec.status === "running" ? (
-                    <Loader2 className="h-3.5 w-3.5 text-amber-600 animate-spin" />
+                    <Loader2 className="h-3.5 w-3.5 text-emerald-600 animate-spin" />
                   ) : (
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
                   )}
@@ -1089,7 +1808,7 @@ function ExplainabilityPanel() {
                     <span className={cn(
                       "text-[9px] font-semibold px-1.5 py-0.5 rounded-full",
                       exec.status === "running"
-                        ? "bg-amber-100 text-amber-700"
+                        ? "bg-emerald-100 text-emerald-700"
                         : "bg-emerald-100 text-emerald-700"
                     )}>
                       {exec.status === "running" ? "Running" : "Complete"}
@@ -1100,7 +1819,7 @@ function ExplainabilityPanel() {
                       <div
                         className={cn(
                           "h-full rounded-full transition-all",
-                          exec.status === "running" ? "bg-amber-500" : "bg-emerald-500"
+                          exec.status === "running" ? "bg-emerald-500" : "bg-emerald-500"
                         )}
                         style={{ width: `${progressPct}%` }}
                       />
@@ -1125,7 +1844,7 @@ function ExplainabilityPanel() {
                       <div key={i} className="flex items-center gap-2 text-xs py-1">
                         <div className="shrink-0">
                           {step.status === "done" && <CheckCircle2 className="h-3 w-3 text-emerald-500" />}
-                          {step.status === "running" && <Loader2 className="h-3 w-3 text-amber-500 animate-spin" />}
+                          {step.status === "running" && <Loader2 className="h-3 w-3 text-emerald-500 animate-spin" />}
                           {step.status === "pending" && <div className="h-3 w-3 rounded-full border border-stone-300" />}
                         </div>
                         <span className={cn(
@@ -1187,12 +1906,31 @@ function ExplainabilityPanel() {
 
       {/* Footer */}
       <div className="flex items-center gap-2 px-4 py-3 border-t bg-stone-50/80 shrink-0">
-        <Activity className="h-3 w-3 text-amber-500" />
+        <Activity className="h-3 w-3 text-emerald-500" />
         <span className="text-[10px] text-stone-600 font-medium">
-          2 active agent processes | Last updated: just now
+          {activeProcessCount} active agent process{activeProcessCount !== 1 ? "es" : ""} | Last updated: just now
         </span>
       </div>
     </>
+  );
+}
+
+function RecommendationsTabPanel() {
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex items-center justify-between px-4 py-3 border-b bg-stone-50/80 shrink-0">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-emerald-600" />
+          <div>
+            <h2 className="text-sm font-semibold text-[#3d3c3c]">AI Recommendations</h2>
+            <p className="text-[10px] text-muted-foreground">Actionable insights from your data</p>
+          </div>
+        </div>
+      </div>
+      <div className="flex-1 overflow-y-auto px-4 py-4">
+        <AIRecommendationsPanel />
+      </div>
+    </div>
   );
 }
 
@@ -1201,8 +1939,8 @@ function UtilityPanel({
   onTabChange,
   onClose,
 }: {
-  activeTab: "notifications" | "explainability";
-  onTabChange: (tab: "notifications" | "explainability") => void;
+  activeTab: "notifications" | "explainability" | "recommendations";
+  onTabChange: (tab: "notifications" | "explainability" | "recommendations") => void;
   onClose: () => void;
 }) {
   return (
@@ -1233,6 +1971,18 @@ function UtilityPanel({
           >
             Explainability
           </button>
+          <button
+            type="button"
+            onClick={() => onTabChange("recommendations")}
+            className={cn(
+              "rounded-full px-3 py-1.5 text-xs font-medium transition",
+              activeTab === "recommendations"
+                ? "bg-emerald-100 text-emerald-800"
+                : "text-stone-500 hover:bg-stone-100 hover:text-stone-800",
+            )}
+          >
+            AI Recs
+          </button>
         </div>
         <Button variant="ghost" size="icon" onClick={onClose} className="h-7 w-7">
           <X className="h-4 w-4" />
@@ -1240,13 +1990,19 @@ function UtilityPanel({
       </div>
       {activeTab === "notifications" ? (
         <NotificationsPanel />
-      ) : (
+      ) : activeTab === "explainability" ? (
         <ExplainabilityPanel />
+      ) : (
+        <RecommendationsTabPanel />
       )}
     </>
   );
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  return <AppShellContent>{children}</AppShellContent>;
+  return (
+    <DemoNarratorProvider>
+      <AppShellContent>{children}</AppShellContent>
+    </DemoNarratorProvider>
+  );
 }

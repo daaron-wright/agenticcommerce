@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ArrowDownRight, ArrowUpRight, BarChart2, Info, TrendingDown, TrendingUp, Zap } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, BarChart2, Info, TrendingDown, TrendingUp } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -21,7 +20,13 @@ import { RecentFromChat } from "@/components/cdp/recent-from-chat";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth-context";
-import { hasPermissionForUser } from "@/lib/permissions/roles";
+import { SaturationCurveCard } from "@/components/dashboard/charts/saturation-curve-card";
+import {
+  missedPotentialData,
+  marketOverview,
+  channelRecommendations,
+  saturationChannels,
+} from "@/lib/dashboard/mock-mmm-saturation";
 import {
   Select,
   SelectContent,
@@ -103,7 +108,6 @@ function AgentBanner({ onClose }: { onClose: () => void }) {
 
 function WeeklyCommercialPanel() {
   const { user } = useAuth();
-  const canExecuteAI = user ? hasPermissionForUser(user, "ai_action_execute") : false;
 
   return (
     <div className="space-y-6">
@@ -290,50 +294,6 @@ function WeeklyCommercialPanel() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">AI recommendations</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {WEEKLY_COMMERCIAL_REVIEW.recommendations.map((recommendation) => (
-            <div key={recommendation.id} className="rounded-lg border border-stone-200 bg-stone-50 px-3 py-2.5">
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-semibold text-stone-900">{recommendation.title}</p>
-                <span
-                  className={cn(
-                    "inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium uppercase",
-                    recommendation.priority === "high"
-                      ? "bg-rose-100 text-rose-700"
-                      : recommendation.priority === "medium"
-                        ? "bg-amber-100 text-amber-700"
-                        : "bg-stone-200 text-stone-700"
-                  )}
-                >
-                  {recommendation.priority}
-                </span>
-              </div>
-              <p className="mt-1 text-xs text-stone-700">{recommendation.action}</p>
-              <p className="mt-1 text-xs font-medium text-emerald-700">{recommendation.impact}</p>
-              <div className="mt-2 flex items-center gap-2">
-                <Link
-                  href={`/chat?actionId=${recommendation.nbaActionId}&intent=${canExecuteAI ? "execute" : "review"}&prompt=${encodeURIComponent(
-                    canExecuteAI ? recommendation.executePrompt : recommendation.reviewPrompt
-                  )}`}
-                  className="inline-flex items-center rounded-md bg-stone-800 px-2.5 py-1.5 text-[11px] font-medium text-white hover:bg-stone-900"
-                >
-                  {canExecuteAI ? "Execute in chat" : "Send for review"}
-                </Link>
-                <Link
-                  href={`/chat?prompt=${encodeURIComponent(recommendation.reviewPrompt)}`}
-                  className="inline-flex items-center rounded-md border border-stone-300 px-2.5 py-1.5 text-[11px] font-medium text-stone-700 hover:bg-white"
-                >
-                  Send for review
-                </Link>
-              </div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
     </div>
   );
 }
@@ -508,7 +468,149 @@ function FutureScenarioTab() {
   );
 }
 
-type ViewTab = "weekly" | "overview" | "future" | "scenario";
+function SaturationCurvesTab() {
+  return (
+    <div className="space-y-6">
+      {/* Missed Potential */}
+      <div className="grid gap-4 xl:grid-cols-2">
+        <Card className={visualizationCardClass}>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Missed Potential</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-end gap-6 h-40">
+              <div className="flex flex-col items-center flex-1">
+                <p className="text-lg font-bold text-[#3d3c3c]">${missedPotentialData.actualProfit.toLocaleString()}</p>
+                <div className="w-full h-24 rounded bg-[#6366f1]/20 mt-2" />
+                <p className="text-[10px] text-stone-500 mt-1">Actual profit</p>
+              </div>
+              <div className="flex flex-col items-center flex-1">
+                <p className="text-xs font-semibold text-emerald-600">+ ${missedPotentialData.missedPotential.toLocaleString()}</p>
+                <div className="w-full rounded mt-2 flex flex-col">
+                  <div className="h-6 rounded-t border-2 border-dashed border-[#6366f1]/40 bg-[#6366f1]/10" />
+                  <div className="h-24 rounded-b bg-[#6366f1]/20" />
+                </div>
+                <p className="text-[10px] text-stone-500 mt-1">Missed potential</p>
+              </div>
+              <div className="flex flex-col items-center flex-1">
+                <p className="text-lg font-bold text-[#3d3c3c]">${missedPotentialData.predictedProfit.toLocaleString()}</p>
+                <div className="w-full h-28 rounded bg-[#6366f1]/30 mt-2" />
+                <p className="text-[10px] text-stone-500 mt-1">Predicted profit</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className={visualizationCardClass}>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Market Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b text-left text-[10px] uppercase tracking-wide text-stone-500">
+                  <th className="pb-2 font-medium">Market</th>
+                  <th className="pb-2 font-medium text-right">Spend</th>
+                  <th className="pb-2 font-medium text-right">Potential</th>
+                </tr>
+              </thead>
+              <tbody>
+                {marketOverview.map((row) => (
+                  <tr key={row.market} className="border-b border-stone-50">
+                    <td className="py-2 font-medium text-[#3d3c3c]">{row.market}</td>
+                    <td className={cn("py-2 text-right font-medium", row.positive ? "text-emerald-600" : "text-rose-500")}>{row.spendChange}</td>
+                    <td className="py-2 text-right text-stone-600">{row.potential}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Saturation Curves */}
+      <h3 className="text-sm font-semibold text-[#3d3c3c]">Channel Saturation Curves</h3>
+      <div className="grid gap-4 xl:grid-cols-2">
+        {saturationChannels.map((ch) => (
+          <SaturationCurveCard key={ch.channel} channel={ch} />
+        ))}
+      </div>
+
+      {/* Channel Recommendations */}
+      <Card className={visualizationCardClass}>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">Channel Recommendations</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b text-left text-[10px] uppercase tracking-wide text-stone-500">
+                  <th className="px-4 py-2 font-medium">Channel</th>
+                  <th className="px-4 py-2 font-medium text-right">Last week</th>
+                  <th className="px-4 py-2 font-medium text-right">Proposed</th>
+                  <th className="px-4 py-2 font-medium text-right">Change</th>
+                  <th className="px-4 py-2 font-medium text-right">Gross sales</th>
+                  <th className="px-4 py-2 font-medium text-right">Profit</th>
+                  <th className="px-4 py-2 font-medium text-right">ROAS</th>
+                  <th className="px-4 py-2 font-medium text-right">epROAS</th>
+                  <th className="px-4 py-2 font-medium">Recommendation</th>
+                </tr>
+              </thead>
+              <tbody>
+                {channelRecommendations.map((row) => (
+                  <tr key={row.channel} className="border-b border-stone-50 hover:bg-stone-50/40">
+                    <td className="px-4 py-2 font-medium text-[#3d3c3c]">{row.channel}</td>
+                    <td className="px-4 py-2 text-right">{row.lastWeekSpend.toLocaleString()}</td>
+                    <td className="px-4 py-2 text-right">{row.proposedSpend.toLocaleString()}</td>
+                    <td className={cn("px-4 py-2 text-right font-medium", row.positive ? "text-emerald-600" : "text-rose-500")}>{row.changePercent}</td>
+                    <td className="px-4 py-2 text-right">{row.grossSalesPredicted.toLocaleString()}</td>
+                    <td className="px-4 py-2 text-right">{row.profitPredicted.toLocaleString()}</td>
+                    <td className="px-4 py-2 text-right">{row.roas}</td>
+                    <td className="px-4 py-2 text-right">{row.epRoas}</td>
+                    <td className="px-4 py-2">
+                      <span className={cn(
+                        "inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium",
+                        row.recommendation.includes("Increase") ? "border-emerald-200 bg-emerald-50 text-emerald-700" :
+                        row.recommendation === "Pause" ? "border-red-200 bg-red-50 text-red-700" :
+                        row.recommendation === "Efficient spend" ? "border-stone-200 bg-stone-50 text-stone-600" :
+                        "border-amber-200 bg-amber-50 text-amber-700"
+                      )}>
+                        {row.recommendation}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+type ViewTab = "weekly" | "overview" | "scenario" | "saturation";
+
+function ScenarioPlannerTab() {
+  const [showResults, setShowResults] = useState(false);
+
+  if (showResults) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold">Scenario Results</h2>
+          <Button variant="outline" size="sm" className="text-xs" onClick={() => setShowResults(false)}>
+            Build New Scenario
+          </Button>
+        </div>
+        <FutureScenarioTab />
+      </div>
+    );
+  }
+
+  return <ScenarioBuilderTab onModelApplied={() => setShowResults(true)} />;
+}
 
 export default function MMMPage() {
   const [viewTab, setViewTab] = useState<ViewTab>("weekly");
@@ -523,8 +625,8 @@ export default function MMMPage() {
   };
 
   return (
-    <div className="min-w-0 space-y-4">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div className="min-w-0 space-y-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-2xl font-bold tracking-tight">Overview</h1>
           <span className="text-xl text-muted-foreground">/</span>
@@ -561,8 +663,8 @@ export default function MMMPage() {
             {([
               ["weekly", "Weekly review"],
               ["overview", "Market overview"],
-              ["future", "Future scenario"],
-              ["scenario", "Scenario Builder"],
+              ["saturation", "Saturation & Recs"],
+              ["scenario", "Scenario Planner"],
             ] as const).map(([tab, label]) => (
               <button
                 key={tab}
@@ -576,9 +678,6 @@ export default function MMMPage() {
               </button>
             ))}
           </div>
-          <Button size="sm" className="h-8 gap-1.5 text-xs">
-            <Zap className="h-3.5 w-3.5" /> New Copilot Report
-          </Button>
         </div>
       </div>
 
@@ -590,10 +689,10 @@ export default function MMMPage() {
         <CardContent className="pt-6">
           {viewTab === "weekly" && <WeeklyCommercialPanel />}
           {viewTab === "overview" && <MarketOverviewPanel selectedMarket={market} />}
-          {viewTab === "future" && <FutureScenarioTab />}
-          {viewTab === "scenario" && <ScenarioBuilderTab onModelApplied={() => setViewTab("future")} />}
+          {viewTab === "saturation" && <SaturationCurvesTab />}
+          {viewTab === "scenario" && <ScenarioPlannerTab />}
         </CardContent>
       </Card>
-    </div>
+      </div>
   );
 }

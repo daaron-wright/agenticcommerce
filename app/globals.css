@@ -77,6 +77,21 @@
     color: hsl(var(--kd-darkstone-60));
   }
 
+  /* Icons inside white-text containers inherit white */
+  .text-white .lucide,
+  .text-white > .lucide,
+  [class*="bg-stone-700"] .lucide,
+  [class*="bg-stone-800"] .lucide,
+  [class*="bg-stone-900"] .lucide,
+  [class*="bg-\["] .lucide {
+    color: inherit;
+  }
+
+  /* Icons with explicit text color classes should use that color */
+  .lucide[class*="text-"] {
+    color: currentColor;
+  }
+
   .font-noto-naskh-arabic {
     font-family: var(--font-noto-naskh-arabic);
   }
@@ -340,4 +355,23 @@
 [role="tab"][data-state="active"] {
   background-color: rgb(var(--gold)) !important;
   color: white !important;
+}
+
+/* Demo / Tour spotlight highlight — blur everything except the target */
+[data-tour-active="true"],
+[data-tour-active="true"] * {
+  pointer-events: auto;
+}
+
+[data-tour-active="true"] {
+  position: relative;
+  z-index: 50;
+  transition: filter 0.3s ease;
+}
+
+[data-tour-active="true"] ~ *:not([data-demo-narrator]),
+*:has([data-tour-active="true"]) > *:not(:has([data-tour-active="true"])):not([data-tour-active="true"]):not([data-demo-narrator]) {
+  filter: blur(3px);
+  pointer-events: none;
+  transition: filter 0.3s ease;
 }

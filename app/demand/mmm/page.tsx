@@ -44,6 +44,7 @@ import { cn } from "@/lib/utils";
 import { RecentFromChat } from "@/components/cdp/recent-from-chat";
 import { ScenarioBuilderTab } from "./components/scenario-builder";
 import {
+  visualizationCardClass,
   visualizationGrid,
   visualizationLegendStyle,
   visualizationPalette,
@@ -51,6 +52,12 @@ import {
   visualizationTick,
   visualizationTooltipStyle,
 } from "@/lib/visualization-theme";
+import { SaturationCurveCard } from "@/components/dashboard/charts/saturation-curve-card";
+import { ForecastLineCard } from "@/components/dashboard/charts/forecast-line-card";
+import {
+  saturationChannels,
+  profitAnalysisWeeks,
+} from "@/lib/dashboard/mock-mmm-saturation";
 
 // ── Mock Data ────────────────────────────────────────────────────────────────
 
@@ -985,7 +992,89 @@ function MarketOverviewPanel() {
 
 // ── Main Page ────────────────────────────────────────────────────────────────
 
-type PrimaryTab = "overview" | "drivers" | "scenarios";
+function ProfitAnalysisTab() {
+  const profitTrendData = [
+    { label: "June", actual: 320000, forecast: 340000 },
+    { label: "July", actual: 350000, forecast: 360000 },
+    { label: "August", actual: 380000, forecast: 395000 },
+    { label: "September", actual: 400000, forecast: 410000 },
+    { label: "October", actual: 420000, forecast: 440000 },
+    { label: "November", actual: 480000, forecast: 460000 },
+    { label: "December", actual: 520000, forecast: 500000 },
+    { label: "January", actual: 380000, forecast: 390000 },
+    { label: "February", actual: 360000, forecast: 370000 },
+    { label: "March", actual: 350000, forecast: 360000 },
+    { label: "April", actual: 340000, forecast: 355000 },
+    { label: "May", actual: 330000, forecast: null },
+    { label: "June", actual: null, forecast: 345000 },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <ForecastLineCard
+        title="Profit Analysis — Actual vs Potential"
+        subtitle="Missed potential shown as gap between actual and forecast"
+        data={profitTrendData}
+        yLabel="Net gross profit (USD)"
+      />
+
+      <Card className={visualizationCardClass}>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">Weekly Profit Summary</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b text-left text-[10px] uppercase tracking-wide text-stone-500">
+                  <th className="px-4 py-2 font-medium">Week</th>
+                  <th className="px-4 py-2 font-medium text-right">Spend (USD)</th>
+                  <th className="px-4 py-2 font-medium text-right">Proposed spend</th>
+                  <th className="px-4 py-2 font-medium text-right">Sales (USD)</th>
+                  <th className="px-4 py-2 font-medium text-right">Missed sales</th>
+                  <th className="px-4 py-2 font-medium text-right">Profit (USD)</th>
+                  <th className="px-4 py-2 font-medium text-right">Missed profit</th>
+                </tr>
+              </thead>
+              <tbody>
+                {profitAnalysisWeeks.map((row) => (
+                  <tr key={row.week} className="border-b border-stone-50 hover:bg-stone-50/40">
+                    <td className="px-4 py-2.5 font-medium text-[#3d3c3c]">{row.week}</td>
+                    <td className="px-4 py-2.5 text-right">{row.spend.toLocaleString()}</td>
+                    <td className="px-4 py-2.5 text-right">
+                      {row.proposedSpend.toLocaleString()}
+                      <span className={cn(
+                        "ml-1 text-[10px] font-medium",
+                        row.proposedChange.startsWith("+") ? "text-emerald-600" : "text-rose-500"
+                      )}>({row.proposedChange})</span>
+                    </td>
+                    <td className="px-4 py-2.5 text-right">{row.sales.toLocaleString()}</td>
+                    <td className="px-4 py-2.5 text-right">{row.missedSales.toLocaleString()}</td>
+                    <td className="px-4 py-2.5 text-right">{row.profit.toLocaleString()}</td>
+                    <td className="px-4 py-2.5 text-right">
+                      <span className="inline-flex rounded-full bg-rose-50 text-rose-600 px-2 py-0.5 text-[10px] font-medium">
+                        {row.missedProfit}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      <h3 className="text-sm font-semibold text-[#3d3c3c]">Channel Saturation Curves</h3>
+      <div className="grid gap-4 xl:grid-cols-2">
+        {saturationChannels.map((ch) => (
+          <SaturationCurveCard key={ch.channel} channel={ch} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+type PrimaryTab = "overview" | "drivers" | "scenarios" | "profit";
 
 export default function MMMPage() {
   const [primaryTab, setPrimaryTab] = useState<PrimaryTab>("overview");
@@ -1049,6 +1138,7 @@ export default function MMMPage() {
           {([
             { id: "overview" as const, label: "Demand Overview" },
             { id: "drivers" as const, label: "Driver Analysis" },
+            { id: "profit" as const, label: "Profit & Saturation" },
             { id: "scenarios" as const, label: "Scenario Planning" },
           ]).map((tab) => (
             <button
@@ -1101,6 +1191,13 @@ export default function MMMPage() {
             <Card>
               <CardContent className="pt-6">
                 <DriverTable />
+              </CardContent>
+            </Card>
+          )}
+          {primaryTab === "profit" && (
+            <Card>
+              <CardContent className="pt-6">
+                <ProfitAnalysisTab />
               </CardContent>
             </Card>
           )}

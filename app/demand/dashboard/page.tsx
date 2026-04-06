@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
+import { useActionEffects } from "@/lib/action-effects-store";
+import { CONTROL_TOWER_ACTIONS } from "@/lib/control-tower-data";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -30,51 +32,51 @@ import {
 // ── Chart Data ───────────────────────────────────────────────────────────────
 
 const forecastAccuracyTrend = [
-  { week: "W1", accuracy: 71 },
-  { week: "W2", accuracy: 69 },
-  { week: "W3", accuracy: 73 },
-  { week: "W4", accuracy: 72 },
-  { week: "W5", accuracy: 74 },
+  { week: "W1", accuracy: 82 },
+  { week: "W2", accuracy: 81 },
+  { week: "W3", accuracy: 80 },
+  { week: "W4", accuracy: 79 },
+  { week: "W5", accuracy: 77 },
   { week: "W6", accuracy: 75 },
   { week: "W7", accuracy: 74 },
-  { week: "W8", accuracy: 76 },
+  { week: "W8", accuracy: 72 },
 ];
 
 const wasteByCategory = [
-  { category: "Dairy", waste: 12.1 },
-  { category: "Bakery", waste: 9.8 },
-  { category: "Produce", waste: 7.4 },
-  { category: "Deli", waste: 5.2 },
+  { category: "Chilled Meals", waste: 14.2 },
+  { category: "Frozen Foods", waste: 11.8 },
+  { category: "Fresh Produce", waste: 9.6 },
+  { category: "Dairy", waste: 7.1 },
 ];
 
 const fillRateByRegion = [
-  { region: "Northeast", rate: 93 },
-  { region: "Southeast", rate: 89 },
-  { region: "Midwest", rate: 91 },
-  { region: "West", rate: 92 },
+  { region: "Northeast", rate: 68 },
+  { region: "Southeast", rate: 86 },
+  { region: "Midwest", rate: 82 },
+  { region: "West", rate: 94 },
 ];
 
 const promoLiftData = [
-  { promo: "BOGO Berries", forecast: 1.8, actual: 2.1 },
-  { promo: "Salad Kit 20%", forecast: 1.4, actual: 1.2 },
-  { promo: "Dairy Bundle", forecast: 1.6, actual: 1.7 },
-  { promo: "Bakery BOGO", forecast: 1.3, actual: 1.5 },
+  { promo: "Water & Emergency", forecast: 1.4, actual: 3.2 },
+  { promo: "Batteries", forecast: 1.2, actual: 2.8 },
+  { promo: "First Aid", forecast: 1.3, actual: 2.4 },
+  { promo: "Ready Meals", forecast: 1.5, actual: 2.1 },
 ];
 
 const wasteTrend = [
-  { week: "W1", rate: 9.8 },
-  { week: "W2", rate: 9.5 },
-  { week: "W3", rate: 9.1 },
-  { week: "W4", rate: 8.9 },
-  { week: "W5", rate: 8.7 },
-  { week: "W6", rate: 8.5 },
-  { week: "W7", rate: 8.4 },
-  { week: "W8", rate: 8.2 },
+  { week: "W1", rate: 6.2 },
+  { week: "W2", rate: 6.4 },
+  { week: "W3", rate: 6.8 },
+  { week: "W4", rate: 7.5 },
+  { week: "W5", rate: 8.9 },
+  { week: "W6", rate: 10.4 },
+  { week: "W7", rate: 12.1 },
+  { week: "W8", rate: 14.2 },
 ];
 
 const revenueImpact = [
-  { label: "Captured", value: 420 },
-  { label: "Missed", value: 85 },
+  { label: "Captured", value: 320 },
+  { label: "At Risk", value: 820 },
 ];
 
 // ── NBA data ─────────────────────────────────────────────────────────────────
@@ -102,39 +104,39 @@ const nbaStatusConfig: Record<
 
 const nbaByContext: Record<NBAContext, { title: string; actions: DashboardNBAAction[] }> = {
   waste: {
-    title: "Waste Reduction",
+    title: "Cold-Chain Protection",
     actions: [
-      { id: "adjust-dairy-forecast", title: "Adjust Dairy Forecast +15%", action: "Increase dairy forecast by 15% for the next 7 days to account for heatwave-driven demand", lift: "-40% dairy waste risk", confidence: 92, reason: "7-day weather model shows 34°C heatwave arriving Thursday. Historical pattern shows +15% dairy demand (yoghurt, milk, ice cream) during heatwaves >30°C. Current forecast does not reflect this signal." },
-      { id: "reduce-bakery-orders", title: "Reduce Bakery Tue/Wed Orders -20%", action: "Reduce bakery replenishment orders by 20% on Tuesday and Wednesday", lift: "-22% bakery waste", confidence: 88, reason: "Last 8 weeks show consistent 18-22% waste on Tue/Wed for artisan bread and pastries. Demand sensing model confirms mid-week trough is structural, not seasonal." },
+      { id: "approve-coldchain", title: "Approve Cold-Chain Conditional Transport", action: "Approve sub-4°C transport for chilled ready meals and frozen desserts to Northeast DC", lift: "-60% spoilage risk", confidence: 91, reason: "Storm conditions threatening cold-chain integrity. 3 trucks en route require temperature verification. Power outage risk at Northeast DC adds urgency." },
+      { id: "emergency-reorder", title: "Emergency Reorder — Storm-Critical SKUs", action: "Approve emergency reorder for water, batteries, first aid at Northeast DC", lift: "Protects $820K revenue", confidence: 94, reason: "47 SKUs below minimum cover. Panic buying driving 200-320% demand surge. Pre-storm delivery window closes at 2:00 PM today." },
     ],
   },
   stockout: {
-    title: "Stock-Out Prevention",
+    title: "Emergency Stockout Prevention",
     actions: [
-      { id: "adjust-dairy-forecast", title: "Adjust Dairy Forecast +15%", action: "Increase dairy forecast by 15% for the next 7 days to prevent heatwave stock-outs", lift: "97.5% fill rate", confidence: 92, reason: "7-day weather model shows 34°C heatwave arriving Thursday. Without adjustment, dairy fill rate projected to drop to 82% across 23% of stores." },
-      { id: "preposition-promo-inventory", title: "Pre-Position Promo Inventory", action: "Pre-position additional stock for strawberries and salad kits by Friday for Monday BOGO launch", lift: "+$180K promo revenue", confidence: 95, reason: "Upcoming BOGO projects 2.1x demand lift. Current DC allocation covers only 1.3x. Pre-positioning prevents stock-outs during peak promo demand." },
+      { id: "emergency-reorder", title: "Emergency Reorder — Storm-Critical SKUs", action: "Approve emergency reorder for water, batteries, first aid, ready meals, pet food at Northeast DC", lift: "Protects $820K revenue", confidence: 94, reason: "Severe blizzard driving panic buying. 47 SKUs below minimum cover across storm-impacted categories. Pre-storm delivery window closes at 2:00 PM." },
+      { id: "activate-suppliers", title: "Activate Emergency Suppliers", action: "Activate 4 backup suppliers for water, batteries, first aid, and pet food", lift: "-35% stockout risk", confidence: 88, reason: "Primary supply chain disrupted by storm. Backup suppliers have confirmed capacity and can deliver within 24 hours via cleared routes." },
     ],
   },
   promo: {
-    title: "Promotion Planning",
+    title: "Storm Recovery Planning",
     actions: [
-      { id: "preposition-promo-inventory", title: "Pre-Position Promo Inventory", action: "Pre-position additional stock for strawberries and salad kits by Friday for Monday BOGO launch", lift: "+$180K promo revenue", confidence: 95, reason: "Upcoming BOGO on strawberries and salad kits projects 2.1x demand lift based on similar promotions. Current DC allocation covers only 1.3x." },
-      { id: "reduce-bakery-orders", title: "Reduce Bakery Tue/Wed Orders -20%", action: "Reduce bakery orders mid-week to free up DC capacity for promo pre-positioning", lift: "-22% bakery waste", confidence: 88, reason: "Mid-week bakery demand trough is structural. Reducing orders frees DC capacity for higher-priority promotional stock movements." },
+      { id: "recovery-restock", title: "Post-Storm Restock Planning", action: "Pre-position recovery inventory at Northeast DC for post-lockdown reopening", lift: "+$340K recovery revenue", confidence: 86, reason: "72-hour lockdown ends Friday. Stores will reopen with depleted shelves. Pre-positioning recovery stock now ensures availability on reopening day." },
+      { id: "demand-reforecast", title: "Storm Recovery Demand Reforecast", action: "Adjust demand forecast for post-storm recovery period (+25% across all categories)", lift: "+25% fill rate recovery", confidence: 82, reason: "Historical storm events show 20-30% demand surge in first 48 hours after lockdown lifts. Current forecast does not reflect recovery pattern." },
     ],
   },
   planning: {
-    title: "Demand Planning Actions",
+    title: "Storm Response Actions",
     actions: [
-      { id: "adjust-dairy-forecast", title: "Adjust Dairy Forecast +15%", action: "Increase dairy forecast by 15% for the next 7 days", lift: "-40% dairy waste risk", confidence: 92, reason: "Weather-driven demand uplift detected. Current forecast does not reflect heatwave signal." },
-      { id: "reduce-bakery-orders", title: "Reduce Bakery Tue/Wed Orders -20%", action: "Reduce bakery replenishment orders by 20% on Tuesday and Wednesday", lift: "-22% bakery waste", confidence: 88, reason: "Consistent over-ordering pattern detected on mid-week for artisan bread and pastries." },
+      { id: "emergency-reorder", title: "Emergency Reorder — Storm-Critical SKUs", action: "Approve emergency reorder for storm-critical SKUs at Northeast DC", lift: "Protects $820K revenue", confidence: 94, reason: "Severe blizzard driving panic buying. 47 SKUs below minimum cover. Pre-storm delivery window closes at 2:00 PM today." },
+      { id: "approve-coldchain", title: "Approve Cold-Chain Conditional Transport", action: "Approve sub-4°C transport for frozen and chilled goods", lift: "-60% spoilage risk", confidence: 91, reason: "Temperature-controlled products at risk from power outages and transport delays. Conditional approval required before delivery window closes." },
     ],
   },
   general: {
-    title: "Top Recommendations",
+    title: "Top Storm Response Recommendations",
     actions: [
-      { id: "adjust-dairy-forecast", title: "Adjust Dairy Forecast +15%", action: "Increase dairy forecast by 15% for the next 7 days", lift: "-40% dairy waste risk", confidence: 92, reason: "7-day weather model shows 34°C heatwave arriving Thursday. Historical pattern shows +15% dairy demand during heatwaves >30°C." },
-      { id: "reduce-bakery-orders", title: "Reduce Bakery Tue/Wed Orders -20%", action: "Reduce bakery replenishment orders by 20% on Tuesday and Wednesday", lift: "-22% bakery waste", confidence: 88, reason: "Last 8 weeks show consistent 18-22% waste on Tue/Wed for artisan bread and pastries." },
-      { id: "preposition-promo-inventory", title: "Pre-Position Promo Inventory", action: "Pre-position additional stock for strawberries and salad kits by Friday", lift: "+$180K promo revenue", confidence: 95, reason: "Upcoming BOGO projects 2.1x demand lift. Current DC allocation covers only 1.3x." },
+      { id: "emergency-reorder", title: "Emergency Reorder — Storm-Critical SKUs", action: "Approve emergency reorder for water, batteries, first aid, ready meals at Northeast DC", lift: "Protects $820K revenue", confidence: 94, reason: "Severe blizzard with 72-hour lockdown. 47 SKUs below minimum cover. Panic buying driving 200-320% demand surge across emergency categories." },
+      { id: "approve-coldchain", title: "Approve Cold-Chain Conditional Transport", action: "Approve sub-4°C transport for chilled ready meals and frozen desserts", lift: "-60% spoilage risk", confidence: 91, reason: "Cold-chain integrity at risk from power outages. 3 trucks en route need temperature verification. Northeast DC generator has 18 hours fuel." },
+      { id: "activate-suppliers", title: "Activate Emergency Suppliers", action: "Activate 4 backup suppliers for water, batteries, first aid, and pet food", lift: "-35% stockout risk", confidence: 88, reason: "Primary supply chain disrupted. Backup suppliers confirmed — delivery via cleared routes within 24 hours." },
     ],
   },
 };
@@ -165,85 +167,85 @@ interface Scenario {
 
 const dataAdminScenarios: Scenario[] = [
   {
-    title: "Improve Forecast Model",
-    description: "Retrain demand models with latest POS data to boost forecast accuracy by +5 percentage points.",
-    expectedOutcome: "+5pp Accuracy",
-    budgetChange: "No Change",
-    risk: "Low",
-    riskColor: "bg-stone-50 text-stone-600 border border-stone-200",
+    title: "Emergency Stockout Prevention",
+    description: "Approve emergency reorders for storm-critical SKUs before the pre-storm delivery window closes.",
+    expectedOutcome: "Protect $820K",
+    budgetChange: "+Emergency Budget",
+    risk: "High",
+    riskColor: "bg-stone-200 text-stone-800",
     icon: Activity,
     accentColor: "bg-stone-50/50 border-stone-200",
     iconColor: "text-stone-700",
-    nbaContext: "planning",
-    chatPrompt: "How can I improve our forecast model accuracy? What data sources should I incorporate?",
+    nbaContext: "stockout",
+    chatPrompt: "What SKUs are at critical stockout risk from the storm and what emergency reorders should I approve?",
   },
   {
-    title: "Reduce Perishable Waste",
-    description: "Tighten SKU-store-day forecasts to cut spoilage on dairy, bakery, and produce.",
-    expectedOutcome: "-25% Waste",
+    title: "Cold-Chain Protection",
+    description: "Verify cold-chain integrity for frozen and chilled goods across storm-impacted DCs and in-transit shipments.",
+    expectedOutcome: "-60% Spoilage",
     budgetChange: "No Change",
-    risk: "Low",
-    riskColor: "bg-stone-50 text-stone-600 border border-stone-200",
+    risk: "Medium",
+    riskColor: "bg-stone-100 text-stone-700",
     icon: TrendingDown,
     accentColor: "bg-stone-50/50 border-stone-200",
     iconColor: "text-stone-700",
     nbaContext: "waste",
-    chatPrompt: "Analyze our perishable waste by category and recommend specific forecast adjustments to reduce spoilage.",
+    chatPrompt: "What is the cold-chain status across our DCs and what actions are needed to protect frozen and chilled goods?",
   },
   {
-    title: "Demand Sensing Alerts",
-    description: "Configure real-time signals (weather, events) for proactive forecast adjustments.",
-    expectedOutcome: "+3pp Accuracy",
-    budgetChange: "No Change",
+    title: "Storm Recovery Planning",
+    description: "Pre-position recovery inventory and adjust demand forecasts for post-lockdown reopening.",
+    expectedOutcome: "+$340K Recovery",
+    budgetChange: "+12% Inventory",
     risk: "Medium",
     riskColor: "bg-stone-100 text-stone-700",
     icon: Zap,
     accentColor: "bg-stone-50/50 border-stone-200",
     iconColor: "text-stone-800",
-    nbaContext: "planning",
-    chatPrompt: "What demand sensing signals are available and how can I configure real-time alerts for forecast adjustments?",
+    nbaContext: "promo",
+    chatPrompt: "How should we plan for post-storm recovery? What inventory should be pre-positioned for store reopening?",
   },
 ];
 
 const marketingScenarios: Scenario[] = [
   {
-    title: "Reduce Perishable Waste",
-    description: "Tighten forecasts at the SKU-store-day level to cut spoilage on dairy, bakery, and produce.",
-    expectedOutcome: "-25% Waste",
-    budgetChange: "No Change",
+    title: "Storm-Prep Digital Campaign",
+    description: "Push storm-prep notifications and smart substitutions via app and web to capture pre-storm demand.",
+    expectedOutcome: "+38% Conversion",
+    budgetChange: "+Emergency Budget",
     risk: "Low",
     riskColor: "bg-stone-50 text-stone-600 border border-stone-200",
     icon: TrendingDown,
     accentColor: "bg-stone-50/50 border-stone-200",
     iconColor: "text-stone-700",
-    nbaContext: "waste",
-    chatPrompt: "Analyze perishable waste trends and recommend promotional strategies to reduce spoilage.",
+    nbaContext: "stockout",
+    chatPrompt: "What digital channels should we activate to capture storm-prep demand and communicate delivery changes?",
   },
   {
-    title: "Prevent Stock-Outs",
-    description: "Improve fill rates during high-demand periods with better demand sensing and safety stock optimization.",
-    expectedOutcome: "97.5% Fill Rate",
-    budgetChange: "+8% Safety Stock",
+    title: "In-Store Pickup Redirect",
+    description: "Redirect delivery orders to in-store pickup at open locations in storm periphery.",
+    expectedOutcome: "3,400 Orders Saved",
+    budgetChange: "No Change",
     risk: "Medium",
     riskColor: "bg-stone-100 text-stone-700",
     icon: ShieldCheck,
     accentColor: "bg-stone-50/50 border-stone-200",
     iconColor: "text-stone-800",
-    nbaContext: "stockout",
-    chatPrompt: "What are the current stock-out risks and how can we pre-position inventory to maintain 97.5% fill rate?",
+    nbaContext: "planning",
+    chatPrompt: "Which stores are still open and how many delivery orders can we redirect to in-store pickup?",
   },
   {
-    title: "Optimize Promotion Planning",
-    description: "Model promotional lift to right-size inventory and capture full revenue upside on promotions.",
-    expectedOutcome: "+18% Promo Revenue",
-    budgetChange: "+12% Inventory",
+    title: "Subscription Expedite Campaign",
+    description: "Proactively contact subscription customers to expedite critical deliveries before storm lockdown.",
+    expectedOutcome: "+22% Retention",
+    budgetChange: "+5% Logistics",
     risk: "Medium",
     riskColor: "bg-stone-200 text-stone-800",
     icon: Tag,
     accentColor: "bg-stone-50/50 border-stone-200",
     iconColor: "text-stone-600",
     nbaContext: "promo",
-    chatPrompt: "Analyze our recent promotional lifts vs forecasts and recommend how to optimize upcoming promotion inventory.",
+    chatPrompt: "How many subscription customers have deliveries scheduled during the storm window and how should we manage them?",
   },
 ];
 
@@ -465,7 +467,7 @@ function FillRateByRegionChart() {
 
 function PromoLiftChart() {
   return (
-    <ChartCard title="Promo Lift: Forecast vs Actual">
+    <ChartCard title="Storm Demand: Forecast vs Actual">
       <div className="h-[140px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={promoLiftData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
@@ -484,7 +486,7 @@ function PromoLiftChart() {
 
 function WasteTrendChart() {
   return (
-    <ChartCard title="Waste Rate Trend (8 weeks)">
+    <ChartCard title="Waste Rate Trend — Cold-Chain Disruption">
       <div className="h-[140px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={wasteTrend} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
@@ -508,7 +510,7 @@ function WasteTrendChart() {
 
 function RevenueImpactChart() {
   return (
-    <ChartCard title="Promo Revenue Impact ($K)">
+    <ChartCard title="Storm Revenue Impact ($K)">
       <div className="h-[140px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={revenueImpact} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
@@ -570,42 +572,45 @@ export default function DashboardPage() {
 
   // ── Shared KPI stats (used by data_admin and marketing_admin) ──────────
 
+  const effects = useActionEffects();
+  const adjustedDemand = effects.getAdjustedDemandKpis();
+
   const sharedStats = [
-    { label: "Forecast Accuracy", value: "76%", icon: Activity, colorClass: "text-stone-700", bgClass: "bg-stone-100", nbaContext: "planning" as NBAContext, chatPrompt: "What is driving our current 76% forecast accuracy and how can we improve it?" },
-    { label: "Waste Rate", value: "8.2%", icon: TrendingDown, colorClass: "text-stone-700", bgClass: "bg-stone-100", nbaContext: "waste" as NBAContext, chatPrompt: "Break down our 8.2% waste rate by category and recommend reduction strategies." },
-    { label: "Fill Rate", value: "91%", icon: ShieldCheck, colorClass: "text-stone-700", bgClass: "bg-stone-100", nbaContext: "stockout" as NBAContext, chatPrompt: "What regions have the lowest fill rates and what actions can we take to reach 97.5%?" },
-    { label: "Pending Actions", value: String(reviewCounts.pending), icon: FileText, colorClass: "text-stone-700", bgClass: "bg-stone-100", nbaContext: "general" as NBAContext, chatPrompt: "Show me all pending demand planning actions and their expected impact." },
+    { label: "Forecast Accuracy", value: `${adjustedDemand.forecastAccuracy}%`, icon: Activity, colorClass: adjustedDemand.forecastAccuracy > 72 ? "text-emerald-700" : "text-stone-700", bgClass: adjustedDemand.forecastAccuracy > 72 ? "bg-emerald-50" : "bg-stone-100", nbaContext: "planning" as NBAContext, chatPrompt: "What is driving the drop in forecast accuracy during the storm?" },
+    { label: "Waste Rate", value: "14.2%", icon: TrendingDown, colorClass: "text-stone-700", bgClass: "bg-stone-100", nbaContext: "waste" as NBAContext, chatPrompt: "What is the cold-chain spoilage risk from the storm and how can we protect inventory?" },
+    { label: "Fill Rate", value: `${adjustedDemand.fillRate}%`, icon: ShieldCheck, colorClass: adjustedDemand.fillRate > 78 ? "text-emerald-700" : "text-stone-700", bgClass: adjustedDemand.fillRate > 78 ? "bg-emerald-50" : "bg-stone-100", nbaContext: "stockout" as NBAContext, chatPrompt: "Which regions have the lowest fill rates due to the storm and what emergency actions can we take?" },
+    { label: "Pending Actions", value: String(adjustedDemand.pendingActions), icon: FileText, colorClass: adjustedDemand.pendingActions < CONTROL_TOWER_ACTIONS.length ? "text-emerald-700" : "text-stone-700", bgClass: adjustedDemand.pendingActions < CONTROL_TOWER_ACTIONS.length ? "bg-emerald-50" : "bg-stone-100", nbaContext: "general" as NBAContext, chatPrompt: "Show me all pending storm response actions and their expected impact." },
   ];
 
   const getDashboardContent = () => {
     switch (user.role) {
       case "data_admin":
         return {
-          title: "Demand Planning Dashboard",
-          description: "Forecasting, demand sensing, and model performance",
+          title: "Storm Response Dashboard",
+          description: "Emergency demand management and supply chain coordination for winter weather hazard",
           stats: sharedStats,
           scenarios: dataAdminScenarios,
           charts: "data_admin" as const,
           recentActivity: [
-            { text: "Forecast model retrained — accuracy improved from 74% to 76%", time: "12m ago" },
-            { text: "Data quality alert: 3 SKUs missing POS data in Northeast", time: "45m ago" },
-            { text: "Demand sensing signal: Heatwave detected for Thursday", time: "2h ago" },
-            { text: "Weekly forecast review completed — 62% touchless coverage", time: "4h ago" },
+            { text: "Emergency reorder submitted — 6 storm-critical SKUs at Northeast DC", time: "12m ago" },
+            { text: "Cold-chain alert: Generator fuel at 18 hours — resupply dispatched", time: "45m ago" },
+            { text: "Weather intelligence: Blizzard peak expected in 8 hours", time: "2h ago" },
+            { text: "Delivery route replanning: 142 routes blocked by road closures", time: "4h ago" },
           ],
         };
 
       case "marketing_admin":
         return {
-          title: "Demand Planning & Promotions",
-          description: "Promotional demand lifts, campaign inventory, and ROI optimization",
+          title: "Storm Response — E-commerce & Demand",
+          description: "Storm-driven demand surge, digital channel activation, and delivery adaptation",
           stats: sharedStats,
           scenarios: marketingScenarios,
           charts: "marketing_admin" as const,
           recentActivity: [
-            { text: "Promo pre-positioning submitted for BOGO strawberries", time: "5m ago" },
-            { text: "NBA approved: Bakery order reduction for mid-week", time: "32m ago" },
-            { text: "Campaign ROI updated: Salad Kit 20% promo underperformed by 14%", time: "2h ago" },
-            { text: "Demand lift model refreshed with latest promotion results", time: "4h ago" },
+            { text: "Storm-prep push notifications sent — 4,200 sessions in last hour", time: "5m ago" },
+            { text: "Smart substitution activated — 68% acceptance on out-of-stock items", time: "32m ago" },
+            { text: "In-store pickup redirect offered to 3,400 delivery orders", time: "2h ago" },
+            { text: "Subscription expedite campaign launched — 1,200 customers contacted", time: "4h ago" },
           ],
         };
 

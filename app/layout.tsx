@@ -7,7 +7,9 @@ import { ArtifactProvider } from "@/lib/artifact-store";
 import { IncrementalityExperimentProvider } from "@/lib/incrementality-store";
 import { KnowledgeGraphInstanceProvider } from "@/lib/knowledge-graph-instances";
 import { WorkflowEventProvider } from "@/lib/workflow-event-context";
+import { ActionEffectsProvider } from "@/lib/action-effects-store";
 import { ResizeObserverErrorHandler } from "@/components/resize-observer-error-handler";
+import { CopilotKitProvider } from "@/components/copilotkit-provider";
 
 const notoKufi = Noto_Kufi_Arabic({
   weight: ["400", "500", "600", "700"],
@@ -30,20 +32,24 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${notoKufi.variable} font-sans`}>
         <ResizeObserverErrorHandler />
-        <ClientThemeProvider clientId="cdp">
-          <AuthProvider>
-            <IncrementalityExperimentProvider>
-              <KnowledgeGraphInstanceProvider>
-                <ArtifactProvider>
-                  <WorkflowEventProvider>
-                    {children}
-                    <Toaster position="top-right" />
-                  </WorkflowEventProvider>
-                </ArtifactProvider>
-              </KnowledgeGraphInstanceProvider>
-            </IncrementalityExperimentProvider>
-          </AuthProvider>
-        </ClientThemeProvider>
+        <CopilotKitProvider>
+          <ClientThemeProvider clientId="cdp">
+            <AuthProvider>
+              <IncrementalityExperimentProvider>
+                <KnowledgeGraphInstanceProvider>
+                  <ArtifactProvider>
+                    <ActionEffectsProvider>
+                      <WorkflowEventProvider>
+                        {children}
+                        <Toaster position="top-right" />
+                      </WorkflowEventProvider>
+                    </ActionEffectsProvider>
+                  </ArtifactProvider>
+                </KnowledgeGraphInstanceProvider>
+              </IncrementalityExperimentProvider>
+            </AuthProvider>
+          </ClientThemeProvider>
+        </CopilotKitProvider>
       </body>
     </html>
   );

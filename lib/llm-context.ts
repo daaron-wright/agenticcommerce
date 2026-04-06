@@ -21,9 +21,9 @@ import { CATEGORIES, getCategoryTotals } from "./demo-data/categories";
 import { INCREMENTALITY_EXPERIMENTS } from "./incrementality-data";
 
 function fmt(n: number): string {
-  if (n >= 1_000_000) return `£${(n / 1_000_000).toFixed(2)}M`;
-  if (n >= 1_000) return `£${(n / 1_000).toFixed(0)}K`;
-  return `£${n}`;
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
+  if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K`;
+  return `$${n}`;
 }
 
 export function getDemoContext(): string {
@@ -129,7 +129,7 @@ export function getDemoContext(): string {
   // ── Customer segment summary ──────────────────────────────────────────────
   const segSummary = getSegmentSummary();
   const segLines = segSummary.map(
-    (s) => `- ${s.segment}: ${s.count} customers, avg LTV £${s.avgLTV.toLocaleString()}, total LTV £${s.totalLTV.toLocaleString()}`
+    (s) => `- ${s.segment}: ${s.count} customers, avg LTV $${s.avgLTV.toLocaleString()}, total LTV $${s.totalLTV.toLocaleString()}`
   ).join("\n");
   const totalCustomers = segSummary.reduce((sum, s) => sum + s.count, 0);
   sections.push(`### Customer Segments (${totalCustomers} profiled)\n${segLines}`);
@@ -139,7 +139,7 @@ export function getDemoContext(): string {
   const qtdSummaryLines = [
     `- Period: W1 (w/e 21 Dec 2025) → W13 (w/e 15 Mar 2026), ${qtd.weekCount} weeks`,
     `- Total gross sales: ${fmt(qtd.totalSales)}, total orders: ${qtd.totalOrders.toLocaleString()}, new customers: ${qtd.totalNewCustomers.toLocaleString()}`,
-    `- Avg ROAS: ${qtd.avgRoas}x, avg CAC: £${qtd.avgCac}`,
+    `- Avg ROAS: ${qtd.avgRoas}x, avg CAC: $${qtd.avgCac}`,
     `- Peak week: ${qtd.peakWeek.weekLabel} (w/e ${qtd.peakWeek.periodEnd}) — ${fmt(qtd.peakWeek.grossSales)} — ${qtd.peakWeek.context.split(".")[0]}`,
     `- Trough week: ${qtd.troughWeek.weekLabel} (w/e ${qtd.troughWeek.periodEnd}) — ${fmt(qtd.troughWeek.grossSales)} — ${qtd.troughWeek.context.split(".")[0]}`,
   ].join("\n");
@@ -151,7 +151,7 @@ export function getDemoContext(): string {
   const recentWeeks = WEEKLY_PERFORMANCE.slice(-4);
   const recentHeader = "Week | Period End | Gross Sales | Orders | Conv% | ROAS | CAC";
   const recentRows = recentWeeks.map(
-    (w) => `${w.weekLabel} | ${w.periodEnd} | ${fmt(w.grossSales)} | ${w.orders.toLocaleString()} | ${w.conversionRate}% | ${w.roas}x | £${w.cac}`
+    (w) => `${w.weekLabel} | ${w.periodEnd} | ${fmt(w.grossSales)} | ${w.orders.toLocaleString()} | ${w.conversionRate}% | ${w.roas}x | $${w.cac}`
   ).join("\n");
 
   sections.push(`### 13-Week Performance Summary\n${qtdSummaryLines}\n\n**Monthly Rollup:**\n${monthlyLines}\n\n**Last 4 Weeks (${recentHeader}):**\n${recentRows}`);

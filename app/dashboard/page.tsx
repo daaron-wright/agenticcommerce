@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import {
   CONTROL_TOWER_ACTIONS,
   CONTROL_TOWER_ALERTS,
   CONTROL_TOWER_HERO_METRICS,
+  CONTROL_TOWER_JOURNEY_SIGNALS,
   CONTROL_TOWER_SUMMARY,
   CONTROL_TOWER_WIDGETS,
   type ControlTowerAction,
@@ -18,8 +20,10 @@ import {
   type ControlTowerSeverity,
   type ControlTowerStatus,
   type ControlTowerWidget,
+  type ControlTowerJourneySignal,
 } from "@/lib/control-tower-data";
 import { useAuth } from "@/lib/auth-context";
+import { useActionEffects } from "@/lib/action-effects-store";
 import { DashboardModuleSurface } from "@/components/dashboard/module-dashboard-content";
 import {
   GraphInstanceDialog,
@@ -59,11 +63,20 @@ import {
   Clock,
   Database,
   Megaphone,
-  Network,
-  Sparkles,
+  Plus,
+  Trash2,
   TrendingDown,
   TrendingUp,
   X,
+  Zap,
+  BarChart2,
+  PieChart,
+  LineChart as LineChartIcon,
+  Target,
+  ShoppingCart,
+  Users,
+  Activity,
+  Globe,
 } from "lucide-react";
 import {
   Area,
@@ -79,6 +92,27 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import {
+  productReportTotals,
+  productReportRows,
+  atRiskProducts,
+} from "@/lib/dashboard/mock-product-inventory";
+import { missedPotentialData, channelRecommendations, marketOverview } from "@/lib/dashboard/mock-mmm-saturation";
+import { experimentSummary, incrementalityComparisonBars } from "@/lib/dashboard/mock-incrementality-summary";
+import { performanceHeroKpis, multiMetricTrend, productSellThrough } from "@/lib/dashboard/mock-overall-performance";
+import { ecommerceDashboardData } from "@/lib/dashboard/mock-ecommerce";
+import {
+  Bar,
+  BarChart,
+  Legend,
+} from "recharts";
+import {
+  visualizationPalette,
+  visualizationGrid,
+  visualizationSmallTick,
+  visualizationTooltipStyle,
+  visualizationCardClass,
+} from "@/lib/visualization-theme";
 
 const DOMAIN_META: Record<
   Exclude<ControlTowerDomain, "risk">,
@@ -123,8 +157,8 @@ const STATUS_META: Record<
     label: "Healthy",
   },
   attention: {
-    badge: "border-amber-200 bg-amber-50 text-amber-700",
-    dot: "bg-amber-500",
+    badge: "border-sky-200 bg-sky-50 text-sky-700",
+    dot: "bg-sky-500",
     label: "Attention",
   },
   critical: {
@@ -144,7 +178,7 @@ const SEVERITY_META: Record<
     icon: AlertCircle,
   },
   high: {
-    badge: "border-amber-200 bg-amber-50 text-amber-700",
+    badge: "border-sky-200 bg-sky-50 text-sky-700",
     label: "High Priority",
     icon: AlertTriangle,
   },
@@ -174,7 +208,7 @@ const ACTION_STATE_META: Record<
   },
   in_review: {
     label: "In review",
-    className: "border-amber-200 bg-amber-50 text-amber-700",
+    className: "border-emerald-200 bg-emerald-50 text-emerald-700",
   },
   dismissed: {
     label: "Dismissed",
@@ -286,63 +320,375 @@ const METRIC_SHORT_LABELS: Record<string, string> = {
 
 const METRIC_ACTIONS: Record<string, { label: string; href: string }[]> = {
   "platform-health": [
-    { label: "View merge exceptions", href: "#" },
-    { label: "Enrichment pipeline", href: "#" },
+    { label: "View merge exceptions", href: "/demand/dashboard" },
+    { label: "Enrichment pipeline", href: "/reports" },
   ],
   "active-alerts": [
-    { label: "Triage alerts", href: "#" },
-    { label: "Alert history", href: "#" },
+    { label: "Triage alerts", href: "/risk/audit" },
+    { label: "Alert history", href: "/reports" },
   ],
   "pending-actions": [
-    { label: "Review approvals", href: "#" },
-    { label: "Escalation queue", href: "#" },
+    { label: "Review approvals", href: "/reports" },
+    { label: "Escalation queue", href: "/risk/audit" },
   ],
   "udp-readiness": [
-    { label: "Consent audit", href: "#" },
-    { label: "Identity resolution", href: "#" },
+    { label: "Consent audit", href: "/reports" },
+    { label: "Identity resolution", href: "/demand/dashboard" },
   ],
   "forecast-accuracy": [
-    { label: "Regional breakdown", href: "#" },
-    { label: "Signal sources", href: "#" },
+    { label: "Regional breakdown", href: "/demand/dashboard" },
+    { label: "Signal sources", href: "/demand/reports" },
   ],
   "activation-readiness": [
-    { label: "Active campaigns", href: "#" },
-    { label: "Audience health", href: "#" },
+    { label: "Active campaigns", href: "/campaigns" },
+    { label: "Audience health", href: "/reports" },
   ],
 };
 
+/* ── Next Best Actions per tab ──────────────────────────────────────────────── */
+
+interface TabNBAAction {
+  id: string;
+  title: string;
+  description: string;
+  impact: string;
+  confidence: number;
+  actionType: "resolve_alert" | "approve_action" | "apply_recommendation" | "activate_redirect" | "submit_reorder" | "apply_campaign";
+  actionPayload: { id: string; type?: string };
+}
+
+const TAB_NBA_ACTIONS: Record<string, TabNBAAction[]> = {
+  "platform-health": [
+    {
+      id: "nba-profile-1",
+      title: "Approve demand surge forecast",
+      description: "AI detected +340% demand surge for essentials. Approving updates forecast models across 14 DCs.",
+      impact: "+6pp forecast accuracy",
+      confidence: 94,
+      actionType: "approve_action",
+      actionPayload: { id: "action-demand-surge", type: "approved" },
+    },
+    {
+      id: "nba-profile-2",
+      title: "Apply smart substitution recommendation",
+      description: "Substitute 23 out-of-stock SKUs with available alternatives to maintain fill rate.",
+      impact: "+3pp fill rate",
+      confidence: 88,
+      actionType: "apply_recommendation",
+      actionPayload: { id: "rec-inventory" },
+    },
+  ],
+  "active-alerts": [
+    {
+      id: "nba-alerts-1",
+      title: "Resolve Emergency Demand Surge alert",
+      description: "Stock-out risk across 482 stores. Emergency reorder window closing at 2:00 PM EST.",
+      impact: "-15 SKUs at risk, +4pp accuracy",
+      confidence: 96,
+      actionType: "resolve_alert",
+      actionPayload: { id: "alert-demand-stockout", type: "approved" },
+    },
+    {
+      id: "nba-alerts-2",
+      title: "Resolve Cold-Chain Integrity Risk alert",
+      description: "Frozen & dairy products at risk across DC-Newark, DC-Pittsburgh, DC-Cleveland corridors.",
+      impact: "+2pp forecast accuracy",
+      confidence: 91,
+      actionType: "resolve_alert",
+      actionPayload: { id: "alert-coldchain-risk", type: "approved" },
+    },
+    {
+      id: "nba-alerts-3",
+      title: "Resolve Last-Mile Delivery Constraint alert",
+      description: "2,340 orders pending reroute or deferral in 6 metro zones.",
+      impact: "+6pp on-time delivery",
+      confidence: 89,
+      actionType: "resolve_alert",
+      actionPayload: { id: "alert-lastmile-constraint", type: "approved" },
+    },
+  ],
+  "pending-actions": [
+    {
+      id: "nba-approvals-1",
+      title: "Approve emergency reorder",
+      description: "$820K emergency PO for 127 critical SKUs across Northeast DCs.",
+      impact: "-12 SKUs at risk, +4pp DC in-stock",
+      confidence: 95,
+      actionType: "approve_action",
+      actionPayload: { id: "action-emergency-reorder", type: "approved" },
+    },
+    {
+      id: "nba-approvals-2",
+      title: "Approve cold-chain transport",
+      description: "$76K for refrigerated transport rerouting from compromised DC-Newark hub.",
+      impact: "+2pp forecast accuracy",
+      confidence: 92,
+      actionType: "approve_action",
+      actionPayload: { id: "action-coldchain-transport", type: "approved" },
+    },
+    {
+      id: "nba-approvals-3",
+      title: "Approve last-mile rerouting",
+      description: "$145K to reroute 2,340 orders to alternate fulfillment centers.",
+      impact: "+5pp on-time delivery",
+      confidence: 90,
+      actionType: "approve_action",
+      actionPayload: { id: "action-lastmile-reroute", type: "approved" },
+    },
+  ],
+  "udp-readiness": [
+    {
+      id: "nba-reach-1",
+      title: "Approve emergency supplier activation",
+      description: "Activate 3 backup suppliers to cover Northeast DC shortfall.",
+      impact: "+3pp DC in-stock, -8 SKUs at risk",
+      confidence: 93,
+      actionType: "approve_action",
+      actionPayload: { id: "action-emergency-supplier", type: "approved" },
+    },
+    {
+      id: "nba-reach-2",
+      title: "Apply inventory rebalance",
+      description: "Redistribute 34 high-velocity SKUs from overstocked Southern DCs to Northeast.",
+      impact: "+3pp DC in-stock, -7 SKUs at risk",
+      confidence: 87,
+      actionType: "apply_recommendation",
+      actionPayload: { id: "rec-inventory" },
+    },
+    {
+      id: "nba-reach-3",
+      title: "Activate in-store pickup redirect",
+      description: "Redirect 3,400 e-commerce orders to click-and-collect at nearby stores.",
+      impact: "+3pp on-time delivery",
+      confidence: 85,
+      actionType: "activate_redirect",
+      actionPayload: { id: "reach-redirect" },
+    },
+  ],
+  "forecast-accuracy": [
+    {
+      id: "nba-demand-1",
+      title: "Approve emergency reorder for critical SKUs",
+      description: "Submit PO for 127 critical SKUs before 2:00 PM ordering cutoff.",
+      impact: "-12 SKUs at risk, +6pp fill rate",
+      confidence: 96,
+      actionType: "approve_action",
+      actionPayload: { id: "action-emergency-reorder", type: "approved" },
+    },
+    {
+      id: "nba-demand-2",
+      title: "Submit emergency reorder via demand planning",
+      description: "Fast-track reorder through demand planning channel to bypass standard approval.",
+      impact: "-5 SKUs at risk",
+      confidence: 91,
+      actionType: "submit_reorder",
+      actionPayload: { id: "demand-reorder" },
+    },
+    {
+      id: "nba-demand-3",
+      title: "Apply inventory rebalance to NE DCs",
+      description: "Move excess inventory from Southeast to cover Northeast DC gaps.",
+      impact: "+3pp DC in-stock, -7 SKUs at risk",
+      confidence: 88,
+      actionType: "apply_recommendation",
+      actionPayload: { id: "rec-inventory" },
+    },
+  ],
+  "activation-readiness": [
+    {
+      id: "nba-campaign-1",
+      title: "Approve last-mile rerouting plan",
+      description: "Reroute 2,340 orders to alternate fulfillment for storm-impacted zones.",
+      impact: "+5pp on-time delivery",
+      confidence: 90,
+      actionType: "approve_action",
+      actionPayload: { id: "action-lastmile-reroute", type: "approved" },
+    },
+    {
+      id: "nba-campaign-2",
+      title: "Activate reach redirect for 3,400 orders",
+      description: "Switch affected e-commerce orders to click-and-collect fulfillment.",
+      impact: "+3pp on-time delivery",
+      confidence: 85,
+      actionType: "activate_redirect",
+      actionPayload: { id: "reach-redirect" },
+    },
+    {
+      id: "nba-campaign-3",
+      title: "Apply emergency push notification",
+      description: "Suppress storm-region paid ads and redirect budget to push notifications for order updates.",
+      impact: "+1pp forecast accuracy",
+      confidence: 82,
+      actionType: "apply_recommendation",
+      actionPayload: { id: "rec-suppress-fb" },
+    },
+  ],
+};
+
+function TabNBASection({ metricId }: { metricId: string }) {
+  const effects = useActionEffects();
+  const router = useRouter();
+  const actions = TAB_NBA_ACTIONS[metricId] ?? [];
+  const [executedActions, setExecutedActions] = useState<Record<string, boolean>>({});
+
+  const isAlreadyDone = useCallback(
+    (action: TabNBAAction) => {
+      if (action.actionType === "resolve_alert") return !!effects.resolvedAlerts[action.actionPayload.id];
+      if (action.actionType === "approve_action") return !!effects.approvedActions[action.actionPayload.id];
+      if (action.actionType === "apply_recommendation") return !!effects.appliedRecommendations[action.actionPayload.id];
+      if (action.actionType === "activate_redirect") return effects.reachRedirectActive;
+      if (action.actionType === "submit_reorder") return effects.demandReorderSubmitted;
+      if (action.actionType === "apply_campaign") return effects.campaignApplied;
+      return false;
+    },
+    [effects]
+  );
+
+  const executeAction = useCallback(
+    (action: TabNBAAction) => {
+      switch (action.actionType) {
+        case "resolve_alert":
+          effects.resolveAlert(action.actionPayload.id, (action.actionPayload.type as "approved") ?? "approved");
+          break;
+        case "approve_action":
+          effects.approveAction(action.actionPayload.id, (action.actionPayload.type as "approved") ?? "approved");
+          break;
+        case "apply_recommendation":
+          effects.applyRecommendation(action.actionPayload.id);
+          break;
+        case "activate_redirect":
+          effects.activateReachRedirect();
+          break;
+        case "submit_reorder":
+          effects.submitDemandReorder();
+          break;
+        case "apply_campaign":
+          effects.applyCampaign();
+          break;
+      }
+      setExecutedActions((prev) => ({ ...prev, [action.id]: true }));
+      toast.success(action.title, { description: `Impact: ${action.impact}` });
+    },
+    [effects]
+  );
+
+  if (actions.length === 0) return null;
+
+  return (
+    <div className="mt-4">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-400 mb-2">
+        AI Next Best Actions
+      </p>
+      <div className="space-y-2">
+        {actions.map((action) => {
+          const done = isAlreadyDone(action) || executedActions[action.id];
+          return (
+            <div
+              key={action.id}
+              className={cn(
+                "rounded-lg border p-3 transition-all",
+                done
+                  ? "border-emerald-200 bg-emerald-50/50"
+                  : "border-stone-200 bg-white hover:border-stone-300"
+              )}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="text-[12px] font-semibold text-[#3d3c3c]">
+                      {action.title}
+                    </p>
+                    <Badge variant="outline" className="text-[9px] shrink-0 border-[#29707a]/30 bg-[#29707a]/10 text-[#29707a]">
+                      {action.impact}
+                    </Badge>
+                  </div>
+                  <p className="text-[11px] text-stone-500 leading-relaxed">
+                    {action.description}
+                  </p>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className="text-[10px] text-stone-400">AI Confidence</span>
+                    <div className="h-1.5 w-16 rounded-full bg-stone-100 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-[#29707a]"
+                        style={{ width: `${action.confidence}%` }}
+                      />
+                    </div>
+                    <span className="text-[10px] font-medium text-[#29707a]">{action.confidence}%</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {done ? (
+                    <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-[10px]">
+                      <Check className="h-3 w-3 mr-1" /> Done
+                    </Badge>
+                  ) : (
+                    <>
+                      <Button
+                        size="sm"
+                        className="h-7 text-[11px] bg-[#29707a] hover:bg-[#1e5960] text-white"
+                        onClick={() => executeAction(action)}
+                      >
+                        {action.actionType === "resolve_alert" ? "Resolve" : action.actionType === "approve_action" ? "Approve" : "Apply"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-[11px]"
+                        onClick={() => {
+                          const prompt = encodeURIComponent(
+                            `Investigate: ${action.title}. ${action.description} What are my options and next best actions?`
+                          );
+                          router.push(`/chat?prompt=${prompt}`);
+                        }}
+                      >
+                        Investigate
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function MetricNavigator() {
+  const effects = useActionEffects();
+  const heroMetrics = effects.getAdjustedHeroMetrics();
   const [selectedIndex, setSelectedIndex] = useState(() => {
-    const criticalIdx = CONTROL_TOWER_HERO_METRICS.findIndex(
+    const criticalIdx = heroMetrics.findIndex(
       (m) => m.status === "critical"
     );
     return criticalIdx >= 0 ? criticalIdx : 0;
   });
 
-  const metric = CONTROL_TOWER_HERO_METRICS[selectedIndex];
+  const [signalSheetOpen, setSignalSheetOpen] = useState(false);
+  const metric = heroMetrics[selectedIndex];
   const status = STATUS_META[metric.status];
   const sparkColor = SPARKLINE_COLORS[metric.status];
   const actions = METRIC_ACTIONS[metric.id] ?? [];
+  const signal = CONTROL_TOWER_JOURNEY_SIGNALS.find((s) => s.metricId === metric.id);
 
   return (
-    <div className="space-y-0">
-      {/* Pill tab bar */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-3">
-        {CONTROL_TOWER_HERO_METRICS.map((m, i) => {
-          const s = STATUS_META[m.status];
+    <div className="space-y-0" data-demo="kpi-metrics">
+      {/* Tab bar */}
+      <div className="flex items-center gap-1 border-b border-stone-200 overflow-x-auto">
+        {heroMetrics.map((m, i) => {
           const isActive = i === selectedIndex;
           return (
             <button
               key={m.id}
               onClick={() => setSelectedIndex(i)}
               className={cn(
-                "flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition-colors",
+                "shrink-0 px-4 py-2.5 text-sm font-medium transition-colors border-b-2",
                 isActive
-                  ? "border-stone-700 bg-stone-700 text-white"
-                  : "border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:text-stone-700"
+                  ? "border-[#3d3c3c] text-[#3d3c3c]"
+                  : "border-transparent text-stone-400 hover:text-stone-600"
               )}
             >
-              <span className={cn("h-2 w-2 rounded-full", s.dot)} />
               {METRIC_SHORT_LABELS[m.id] ?? m.label}
             </button>
           );
@@ -350,25 +696,49 @@ function MetricNavigator() {
       </div>
 
       {/* Selected metric panel */}
-      <div className="rounded-2xl border border-stone-200 bg-white shadow-[0_1px_0_rgba(15,23,42,0.02)]">
+      <div className="rounded-none bg-stone-50">
         <div className="flex flex-col md:flex-row">
           {/* Left sidebar */}
-          <div className="flex flex-col gap-4 border-b border-stone-100 px-5 py-5 md:w-48 md:border-b-0 md:border-r">
+          <div className="flex flex-col gap-3 border-b border-stone-100 px-5 py-5 md:w-48 md:border-b-0 md:border-r">
+            {/* Signal badge + link (top) */}
+            {signal && (
+              <button
+                onClick={() => setSignalSheetOpen(true)}
+                className="flex flex-col items-start gap-1 text-left"
+              >
+                <Badge
+                  variant="outline"
+                  className={cn("text-[9px] shrink-0", signal.badgeColor)}
+                >
+                  {signal.badgeLabel}
+                </Badge>
+                <span className="text-[11px] font-medium text-stone-500 hover:text-[#3d3c3c] transition-colors">
+                  {signal.sidebarLabel} →
+                </span>
+              </button>
+            )}
+
+            {/* Divider */}
+            {signal && <div className="border-t border-stone-100" />}
+
+            {/* Severity badge */}
             <Badge
               variant="outline"
               className={cn("w-fit text-[11px]", status.badge)}
             >
               {status.label}
             </Badge>
+
+            {/* Action links */}
             <div className="space-y-2">
               {actions.map((a) => (
-                <a
+                <Link
                   key={a.label}
                   href={a.href}
                   className="block text-[12px] font-medium text-stone-500 transition-colors hover:text-[#3d3c3c]"
                 >
                   {a.label} →
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -423,10 +793,262 @@ function MetricNavigator() {
               </ResponsiveContainer>
             </div>
             <p className="mt-2 text-[12px] text-stone-500">{metric.detail}</p>
+
+            {/* Next Best Actions */}
+            <TabNBASection metricId={metric.id} />
+
+            {/* Journey signal insight card */}
+            {signal && (
+              <div className="mt-4 rounded-xl border border-stone-200 bg-white p-4" style={{ borderLeft: `3px solid ${sparkColor}` }}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Badge
+                        variant="outline"
+                        className={cn("text-[9px]", signal.badgeColor)}
+                      >
+                        {signal.badgeLabel}
+                      </Badge>
+                      <span className="text-[10px] text-stone-400">{signal.timestamp}</span>
+                    </div>
+                    <p className="text-[13px] font-semibold text-[#3d3c3c]">
+                      {signal.title}
+                    </p>
+                    <p className="mt-1 text-[11px] text-stone-500 leading-relaxed">
+                      {signal.description}
+                    </p>
+                    <div className="mt-2 flex items-center gap-3 text-[10px] text-stone-400">
+                      <span>{signal.customerName} · {signal.customerRole}</span>
+                      <span className="rounded-full bg-stone-100 px-2 py-0.5 text-stone-500">{signal.channel}</span>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="shrink-0 text-[11px] h-7"
+                    onClick={() => setSignalSheetOpen(true)}
+                  >
+                    Investigate
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Journey Signal Drill-down Sheet */}
+      {signal && (
+        <JourneySignalSheet
+          signal={signal}
+          open={signalSheetOpen}
+          onOpenChange={setSignalSheetOpen}
+        />
+      )}
     </div>
+  );
+}
+
+function JourneySignalSheet({
+  signal,
+  open,
+  onOpenChange,
+}: {
+  signal: ControlTowerJourneySignal;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const effects = useActionEffects();
+  const router = useRouter();
+  const [sheetExecuted, setSheetExecuted] = useState<Record<string, boolean>>({});
+
+  // Map signal's metricId to get related NBA actions
+  const relatedNBAs = (TAB_NBA_ACTIONS[signal.metricId] ?? []).slice(0, 2);
+
+  const executeSheetAction = useCallback(
+    (action: TabNBAAction) => {
+      switch (action.actionType) {
+        case "resolve_alert":
+          effects.resolveAlert(action.actionPayload.id, (action.actionPayload.type as "approved") ?? "approved");
+          break;
+        case "approve_action":
+          effects.approveAction(action.actionPayload.id, (action.actionPayload.type as "approved") ?? "approved");
+          break;
+        case "apply_recommendation":
+          effects.applyRecommendation(action.actionPayload.id);
+          break;
+        case "activate_redirect":
+          effects.activateReachRedirect();
+          break;
+        case "submit_reorder":
+          effects.submitDemandReorder();
+          break;
+        case "apply_campaign":
+          effects.applyCampaign();
+          break;
+      }
+      setSheetExecuted((prev) => ({ ...prev, [action.id]: true }));
+      toast.success(action.title, { description: `Impact: ${action.impact}` });
+    },
+    [effects]
+  );
+
+  const isSheetActionDone = useCallback(
+    (action: TabNBAAction) => {
+      if (sheetExecuted[action.id]) return true;
+      if (action.actionType === "resolve_alert") return !!effects.resolvedAlerts[action.actionPayload.id];
+      if (action.actionType === "approve_action") return !!effects.approvedActions[action.actionPayload.id];
+      if (action.actionType === "apply_recommendation") return !!effects.appliedRecommendations[action.actionPayload.id];
+      if (action.actionType === "activate_redirect") return effects.reachRedirectActive;
+      if (action.actionType === "submit_reorder") return effects.demandReorderSubmitted;
+      if (action.actionType === "apply_campaign") return effects.campaignApplied;
+      return false;
+    },
+    [effects, sheetExecuted]
+  );
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-[480px] max-h-[85vh] overflow-y-auto p-6">
+        <DialogHeader className="pb-2">
+          <div className="flex items-center gap-2 mb-2">
+            <Badge
+              variant="outline"
+              className={cn("text-[10px]", signal.badgeColor)}
+            >
+              {signal.badgeLabel}
+            </Badge>
+            <span className="text-[11px] text-stone-400">{signal.channel}</span>
+          </div>
+          <DialogTitle className="text-[16px] font-semibold text-[#3d3c3c]">
+            {signal.title}
+          </DialogTitle>
+          <p className="text-[12px] text-stone-500">
+            {signal.customerName} · {signal.customerRole}
+          </p>
+        </DialogHeader>
+
+        <div className="space-y-6 pt-2">
+          {/* Impact */}
+          <div className="rounded-lg border border-stone-100 bg-stone-50/60 p-3">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-400 mb-1">Business Impact</p>
+            <p className="text-[12px] text-[#3d3c3c] leading-relaxed">{signal.impact}</p>
+          </div>
+
+          {/* Narrative */}
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-400 mb-2">Customer Story</p>
+            <p className="text-[12px] text-stone-600 leading-relaxed">
+              {signal.drilldown.narrative}
+            </p>
+          </div>
+
+          {/* NDC / IVA / Omni-channel Explainer */}
+          {signal.drilldown.ndcExplainer && (
+            <div className="rounded-lg border border-blue-100 bg-blue-50/40 p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-blue-400 mb-1">Technology Context</p>
+              <p className="text-[12px] text-stone-600 leading-relaxed">
+                {signal.drilldown.ndcExplainer}
+              </p>
+            </div>
+          )}
+
+          {/* Journey Timeline */}
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-400 mb-2">Journey Steps</p>
+            <div className="space-y-0">
+              {signal.drilldown.journeySteps.map((step, i) => (
+                <div key={i} className="flex items-start gap-3 pb-3 last:pb-0">
+                  <div className="flex flex-col items-center">
+                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-stone-200 text-[10px] font-semibold text-stone-600">
+                      {i + 1}
+                    </div>
+                    {i < signal.drilldown.journeySteps.length - 1 && (
+                      <div className="mt-1 h-4 w-px bg-stone-200" />
+                    )}
+                  </div>
+                  <p className="text-[12px] text-stone-600 pt-0.5">{step}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Next Steps */}
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-400 mb-2">Recommended Actions</p>
+            <div className="space-y-2">
+              {signal.drilldown.nextSteps.map((step, i) => (
+                <div
+                  key={i}
+                  className="flex items-start gap-2 rounded-lg border border-stone-100 bg-white p-2.5"
+                >
+                  <ArrowRight className="mt-0.5 h-3 w-3 shrink-0 text-stone-400" />
+                  <p className="text-[12px] text-stone-600">{step}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Take Action section */}
+          {relatedNBAs.length > 0 && (
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#29707a] mb-2">Take Action</p>
+              <div className="space-y-2">
+                {relatedNBAs.map((action) => {
+                  const done = isSheetActionDone(action);
+                  return (
+                    <div
+                      key={action.id}
+                      className={cn(
+                        "rounded-lg border p-3 transition-all",
+                        done ? "border-emerald-200 bg-emerald-50/50" : "border-[#29707a]/20 bg-[#29707a]/5"
+                      )}
+                    >
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <p className="text-[12px] font-semibold text-[#3d3c3c]">{action.title}</p>
+                        <Badge variant="outline" className="text-[9px] shrink-0 border-[#29707a]/30 bg-[#29707a]/10 text-[#29707a]">
+                          {action.impact}
+                        </Badge>
+                      </div>
+                      <p className="text-[11px] text-stone-500 mb-2">{action.description}</p>
+                      {done ? (
+                        <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-[10px]">
+                          <Check className="h-3 w-3 mr-1" /> Completed
+                        </Badge>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            className="h-7 text-[11px] bg-[#29707a] hover:bg-[#1e5960] text-white"
+                            onClick={() => executeSheetAction(action)}
+                          >
+                            {action.actionType === "resolve_alert" ? "Resolve" : action.actionType === "approve_action" ? "Approve" : "Apply"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-[11px]"
+                            onClick={() => {
+                              onOpenChange(false);
+                              const prompt = encodeURIComponent(
+                                `Investigate: ${action.title}. ${action.description} What actions should I take?`
+                              );
+                              router.push(`/chat?prompt=${prompt}`);
+                            }}
+                          >
+                            Investigate in Chat
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -491,13 +1113,13 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
               row.status === "critical"
                 ? "bg-rose-500"
                 : row.status === "attention"
-                  ? "bg-amber-500"
+                  ? "bg-emerald-500"
                   : "bg-emerald-500";
             const barTextColor =
               row.status === "critical"
                 ? "text-rose-700"
                 : row.status === "attention"
-                  ? "text-amber-700"
+                  ? "text-emerald-700"
                   : "text-emerald-700";
             return (
               <div
@@ -540,7 +1162,7 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
             row.status === "critical"
               ? "bg-rose-400"
               : row.status === "attention"
-                ? "bg-amber-400"
+                ? "bg-emerald-400"
                 : "bg-emerald-400";
 
           return (
@@ -642,7 +1264,7 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
                 row.status === "critical"
                   ? "bg-rose-300"
                   : row.status === "attention"
-                    ? "bg-amber-300"
+                    ? "bg-emerald-300"
                     : "bg-emerald-300";
 
               return (
@@ -780,7 +1402,7 @@ function WidgetRows({ widget }: { widget: ControlTowerWidget }) {
                     row.status === "critical"
                       ? "bg-rose-500"
                       : row.status === "attention"
-                        ? "bg-amber-500"
+                        ? "bg-emerald-500"
                         : "bg-emerald-500",
                   )}
                   style={{ width: `${row.progress}%` }}
@@ -1020,6 +1642,7 @@ function ActionBoard({
   );
 }
 
+
 function DecisionItemCard({
   item,
   decision,
@@ -1069,7 +1692,7 @@ function DecisionItemCard({
             </Badge>
           ) : null}
           {decision.state === "conditional" ? (
-            <Badge variant="outline" className="border-amber-200 bg-amber-50 text-[9px] text-amber-700">
+            <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-[9px] text-emerald-700">
               Conditional
             </Badge>
           ) : null}
@@ -1168,11 +1791,10 @@ function DecisionItemCard({
 
 function AgentFlowCards({ cards }: { cards: ControlTowerAgentFlowCard[] }) {
   const toneStyles = {
-    amber: "border-amber-200 bg-amber-50/70",
+    emerald: "border-emerald-200 bg-emerald-50/70",
     blue: "border-sky-200 bg-sky-50/70",
     violet: "border-violet-200 bg-violet-50/70",
-    emerald: "border-emerald-200 bg-emerald-50/70",
-    stone: "border-stone-200 bg-stone-50/70",
+    slate: "border-stone-200 bg-stone-50/70",
   } as const;
 
   return (
@@ -1579,9 +2201,294 @@ function AlertDecisionDialog({
   );
 }
 
+/* ── Custom Widget System ─────────────────────────────────────────────────── */
+
+type CustomWidgetId =
+  | "revenue-trend"
+  | "channel-mix"
+  | "conversion-funnel"
+  | "top-products"
+  | "market-overview"
+  | "sell-through"
+  | "channel-roas"
+  | "at-risk-skus";
+
+type WidgetCatalogEntry = {
+  id: CustomWidgetId;
+  label: string;
+  description: string;
+  icon: React.ElementType;
+  category: "Performance" | "Commercial" | "Inventory";
+};
+
+const WIDGET_CATALOG: WidgetCatalogEntry[] = [
+  { id: "revenue-trend", label: "Revenue Trend", description: "Daily revenue and orders over the past 14 days", icon: LineChartIcon, category: "Performance" },
+  { id: "channel-mix", label: "Channel Mix", description: "Revenue breakdown by acquisition channel", icon: PieChart, category: "Performance" },
+  { id: "conversion-funnel", label: "Conversion Funnel", description: "Sessions → Add to Cart → Checkout → Purchase", icon: Target, category: "Performance" },
+  { id: "top-products", label: "Top Products", description: "Best-selling products by revenue", icon: ShoppingCart, category: "Inventory" },
+  { id: "market-overview", label: "Market Overview", description: "Spend changes and potential by market", icon: Globe, category: "Commercial" },
+  { id: "sell-through", label: "Product Sell-Through", description: "Predicted sell-through rates with risk flags", icon: Activity, category: "Inventory" },
+  { id: "channel-roas", label: "Channel ROAS", description: "Incrementality ROAS comparison across models", icon: BarChart2, category: "Commercial" },
+  { id: "at-risk-skus", label: "At-Risk SKUs", description: "Products with low stock days remaining", icon: AlertTriangle, category: "Inventory" },
+];
+
+function CustomWidgetRenderer({ widgetId, onRemove }: { widgetId: CustomWidgetId; onRemove: () => void }) {
+  const entry = WIDGET_CATALOG.find((w) => w.id === widgetId);
+  if (!entry) return null;
+
+  return (
+    <Card className="border border-stone-200 bg-white shadow-none rounded-2xl relative group">
+      <button
+        onClick={onRemove}
+        className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity rounded-full p-1 hover:bg-stone-100"
+        title="Remove widget"
+      >
+        <X className="h-3.5 w-3.5 text-stone-400" />
+      </button>
+      <CardContent className="p-5">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-stone-400 mb-3">{entry.label}</p>
+        <CustomWidgetContent widgetId={widgetId} />
+      </CardContent>
+    </Card>
+  );
+}
+
+function CustomWidgetContent({ widgetId }: { widgetId: CustomWidgetId }) {
+  switch (widgetId) {
+    case "revenue-trend":
+      return (
+        <ResponsiveContainer width="100%" height={160}>
+          <AreaChart data={ecommerceDashboardData.dailyPerformance} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id="cw-rev" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={visualizationPalette.teal} stopOpacity={0.2} />
+                <stop offset="100%" stopColor={visualizationPalette.teal} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid {...visualizationGrid} vertical={false} />
+            <XAxis dataKey="day" tick={visualizationSmallTick} tickLine={false} axisLine={false} />
+            <YAxis tick={visualizationSmallTick} tickLine={false} axisLine={false} tickFormatter={(v) => `£${(v / 1000).toFixed(0)}K`} />
+            <Tooltip contentStyle={visualizationTooltipStyle} formatter={(v: number) => [`£${v.toLocaleString()}`, "Revenue"]} />
+            <Area type="monotone" dataKey="revenue" stroke={visualizationPalette.teal} strokeWidth={2} fill="url(#cw-rev)" dot={false} isAnimationActive={false} />
+          </AreaChart>
+        </ResponsiveContainer>
+      );
+
+    case "channel-mix": {
+      const COLORS = [visualizationPalette.teal, visualizationPalette.sky, visualizationPalette.coral, visualizationPalette.sand, visualizationPalette.mint, visualizationPalette.steel];
+      const channels = ecommerceDashboardData.channels.filter((c) => c.revenue > 0);
+      return (
+        <div className="flex items-center gap-4">
+          <ResponsiveContainer width={120} height={120}>
+            <RechartsPieChart>
+              <Pie data={channels} dataKey="revenue" nameKey="channel" cx="50%" cy="50%" innerRadius={30} outerRadius={55} strokeWidth={1} isAnimationActive={false}>
+                {channels.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+              </Pie>
+              <Tooltip contentStyle={visualizationTooltipStyle} formatter={(v: number) => `£${v.toLocaleString()}`} />
+            </RechartsPieChart>
+          </ResponsiveContainer>
+          <div className="space-y-1.5 text-[10px]">
+            {channels.map((c, i) => (
+              <div key={c.channel} className="flex items-center gap-1.5">
+                <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                <span className="text-stone-600">{c.channel}</span>
+                <span className="ml-auto font-medium text-[#3d3c3c]">£{(c.revenue / 1000).toFixed(0)}K</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    case "conversion-funnel":
+      return (
+        <div className="space-y-2">
+          {ecommerceDashboardData.funnel.map((stage, i) => {
+            const maxUsers = ecommerceDashboardData.funnel[0].users;
+            const pct = (stage.users / maxUsers) * 100;
+            return (
+              <div key={stage.stage} className="space-y-0.5">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-stone-600">{stage.stage}</span>
+                  <span className="font-medium text-[#3d3c3c]">{stage.users.toLocaleString()}</span>
+                </div>
+                <div className="h-4 w-full rounded bg-stone-100">
+                  <div className="h-full rounded transition-all" style={{ width: `${pct}%`, backgroundColor: visualizationPalette.teal, opacity: 1 - i * 0.15 }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
+
+    case "top-products":
+      return (
+        <div className="space-y-2">
+          {ecommerceDashboardData.topProducts.slice(0, 4).map((p) => (
+            <div key={p.sku} className="flex items-center justify-between text-[11px]">
+              <div className="min-w-0">
+                <p className="font-medium text-[#3d3c3c] truncate">{p.name}</p>
+                <p className="text-[10px] text-stone-400">{p.sku} · {p.unitsSold.toLocaleString()} sold</p>
+              </div>
+              <div className="text-right shrink-0 ml-3">
+                <p className="font-semibold text-[#3d3c3c]">£{(p.revenue / 1000).toFixed(1)}K</p>
+                <Badge variant="outline" className={cn("text-[9px]", p.stockStatus === "Healthy" ? "border-emerald-200 text-emerald-700" : p.stockStatus === "Low" ? "border-emerald-200 text-emerald-700" : "border-red-200 text-red-700")}>
+                  {p.stockStatus}
+                </Badge>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+
+    case "market-overview":
+      return (
+        <div className="space-y-2">
+          {marketOverview.map((row) => (
+            <div key={row.market} className="flex items-center justify-between text-[11px]">
+              <span className="font-medium text-[#3d3c3c]">{row.market}</span>
+              <div className="flex items-center gap-3">
+                <span className={cn("font-medium", row.positive ? "text-emerald-600" : "text-rose-500")}>{row.spendChange}</span>
+                <span className="text-stone-500">{row.potential}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+
+    case "sell-through":
+      return (
+        <div className="space-y-2">
+          {productSellThrough.map((p) => (
+            <div key={p.name} className="flex items-center justify-between text-[11px]">
+              <div className="min-w-0">
+                <p className="font-medium text-[#3d3c3c] truncate">{p.name}</p>
+                <p className="text-[10px] text-stone-400">{p.orderCount} orders</p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0 ml-3">
+                <span className={cn("font-semibold", p.risk ? "text-rose-500" : "text-[#3d3c3c]")}>{p.predictedSellThrough}</span>
+                {p.risk && <span className="inline-block h-2 w-2 rounded-full bg-rose-400" />}
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+
+    case "channel-roas":
+      return (
+        <div className="flex items-end gap-3 h-32">
+          {incrementalityComparisonBars.map((item) => {
+            const max = Math.max(...incrementalityComparisonBars.map((b) => b.roas));
+            const pct = (item.roas / max) * 100;
+            return (
+              <div key={item.model} className="flex flex-col items-center flex-1 h-full justify-end">
+                <span className="text-[10px] font-semibold text-[#3d3c3c] mb-1">{item.roas}x</span>
+                <div className="w-full rounded-t" style={{ height: `${pct}%`, backgroundColor: item.highlight ? "#d4f542" : visualizationPalette.ink }} />
+                <span className="mt-1.5 text-[9px] text-stone-500 text-center leading-tight">{item.model}</span>
+              </div>
+            );
+          })}
+        </div>
+      );
+
+    case "at-risk-skus":
+      return (
+        <div className="space-y-2">
+          {atRiskProducts.map((p) => (
+            <div key={p.sku} className="flex items-center justify-between rounded-lg border border-stone-100 px-3 py-2">
+              <div>
+                <p className="text-[11px] font-medium text-[#3d3c3c]">{p.name}</p>
+                <p className="text-[10px] text-stone-400">{p.sku}</p>
+              </div>
+              <div className="text-right">
+                <p className={cn("text-[11px] font-semibold", p.risk === "high" ? "text-red-600" : "text-emerald-600")}>{p.daysOfStock} days</p>
+                <p className="text-[10px] text-stone-400">{p.sellThroughRate}% sell-through</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+
+    default:
+      return null;
+  }
+}
+
+function AddWidgetDialog({
+  open,
+  onOpenChange,
+  activeWidgets,
+  onAdd,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  activeWidgets: CustomWidgetId[];
+  onAdd: (id: CustomWidgetId) => void;
+}) {
+  const categories = ["Performance", "Commercial", "Inventory"] as const;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Add Widget</DialogTitle>
+          <p className="text-sm text-stone-500">Choose a widget to add to your Control Tower dashboard.</p>
+        </DialogHeader>
+        <div className="space-y-5 mt-2">
+          {categories.map((cat) => {
+            const items = WIDGET_CATALOG.filter((w) => w.category === cat);
+            return (
+              <div key={cat}>
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-stone-400 mb-2">{cat}</p>
+                <div className="space-y-2">
+                  {items.map((widget) => {
+                    const isActive = activeWidgets.includes(widget.id);
+                    const Icon = widget.icon;
+                    return (
+                      <button
+                        key={widget.id}
+                        disabled={isActive}
+                        onClick={() => { onAdd(widget.id); onOpenChange(false); }}
+                        className={cn(
+                          "flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors",
+                          isActive
+                            ? "border-stone-100 bg-stone-50 opacity-50 cursor-not-allowed"
+                            : "border-stone-200 bg-white hover:border-stone-300 hover:bg-stone-50 cursor-pointer"
+                        )}
+                      >
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-stone-100">
+                          <Icon className="h-4 w-4 text-stone-500" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-semibold text-[#3d3c3c]">{widget.label}</p>
+                          <p className="text-[11px] text-stone-500">{widget.description}</p>
+                        </div>
+                        {isActive ? (
+                          <Badge variant="outline" className="text-[10px] border-stone-200 text-stone-400 shrink-0">Added</Badge>
+                        ) : (
+                          <Plus className="h-4 w-4 text-stone-400 shrink-0" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ── End Custom Widget System ──────────────────────────────────────────── */
+
 function ControlTowerOverview() {
   const { user } = useAuth();
   const router = useRouter();
+  const effects = useActionEffects();
+  const adjustedSummary = effects.getAdjustedSummary();
+  const adjustedHeroMetrics = effects.getAdjustedHeroMetrics();
 
   const [expandedWidgets, setExpandedWidgets] = useState<Record<string, boolean>>(
     Object.fromEntries(
@@ -1591,13 +2498,15 @@ function ControlTowerOverview() {
   const [actions, setActions] = useState(CONTROL_TOWER_ACTIONS);
   const [isGraphDialogOpen, setIsGraphDialogOpen] = useState(false);
   const [highlightedActionIds, setHighlightedActionIds] = useState<Set<string>>(new Set());
+  const [customWidgets, setCustomWidgets] = useState<CustomWidgetId[]>([]);
+  const [addWidgetOpen, setAddWidgetOpen] = useState(false);
 
   const pendingActions = useMemo(
     () => actions.filter((a) => a.state === "pending"),
     [actions],
   );
-  const criticalAlert = CONTROL_TOWER_ALERTS.find((a) => a.severity === "critical");
-  const decliningMetric = CONTROL_TOWER_HERO_METRICS.find(
+  const criticalAlert = adjustedSummary.criticalAlerts > 0 ? CONTROL_TOWER_ALERTS.find((a) => a.severity === "critical" && !effects.resolvedAlerts[a.id]) : undefined;
+  const decliningMetric = adjustedHeroMetrics.find(
     (m) =>
       (m.status === "attention" || m.status === "critical") &&
       m.sparkline.length >= 2 &&
@@ -1659,82 +2568,39 @@ function ControlTowerOverview() {
 
   return (
     <>
-      <div className="mx-auto max-w-[1560px] space-y-5 pb-44">
-        <div className="rounded-2xl border border-stone-200 bg-white px-5 py-5">
+      <div className="space-y-5 pb-44">
+        <div className="px-1 py-2" data-demo="hero-banner">
           {/* Row 1 — Header */}
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-stone-500">
               Business Dashboard
             </p>
             <h1 className="mt-1 text-3xl font-semibold tracking-tight text-[#3d3c3c]">
-              UDP Control Tower
+              Control Tower
             </h1>
             <p className="mt-2 max-w-3xl text-sm text-stone-500">
               A single business-facing dashboard for customer data readiness, campaign activation, demand-informed decisions, and the approvals that connect them.
             </p>
           </div>
 
-          {/* Row 2 — Status + Actions bar */}
-          <div className="mt-4 flex flex-col gap-3 border-t border-stone-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-wrap items-center gap-1.5 text-xs text-stone-400">
-              <span className="inline-flex items-center gap-1 rounded-full bg-[#cc1800]/10 px-2 py-0.5 text-[11px] font-medium text-[#cc1800]">
-                {CONTROL_TOWER_SUMMARY.criticalAlerts} critical
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
-                {CONTROL_TOWER_SUMMARY.highAlerts} high priority
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600">
-                {pendingActions.length} open approvals
-              </span>
-              <span className="text-stone-300">·</span>
-              <span className="inline-flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                {CONTROL_TOWER_SUMMARY.dataFreshness}
-              </span>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                className="rounded-full bg-stone-700 text-white hover:bg-stone-800"
-                onClick={() => {
-                  document.getElementById("action-board")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                }}
-              >
-                <Check className="mr-1 h-4 w-4" />
-                Review open approvals
-                <Badge className="ml-1.5 rounded-full bg-white/20 px-1.5 text-[10px] text-white">
-                  {pendingActions.length}
-                </Badge>
-              </Button>
-              <Button asChild variant="outline" className="rounded-full">
-                <Link href={buildIncrementalityHref({ entry: "udp", create: true })}>
-                  <Sparkles className="mr-1 h-4 w-4" />
-                  Launch experiment
-                </Link>
-              </Button>
-              <Button
-                variant="outline"
-                className="rounded-full"
-                onClick={() => handleCreateGraph()}
-              >
-                <Network className="mr-1 h-4 w-4" />
-                Create graph
-              </Button>
-              <Button asChild variant="outline" className="rounded-full">
-                <Link
-                  href={buildKnowledgeGraphHref({
-                    graphPreset: "full-graph",
-                    graphCenterNodeId: "graph-control-tower",
-                  })}
-                >
-                  Explore live graph
-                </Link>
-              </Button>
-            </div>
+          {/* Actions bar */}
+          <div className="mt-4 flex items-center border-t border-stone-100 pt-4">
+            <Button
+              className="rounded-full bg-stone-700 text-white hover:bg-stone-800"
+              onClick={() => {
+                document.getElementById("action-board")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+            >
+              <Check className="mr-1 h-4 w-4" />
+              Review open approvals
+              <Badge className="ml-1.5 rounded-full bg-white/20 px-1.5 text-[10px] text-white">
+                {pendingActions.length}
+              </Badge>
+            </Button>
           </div>
 
           {/* Needs Attention action strip */}
-          <div className="mt-4 flex flex-wrap items-stretch gap-3">
+          <div className="mt-4 flex flex-wrap items-stretch gap-3" data-demo="needs-attention">
             {criticalAlert && (
               <div className="flex min-w-[220px] flex-1 items-center gap-3 rounded-xl border border-[#cc1800]/20 bg-[#cc1800]/5 px-3.5 py-2.5">
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#cc1800]/10">
@@ -1742,7 +2608,7 @@ function ControlTowerOverview() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-[11px] font-semibold text-[#cc1800]">
-                    {CONTROL_TOWER_SUMMARY.criticalAlerts} critical alert
+                    {adjustedSummary.criticalAlerts} critical alert{adjustedSummary.criticalAlerts !== 1 ? "s" : ""}
                   </p>
                   <p className="truncate text-[11px] text-stone-600">
                     {criticalAlert.title} — {criticalAlert.drilldown?.title ?? "Needs review"}
@@ -1762,12 +2628,12 @@ function ControlTowerOverview() {
             )}
 
             {pendingActions.length > 0 && (
-              <div className="flex min-w-[220px] flex-1 items-center gap-3 rounded-xl border border-amber-200 bg-amber-50/60 px-3.5 py-2.5">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-100">
-                  <Clock className="h-4 w-4 text-amber-700" />
+              <div className="flex min-w-[220px] flex-1 items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/60 px-3.5 py-2.5">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100">
+                  <Clock className="h-4 w-4 text-emerald-700" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[11px] font-semibold text-amber-800">
+                  <p className="text-[11px] font-semibold text-emerald-800">
                     {pendingActions.length} approvals pending
                   </p>
                   <p className="truncate text-[11px] text-stone-600">
@@ -1812,26 +2678,6 @@ function ControlTowerOverview() {
           </div>
         </div>
 
-        {/* Alert summary strip */}
-        <div className="flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2.5">
-          <div className="flex items-center gap-1.5 rounded-full border border-[#ff462d4d] bg-[#ff462d14] px-2.5 py-1 text-[11px] font-semibold text-[#ff462d]">
-            <AlertCircle className="h-3 w-3" />
-            {CONTROL_TOWER_SUMMARY.criticalAlerts} critical
-          </div>
-          <div className="flex items-center gap-1.5 rounded-full border border-[#f59e0b33] bg-[#f59e0b14] px-2.5 py-1 text-[11px] font-semibold text-[#f59e0b]">
-            <AlertTriangle className="h-3 w-3" />
-            {CONTROL_TOWER_SUMMARY.highAlerts} high
-          </div>
-          <div className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-[11px] font-medium text-stone-500">
-            {CONTROL_TOWER_SUMMARY.totalAlerts} alerts
-          </div>
-          <span className="ml-1 text-[11px] text-stone-400">·</span>
-          <span className="inline-flex items-center gap-1 text-[11px] text-stone-400">
-            <Clock className="h-3 w-3" />
-            {CONTROL_TOWER_SUMMARY.dataFreshness}
-          </span>
-        </div>
-
         <MetricNavigator />
 
         <div className="space-y-5">
@@ -1868,7 +2714,120 @@ function ControlTowerOverview() {
             </div>
           </div>
 
-          <div id="action-board">
+          {/* DEMA-style insight summary widgets */}
+          <div className="grid gap-4 xl:grid-cols-2">
+            {/* Product & Inventory Pulse */}
+            <Link href="/udp/dashboard" className="group">
+              <Card className="border border-stone-200 bg-white shadow-none rounded-2xl h-full transition-colors group-hover:border-stone-300">
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-stone-400">Product &amp; Inventory</p>
+                    <ArrowRight className="h-3.5 w-3.5 text-stone-300 group-hover:text-stone-500 transition-colors" />
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <p className="text-lg font-bold text-[#3d3c3c]">{productReportTotals.currentInventory.toLocaleString()}</p>
+                      <p className="text-[10px] text-stone-500">Current inventory (units)</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold text-[#3d3c3c]">${(productReportTotals.grossSales / 1000000).toFixed(1)}M</p>
+                      <p className="text-[10px] text-stone-500">Gross sales (USD)</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold text-[#cc1800]">{atRiskProducts.length}</p>
+                      <p className="text-[10px] text-stone-500">At-risk SKUs</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* MMM Highlights */}
+            <Link href="/mmm" className="group">
+              <Card className="border border-stone-200 bg-white shadow-none rounded-2xl h-full transition-colors group-hover:border-stone-300">
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-stone-400">MMM Highlights</p>
+                    <ArrowRight className="h-3.5 w-3.5 text-stone-300 group-hover:text-stone-500 transition-colors" />
+                  </div>
+                  <p className="text-lg font-bold text-[#3d3c3c]">+${(missedPotentialData.missedPotential / 1000).toFixed(0)}K</p>
+                  <p className="text-[10px] text-stone-500 mb-2">Missed profit potential</p>
+                  <p className="text-xs text-stone-600">
+                    Top rec: <span className="font-medium">{channelRecommendations[1]?.channel}</span> — {channelRecommendations[1]?.recommendation}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Incrementality Snapshot */}
+            <Link href="/udp/incrementality" className="group">
+              <Card className="border border-stone-200 bg-white shadow-none rounded-2xl h-full transition-colors group-hover:border-stone-300">
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-stone-400">Incrementality</p>
+                    <ArrowRight className="h-3.5 w-3.5 text-stone-300 group-hover:text-stone-500 transition-colors" />
+                  </div>
+                  <p className="text-sm font-medium text-[#3d3c3c] mb-1">{experimentSummary.name}</p>
+                  <div className="grid grid-cols-2 gap-3 mt-2">
+                    <div>
+                      <p className="text-lg font-bold text-[#3d3c3c]">{experimentSummary.incrementalEpRoas}</p>
+                      <p className="text-[10px] text-stone-500">Incremental epROAS</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold text-emerald-600">{experimentSummary.incrementalProfit}</p>
+                      <p className="text-[10px] text-stone-500">Incremental profit</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Overall Performance Strip */}
+            <div className="xl:col-span-1">
+              <Card className="border border-stone-200 bg-white shadow-none rounded-2xl h-full">
+                <CardContent className="p-5">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-stone-400 mb-3">Overall Performance</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {performanceHeroKpis.map((kpi) => (
+                      <div key={kpi.label}>
+                        <p className="text-lg font-bold text-[#3d3c3c]">{kpi.value}</p>
+                        <div className="flex items-center gap-1">
+                          <span className={cn("text-[10px] font-medium", kpi.positive ? "text-emerald-600" : "text-rose-500")}>
+                            {kpi.positive ? "+" : ""}{kpi.delta}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-stone-500">{kpi.label}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Custom widgets added by user */}
+          {customWidgets.length > 0 && (
+            <div className="grid gap-4 xl:grid-cols-2">
+              {customWidgets.map((widgetId) => (
+                <CustomWidgetRenderer
+                  key={widgetId}
+                  widgetId={widgetId}
+                  onRemove={() => setCustomWidgets((prev) => prev.filter((id) => id !== widgetId))}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Add widget button */}
+          <button
+            onClick={() => setAddWidgetOpen(true)}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-stone-200 bg-stone-50/40 py-4 text-xs font-medium text-stone-400 transition-colors hover:border-stone-300 hover:bg-stone-50 hover:text-stone-600"
+          >
+            <Plus className="h-4 w-4" />
+            Add widget
+          </button>
+
+          <div id="action-board" data-demo="action-board">
             <ActionBoard
               actions={visibleActions}
               onAction={updateActionState}
@@ -1876,6 +2835,7 @@ function ControlTowerOverview() {
               highlightedIds={highlightedActionIds}
             />
           </div>
+
         </div>
       </div>
 
@@ -1888,6 +2848,13 @@ function ControlTowerOverview() {
           setGraphPrefill(undefined);
           router.push(createKnowledgeGraphInstanceHref(instance.id));
         }}
+      />
+
+      <AddWidgetDialog
+        open={addWidgetOpen}
+        onOpenChange={setAddWidgetOpen}
+        activeWidgets={customWidgets}
+        onAdd={(id) => setCustomWidgets((prev) => [...prev, id])}
       />
     </>
   );

@@ -382,7 +382,7 @@ export const KNOWLEDGE_GRAPH_NODES: KnowledgeGraphNode[] = [
   },
   {
     id: "graph-manchester-dc",
-    label: "Manchester DC",
+    label: "Northeast DC",
     type: "location",
     domain: "demand",
     summary:
@@ -539,7 +539,7 @@ export const KNOWLEDGE_GRAPH_NODES: KnowledgeGraphNode[] = [
     routeLabel: "Open Demand Dashboard",
     attributes: [
       { label: "Condition", value: "Auto-cancel after 5 days" },
-      { label: "Scope", value: "3 Manchester DC SKUs" },
+      { label: "Scope", value: "3 Northeast DC SKUs" },
       { label: "Owner", value: "Supply operator" },
     ],
     tags: ["approval", "reorder", "policy engine"],
@@ -1081,7 +1081,7 @@ export const KNOWLEDGE_GRAPH_NEIGHBORHOODS: KnowledgeGraphNeighborhood[] = [
     id: "demand-stockout-chain",
     title: "Demand Stockout Chain",
     description:
-      "The demand-planning neighborhood linking segment demand, SKU exposure, the supplier chain, Manchester DC, and the operator approval path.",
+      "The demand-planning neighborhood linking segment demand, SKU exposure, the supplier chain, Northeast DC, and the operator approval path.",
     preset: "demand-chain",
     centerNodeId: "graph-demand-alert",
     nodeIds: [

@@ -22,7 +22,7 @@ export type ReportCardType = "weekly-commercial-review";
 
 export type ScenarioId = "profit" | "acquisition" | "retention";
 
-export type ChatPersona = "marketer" | "merchandiser" | "general_user";
+export type ChatPersona = "ecommerce" | "operations" | "general_user";
 
 export type WarningActionId =
   | "warning-return-drivers"
@@ -126,33 +126,33 @@ export interface SuggestedPromptCard {
 export const WELCOME_PROMPT_CARDS: SuggestedPromptCard[] = [
   {
     icon: "BarChart3",
-    label: "Run the weekly commercial review for Monday trading.",
-    boldWords: ["weekly commercial review", "Monday trading"],
-    prompt: "Run weekly commercial review for last week",
+    label: "What is the storm impact on my supply chain?",
+    boldWords: ["storm impact", "supply chain"],
+    prompt: "What is the storm impact on my supply chain?",
   },
   {
     icon: "TrendingUp",
-    label: "Maximize short-term profit by optimizing channel spend.",
-    boldWords: ["short-term profit"],
-    prompt: "How can we maximize short-term profit by optimizing channel spend?",
+    label: "Which SKUs are at critical stockout risk?",
+    boldWords: ["critical stockout"],
+    prompt: "Which SKUs are at critical stockout risk from the blizzard?",
   },
   {
     icon: "Target",
-    label: "Grow new customer acquisition across untapped regions.",
-    boldWords: ["customer acquisition"],
-    prompt: "How can we aggressively grow customer acquisition in new markets?",
+    label: "Show me the emergency reorder plan status.",
+    boldWords: ["emergency reorder"],
+    prompt: "Show me the emergency reorder plan status",
   },
   {
     icon: "ShieldCheck",
-    label: "Defend our high-value segment from churn risk.",
-    boldWords: ["high-value segment", "churn"],
-    prompt: "How do we defend our high-value customers from churn?",
+    label: "What is the cold-chain status across our DCs?",
+    boldWords: ["cold-chain", "DCs"],
+    prompt: "What is the cold-chain status across our DCs?",
   },
   {
     icon: "BarChart3",
-    label: "Compare marketing mix performance across all channels.",
-    boldWords: ["marketing mix"],
-    prompt: "Compare our marketing mix performance across all channels",
+    label: "Run the weekly commercial review.",
+    boldWords: ["weekly commercial review"],
+    prompt: "Run weekly commercial review for last week",
   },
   {
     icon: "AiRecommend",
@@ -162,119 +162,119 @@ export const WELCOME_PROMPT_CARDS: SuggestedPromptCard[] = [
   },
   {
     icon: "PieChart",
-    label: "Generate a performance summary for all campaigns.",
-    boldWords: ["performance summary", "all campaigns"],
-    prompt: "Generate a performance summary for all campaigns",
+    label: "How should we plan for post-storm recovery?",
+    boldWords: ["post-storm", "recovery"],
+    prompt: "How should we plan for post-storm recovery?",
   },
   {
     icon: "Target",
-    label: "Push ads to customer groups that are already performing well.",
-    boldWords: ["customer groups", "performing well"],
-    prompt: "Push advertising campaigns to customer groups that are performing well",
+    label: "Which delivery routes are blocked by road closures?",
+    boldWords: ["delivery routes", "road closures"],
+    prompt: "Which delivery routes are blocked by road closures?",
   },
   {
     icon: "BarChart3",
-    label: "Plan ad spend based on different brand performance.",
-    boldWords: ["brand performance"],
-    prompt: "Plan advertising based on different brand performance",
+    label: "What is the on-time delivery rate in the storm zone?",
+    boldWords: ["on-time delivery", "storm zone"],
+    prompt: "What is the on-time delivery rate in the storm zone?",
   },
 ];
 
-export const WELCOME_HEADING = "What would you like to know?";
+export const WELCOME_HEADING = "Storm Response — What do you need?";
 
 export const CHAT_PERSONA_OPTIONS: { value: ChatPersona; label: string }[] = [
-  { value: "marketer", label: "Marketer" },
-  { value: "merchandiser", label: "Merchandiser" },
+  { value: "ecommerce", label: "E-commerce" },
+  { value: "operations", label: "Operations" },
   { value: "general_user", label: "General user" },
 ];
 
-export const MERCHANDISER_PROMPT_CARDS: SuggestedPromptCard[] = [
+export const OPERATIONS_PROMPT_CARDS: SuggestedPromptCard[] = [
   {
     icon: "BarChart3",
-    label: "Run the weekly commercial review for last week.",
-    boldWords: ["weekly commercial review"],
-    prompt: "Run weekly commercial review for last week",
+    label: "What is the DC operational status across storm zones?",
+    boldWords: ["DC operational status", "storm zones"],
+    prompt: "What is the DC operational status across storm zones?",
   },
   {
     icon: "BarChart3",
-    label: "Which products need immediate merchandising adjustments?",
-    boldWords: ["products", "merchandising"],
-    prompt: "Which products need immediate merchandising adjustments?",
+    label: "Which stores need emergency inventory allocation?",
+    boldWords: ["stores", "emergency inventory"],
+    prompt: "Which stores need emergency inventory allocation?",
   },
   {
     icon: "TrendingUp",
-    label: "Improve category conversion through on-site placement changes.",
-    boldWords: ["category conversion"],
-    prompt: "How can we improve category conversion through placement changes?",
+    label: "What is the cold-chain integrity status at Northeast DC?",
+    boldWords: ["cold-chain", "Northeast DC"],
+    prompt: "What is the cold-chain integrity status at Northeast DC?",
   },
   {
     icon: "Target",
-    label: "Prioritize inventory for top demand segments.",
-    boldWords: ["inventory", "demand"],
-    prompt: "Which inventory should we prioritize for top demand segments?",
+    label: "Prioritize inventory for storm-critical SKUs.",
+    boldWords: ["inventory", "storm-critical"],
+    prompt: "Which inventory should we prioritize for storm-critical SKUs?",
   },
   {
     icon: "PieChart",
-    label: "Summarize sell-through and stock risk this week.",
-    boldWords: ["sell-through", "stock risk"],
-    prompt: "Summarize sell-through and stock risk this week",
+    label: "Summarize fill rate and stock risk across regions.",
+    boldWords: ["fill rate", "stock risk"],
+    prompt: "Summarize fill rate and stock risk across regions",
   },
   {
     icon: "AiRecommend",
-    label: "What merchandising actions is the AI recommending now?",
-    boldWords: ["merchandising actions", "AI"],
-    prompt: "What merchandising actions is the AI recommending now?",
+    label: "What operations actions is the AI recommending now?",
+    boldWords: ["operations actions", "AI"],
+    prompt: "What operations actions is the AI recommending now?",
   },
   {
     icon: "ShieldCheck",
-    label: "Reduce return-prone product issues before peak traffic.",
-    boldWords: ["return-prone", "peak traffic"],
-    prompt: "How do we reduce return-prone product issues before peak traffic?",
+    label: "What is the generator fuel status at storm-impacted DCs?",
+    boldWords: ["generator fuel", "DCs"],
+    prompt: "What is the generator fuel status at storm-impacted DCs?",
   },
   {
     icon: "Target",
-    label: "Check product demand versus stock coverage by category.",
-    boldWords: ["demand", "stock"],
-    prompt: "Check demand of products versus stock coverage",
+    label: "Check transport network availability in storm zones.",
+    boldWords: ["transport network", "storm zones"],
+    prompt: "Check transport network availability in storm zones",
   },
   {
     icon: "TrendingUp",
-    label: "What product types are winning in other businesses and how should we capitalize?",
-    boldWords: ["other businesses", "capitalize"],
-    prompt: "Which product types are performing well in other businesses and what should we capitalize on?",
+    label: "What is the last-mile delivery capacity after road closures?",
+    boldWords: ["last-mile", "road closures"],
+    prompt: "What is the last-mile delivery capacity after road closures?",
   },
 ];
 
 export const GENERAL_USER_PROMPT_CARDS: SuggestedPromptCard[] = [
   {
     icon: "BarChart3",
-    label: "Run the weekly commercial review for Monday trading.",
-    boldWords: ["weekly commercial review", "Monday trading"],
-    prompt: "Run weekly commercial review for last week",
+    label: "Give me a storm impact summary across all operations.",
+    boldWords: ["storm impact", "all operations"],
+    prompt: "Give me a storm impact summary across all operations",
   },
   {
     icon: "BarChart3",
-    label: "Give me a quick business performance summary.",
-    boldWords: ["business performance summary"],
-    prompt: "Give me a quick business performance summary",
+    label: "What is the overall storm readiness status?",
+    boldWords: ["storm readiness"],
+    prompt: "What is the overall storm readiness status?",
   },
   {
     icon: "TrendingUp",
-    label: "Where are the biggest revenue opportunities right now?",
-    boldWords: ["revenue opportunities"],
-    prompt: "Where are the biggest revenue opportunities right now?",
+    label: "Where are the biggest revenue risks from the storm?",
+    boldWords: ["revenue risks", "storm"],
+    prompt: "Where are the biggest revenue risks from the storm?",
   },
   {
     icon: "Target",
-    label: "What actions should we prioritize this week?",
+    label: "What storm response actions should we prioritize?",
     boldWords: ["prioritize"],
-    prompt: "What actions should we prioritize this week?",
+    prompt: "What storm response actions should we prioritize?",
   },
   {
     icon: "PieChart",
-    label: "Show channel and product performance highlights.",
-    boldWords: ["channel", "product performance"],
-    prompt: "Show channel and product performance highlights",
+    label: "Show emergency channel and delivery performance.",
+    boldWords: ["emergency channel", "delivery performance"],
+    prompt: "Show emergency channel and delivery performance",
   },
   {
     icon: "AiRecommend",
@@ -284,9 +284,9 @@ export const GENERAL_USER_PROMPT_CARDS: SuggestedPromptCard[] = [
   },
   {
     icon: "ShieldCheck",
-    label: "Identify the biggest operational risks this week.",
+    label: "What are the critical operational risks right now?",
     boldWords: ["operational risks"],
-    prompt: "Identify the biggest operational risks this week",
+    prompt: "What are the critical operational risks right now?",
   },
 ];
 
@@ -518,8 +518,8 @@ export const GENERAL_USER_NBA_ACTIONS: NBAAction[] = [
 ];
 
 export const ALL_NBA_ACTIONS_BY_PERSONA: Record<ChatPersona, NBAAction[]> = {
-  marketer: ALL_NBA_ACTIONS,
-  merchandiser: MERCHANDISER_NBA_ACTIONS,
+  ecommerce: ALL_NBA_ACTIONS,
+  operations: MERCHANDISER_NBA_ACTIONS,
   general_user: GENERAL_USER_NBA_ACTIONS,
 };
 
@@ -530,8 +530,8 @@ export const SCENARIO_NBAS: Record<ScenarioId, NBAActionId[]> = {
 };
 
 export const PERSONA_SCENARIO_NBAS: Record<ChatPersona, Record<ScenarioId, NBAActionId[]>> = {
-  marketer: SCENARIO_NBAS,
-  merchandiser: {
+  ecommerce: SCENARIO_NBAS,
+  operations: {
     profit: ["rebalance-inventory", "promote-bundles"],
     acquisition: ["promote-bundles", "optimize-pdp"],
     retention: ["optimize-pdp", "rebalance-inventory"],
@@ -1799,32 +1799,32 @@ export const EXECUTION_ARTIFACTS: Record<NBAActionId, ScenarioArtifactDef[]> = {
 };
 
 const PERSONA_WELCOME_PROMPTS: Record<ChatPersona, SuggestedPromptCard[]> = {
-  marketer: WELCOME_PROMPT_CARDS,
-  merchandiser: MERCHANDISER_PROMPT_CARDS,
+  ecommerce: WELCOME_PROMPT_CARDS,
+  operations: OPERATIONS_PROMPT_CARDS,
   general_user: GENERAL_USER_PROMPT_CARDS,
 };
 
 const PERSONA_SCENARIO_META: Record<ChatPersona, Record<ScenarioId, { label: string; description: string; risk: string; outcome: string; budget: string }>> = {
-  marketer: SCENARIO_META,
-  merchandiser: MERCHANDISER_SCENARIO_META,
+  ecommerce: SCENARIO_META,
+  operations: MERCHANDISER_SCENARIO_META,
   general_user: GENERAL_USER_SCENARIO_META,
 };
 
 const PERSONA_SCENARIO_FLOWS: Record<ChatPersona, Record<ScenarioId, ChatFlow>> = {
-  marketer: SCENARIO_FLOWS,
-  merchandiser: MERCHANDISER_SCENARIO_FLOWS,
+  ecommerce: SCENARIO_FLOWS,
+  operations: MERCHANDISER_SCENARIO_FLOWS,
   general_user: GENERAL_USER_SCENARIO_FLOWS,
 };
 
 const PERSONA_CHAT_FLOWS: Record<ChatPersona, ChatFlow[]> = {
-  marketer: CHAT_FLOWS,
-  merchandiser: MERCHANDISER_CHAT_FLOWS,
+  ecommerce: CHAT_FLOWS,
+  operations: MERCHANDISER_CHAT_FLOWS,
   general_user: GENERAL_USER_CHAT_FLOWS,
 };
 
 const PERSONA_DEFAULT_FLOW: Record<ChatPersona, ChatFlow> = {
-  marketer: DEFAULT_FLOW,
-  merchandiser: MERCHANDISER_DEFAULT_FLOW,
+  ecommerce: DEFAULT_FLOW,
+  operations: MERCHANDISER_DEFAULT_FLOW,
   general_user: GENERAL_USER_DEFAULT_FLOW,
 };
 

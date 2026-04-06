@@ -17,9 +17,11 @@ import {
 export function NewCampaignDialog({
   open,
   onOpenChange,
+  defaultName,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
+  defaultName?: string;
 }) {
   const [name, setName] = useState("");
   const [channel, setChannel] = useState("");
@@ -31,7 +33,7 @@ export function NewCampaignDialog({
 
   useEffect(() => {
     if (!open) return;
-    setName("");
+    setName(defaultName ?? "");
     setChannel("");
     setBudget("");
     setStartDate("");

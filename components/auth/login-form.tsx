@@ -98,7 +98,7 @@ export function LoginForm() {
       </CardContent>
       <CardFooter className="flex flex-col space-y-2">
         <div className="text-xs text-muted-foreground text-center pt-2 border-t">
-          Demo accounts: superadmin, admin, mara_marketing, agent, platform (password: password)
+          Demo accounts: planning_mgr, supply_chain, ecommerce_dir, store_inv, logistics, pricing (password: password)
         </div>
       </CardFooter>
     </Card>
