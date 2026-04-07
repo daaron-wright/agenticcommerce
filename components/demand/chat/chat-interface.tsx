@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import {
-  Send, Loader2, CircleDot, TrendingUp, TrendingDown, Target, Activity,
+  Send, Loader2, CircleDot, TrendingUp, TrendingDown, Target,
   ShieldCheck, Tag, BarChart3, PieChart, ChevronDown,
   Play, X, RefreshCw, Zap, CloudSun, Workflow,
 } from "lucide-react";
@@ -335,10 +335,9 @@ export function ChatInterface() {
 
   // ── LLM streaming (real API) ──────────────────────────────────────────────
   const callLLMAndStream = useCallback(
-    async (flow: ChatFlow, userMessage: string) => {
+    async (flow: ChatFlow | null, userMessage: string) => {
       // Execution and scenario flows stay scripted
-      const isScriptedFlow = flow.agentSteps.length > 0 || (flow.snapshots?.length ?? 0) > 0;
-      if (isScriptedFlow) {
+      if (flow && (flow.agentSteps.length > 0 || (flow.snapshots?.length ?? 0) > 0)) {
         simulateResponse(flow);
         return;
       }

@@ -1,62 +1,59 @@
 /**
  * ElevenLabs Text-to-Speech client service.
- * Streams audio from the ElevenLabs REST API and plays it via the browser.
+ * Requests audio from the app's server-side proxy and plays it via the browser.
  */
-
-const DEFAULT_VOICE_ID = "21m00Tcm4TlvDq8ikWAM"; // Rachel
 
 let currentAudio: HTMLAudioElement | null = null;
 let currentObjectUrl: string | null = null;
+let currentRequestController: AbortController | null = null;
 
-function getApiKey(): string | null {
-  return typeof window !== "undefined"
-    ? (process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY ?? null)
-    : null;
-}
+export async function isElevenLabsConfigured(): Promise<boolean> {
+  try {
+    const res = await fetch("/api/tts", {
+      method: "GET",
+      cache: "no-store",
+    });
 
-function getVoiceId(): string {
-  return (
-    (typeof window !== "undefined" && process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID) ||
-    DEFAULT_VOICE_ID
-  );
-}
+    if (!res.ok) {
+      return false;
+    }
 
-export function isElevenLabsConfigured(): boolean {
-  return !!getApiKey();
+    const data = (await res.json()) as { configured?: boolean };
+    return !!data.configured;
+  } catch {
+    return false;
+  }
 }
 
 export async function speak(text: string): Promise<void> {
-  stop(); // stop any previous playback
+  stop(); // stop any previous playback or in-flight request
 
-  const apiKey = getApiKey();
-  if (!apiKey) {
-    console.warn("[ElevenLabs] No API key configured — skipping TTS playback.");
-    return;
-  }
+  const controller = new AbortController();
+  currentRequestController = controller;
 
-  const voiceId = getVoiceId();
-
-  const res = await fetch(
-    `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`,
-    {
+  let res: Response;
+  try {
+    res = await fetch("/api/tts", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "xi-api-key": apiKey,
       },
-      body: JSON.stringify({
-        text,
-        model_id: "eleven_turbo_v2",
-        voice_settings: {
-          stability: 0.5,
-          similarity_boost: 0.75,
-        },
-      }),
-    },
-  );
+      body: JSON.stringify({ text }),
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if ((error as Error).name !== "AbortError") {
+      console.error("[ElevenLabs] TTS request failed.");
+    }
+    return;
+  } finally {
+    if (currentRequestController === controller) {
+      currentRequestController = null;
+    }
+  }
 
   if (!res.ok) {
-    console.error("[ElevenLabs] TTS request failed:", res.status, await res.text());
+    console.error("[ElevenLabs] TTS request failed:", res.status);
     return;
   }
 
@@ -84,6 +81,11 @@ export async function speak(text: string): Promise<void> {
 }
 
 export function stop(): void {
+  if (currentRequestController) {
+    currentRequestController.abort();
+    currentRequestController = null;
+  }
+
   if (currentAudio) {
     currentAudio.pause();
     currentAudio.currentTime = 0;

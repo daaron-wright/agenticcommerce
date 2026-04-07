@@ -2,6 +2,8 @@
 
 This project provides a UI for interacting with the Omnis AI system through the API Gateway.
 
+For migrating this interface into another repository, see [`UI_PORTING.md`](UI_PORTING.md).
+
 ## Features
 
 - Natural language interface to the Omnis system

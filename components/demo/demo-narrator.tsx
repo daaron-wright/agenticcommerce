@@ -43,6 +43,8 @@ const DemoNarratorContext = createContext<DemoNarratorContextValue>({
 
 export const useDemoNarrator = () => useContext(DemoNarratorContext);
 
+const DEMO_TOGGLE_STORAGE_KEY = "agentic-commerce-demo-toggle-visible";
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function highlightTarget(selector: string | undefined) {
@@ -108,7 +110,16 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [panelVisible, setPanelVisible] = useState(false);
-  const [showButton, setShowButton] = useState(true);
+  const [showButton, setShowButton] = useState(() => {
+    if (typeof window === "undefined") {
+      return true;
+    }
+
+    const storedValue = window.localStorage.getItem(DEMO_TOGGLE_STORAGE_KEY);
+    return storedValue === null ? true : storedValue === "true";
+  });
+  const [voiceoverAvailable, setVoiceoverAvailable] = useState(false);
+  const [voiceoverChecked, setVoiceoverChecked] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const abortRef = useRef(false);
@@ -121,7 +132,28 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
   }, [pathname]);
 
   const stage = DEMO_STAGES[currentStage];
-  const hasApiKey = isElevenLabsConfigured();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadVoiceoverAvailability = async () => {
+      const configured = await isElevenLabsConfigured();
+      if (isMounted) {
+        setVoiceoverAvailable(configured);
+        setVoiceoverChecked(true);
+      }
+    };
+
+    void loadVoiceoverAvailability();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(DEMO_TOGGLE_STORAGE_KEY, String(showButton));
+  }, [showButton]);
 
   // ── Play narration for current stage ────────────────────────────────────
 
@@ -154,7 +186,7 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
       setTimeout(tryHighlight, 1400);
 
       // Play TTS
-      if (hasApiKey) {
+      if (voiceoverAvailable) {
         setIsLoading(true);
         setIsPlaying(true);
         try {
@@ -168,7 +200,7 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
         }
       }
     },
-    [router, hasApiKey],
+    [router, voiceoverAvailable],
   );
 
   // ── Start / Stop ───────────────────────────────────────────────────────
@@ -307,7 +339,7 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
           <div className="flex items-center justify-between px-4 pt-3 pb-0">
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1">
-                {hasApiKey ? (
+                {voiceoverAvailable ? (
                   <Volume2 className="h-3 w-3 text-emerald-600" />
                 ) : (
                   <VolumeX className="h-3 w-3 text-stone-400" />
@@ -342,9 +374,9 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
             <p className="text-xs text-stone-600 leading-relaxed line-clamp-3">
               {stage.narration}
             </p>
-            {!hasApiKey && (
+            {voiceoverChecked && !voiceoverAvailable && (
               <p className="text-[10px] text-stone-400 mt-2 italic">
-                Set NEXT_PUBLIC_ELEVENLABS_API_KEY for voice narration
+                Set ELEVENLABS_API_KEY and ELEVENLABS_VOICE_ID in .env.local for voice narration
               </p>
             )}
           </div>
@@ -379,7 +411,7 @@ export function DemoNarratorProvider({ children }: { children: React.ReactNode }
               >
                 <ChevronLeft className="h-3 w-3" /> Back
               </button>
-              {hasApiKey && (
+              {voiceoverAvailable && (
                 <button
                   onClick={togglePlayPause}
                   className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-700 px-2 py-1 rounded-md hover:bg-stone-100 transition-colors"
