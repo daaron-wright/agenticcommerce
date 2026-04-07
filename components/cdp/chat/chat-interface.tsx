@@ -69,6 +69,12 @@ function nextId() {
   return `msg-${++messageCounter}-${Date.now()}`;
 }
 
+function getApiPersona(persona: ChatPersona): "marketer" | "merchandiser" | "general_user" {
+  if (persona === "ecommerce") return "marketer";
+  if (persona === "operations") return "merchandiser";
+  return "general_user";
+}
+
 // ── Session persistence helpers ─────────────────────────────────────────────
 
 const CHAT_STORAGE_KEY = "kyn-chat-history";
@@ -295,7 +301,7 @@ export function ChatInterface({
   const { user } = useAuth();
   const { createExperiment } = useIncrementalityExperiments();
   const canExecuteAI = user ? hasPermissionForUser(user, "ai_action_execute") : false;
-  const [activePersona, setActivePersona] = useState<ChatPersona>("marketer");
+  const [activePersona, setActivePersona] = useState<ChatPersona>("ecommerce");
 
   const personaStorageKey = user
     ? `${CHAT_PERSONA_STORAGE_PREFIX}:${user.username}`
@@ -309,10 +315,10 @@ export function ChatInterface({
 
   useEffect(() => {
     if (!user) {
-      setActivePersona("marketer");
+      setActivePersona("ecommerce");
       return;
     }
-    const defaultPersona = user.defaultChatPersona ?? "marketer";
+    const defaultPersona = user.defaultChatPersona ?? "ecommerce";
     try {
       const storedPersona = sessionStorage.getItem(personaStorageKey) as ChatPersona | null;
       if (storedPersona && CHAT_PERSONA_OPTIONS.some((option) => option.value === storedPersona)) {
@@ -769,11 +775,10 @@ export function ChatInterface({
   // ── LLM streaming (real API) ────────────────────────────────────────────
 
   const callLLMAndStream = useCallback(
-    async (flow: ChatFlow, userMessage: string) => {
+    async (flow: ChatFlow | null, userMessage: string) => {
       // Execution and scenario flows have agent steps / snapshots — delegate to
       // simulateResponse so artifacts, NBA cards, and execution previews all work.
-      const isScriptedFlow = flow.agentSteps.length > 0 || (flow.snapshots?.length ?? 0) > 0;
-      if (isScriptedFlow) {
+      if (flow && (flow.agentSteps.length > 0 || (flow.snapshots?.length ?? 0) > 0)) {
         simulateResponse(flow);
         return;
       }
@@ -818,7 +823,7 @@ export function ChatInterface({
           body: JSON.stringify({
             messages: apiMessages,
             userRole: user?.role ?? "general",
-            persona: activePersona,
+            persona: getApiPersona(activePersona),
           }),
         });
 

@@ -19,7 +19,7 @@ const notoKufi = Noto_Kufi_Arabic({
 });
 
 export const metadata = {
-  title: "CDP Workflow Platform",
+  title: "Agentic Commerce Platform",
   description: "Multi-Agent Customer Data Platform",
 };
 

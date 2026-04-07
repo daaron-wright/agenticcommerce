@@ -1822,12 +1822,6 @@ const PERSONA_CHAT_FLOWS: Record<ChatPersona, ChatFlow[]> = {
   general_user: GENERAL_USER_CHAT_FLOWS,
 };
 
-const PERSONA_DEFAULT_FLOW: Record<ChatPersona, ChatFlow> = {
-  ecommerce: DEFAULT_FLOW,
-  operations: MERCHANDISER_DEFAULT_FLOW,
-  general_user: GENERAL_USER_DEFAULT_FLOW,
-};
-
 // ── Helpers to identify scenario flows ───────────────────────────────────────
 
 /** Returns the ScenarioId if a flow is a scenario flow, or null */
@@ -1983,7 +1977,7 @@ export function getAllNBAsForPersona(persona: ChatPersona): NBAAction[] {
   return ALL_NBA_ACTIONS_BY_PERSONA[persona] ?? ALL_NBA_ACTIONS;
 }
 
-export function getNBAsByScenario(scenarioId: ScenarioId, persona: ChatPersona = "marketer"): NBAAction[] {
+export function getNBAsByScenario(scenarioId: ScenarioId, persona: ChatPersona = "ecommerce"): NBAAction[] {
   const ids = PERSONA_SCENARIO_NBAS[persona][scenarioId];
   const actions = ALL_NBA_ACTIONS_BY_PERSONA[persona];
   return actions.filter((action) => ids.includes(action.id));
@@ -2022,7 +2016,7 @@ export function getWarningActionPrompt(actionId: WarningActionId): string {
   return WARNING_ACTION_PROMPTS[actionId];
 }
 
-export function matchFlowForPersona(input: string, persona: ChatPersona): ChatFlow {
+export function matchFlowForPersona(input: string, persona: ChatPersona): ChatFlow | null {
   const lower = input.toLowerCase().trim();
 
   for (const flow of REVIEW_REQUEST_FLOWS) {
@@ -2043,9 +2037,9 @@ export function matchFlowForPersona(input: string, persona: ChatPersona): ChatFl
       return flow;
     }
   }
-  return PERSONA_DEFAULT_FLOW[persona] ?? DEFAULT_FLOW;
+  return null;
 }
 
-export function matchFlow(input: string): ChatFlow {
-  return matchFlowForPersona(input, "marketer");
+export function matchFlow(input: string): ChatFlow | null {
+  return matchFlowForPersona(input, "ecommerce");
 }

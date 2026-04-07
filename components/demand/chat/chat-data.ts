@@ -892,12 +892,12 @@ export function getNBAIdFromFlow(flow: ChatFlow): NBAActionId | null {
   return null;
 }
 
-export function matchFlow(input: string): ChatFlow {
+export function matchFlow(input: string): ChatFlow | null {
   const lower = input.toLowerCase().trim();
   for (const flow of CHAT_FLOWS) {
     if (flow.triggers.some((t) => lower.includes(t))) {
       return flow;
     }
   }
-  return DEFAULT_FLOW;
+  return null;
 }
